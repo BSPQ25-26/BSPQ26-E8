@@ -6,9 +6,6 @@ CREATE TABLE IF NOT EXISTS user_problem_resolution_status (
   problem_id UUID NOT NULL REFERENCES problems(id) ON DELETE CASCADE,
   status resolution_status NOT NULL DEFAULT 'not_started',
   CONSTRAINT user_problem_resolution_status_unique UNIQUE (user_id, problem_id),
-  CONSTRAINT user_problem_runtime_ck CHECK (best_runtime_ms IS NULL OR best_runtime_ms > 0),
-  CONSTRAINT user_problem_memory_ck CHECK (best_memory_mb IS NULL OR best_memory_mb > 0),
-  CONSTRAINT user_problem_attempt_count_ck CHECK (attempt_count >= 0)
 );
 
 CREATE TABLE IF NOT EXISTS submissions (

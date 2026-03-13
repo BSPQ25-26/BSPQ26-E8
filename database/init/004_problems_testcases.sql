@@ -15,11 +15,7 @@ CREATE TABLE IF NOT EXISTS problems (
   language_compilation_config JSONB NOT NULL DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT problems_slug_format_ck CHECK (slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'),
-  CONSTRAINT problems_sample_io_obj_ck CHECK (jsonb_typeof(sample_io) = 'array'),
-  CONSTRAINT problems_lang_cfg_obj_ck CHECK (jsonb_typeof(language_compilation_config) = 'object'),
-  CONSTRAINT problems_time_limit_ck CHECK (time_limit_ms > 0),
-  CONSTRAINT problems_memory_limit_ck CHECK (memory_limit_mb > 0),
-  CONSTRAINT problems_acceptance_ck CHECK (acceptance_rate >= 0 AND acceptance_rate <= 100)
+  CONSTRAINT problems_lang_cfg_obj_ck CHECK (jsonb_typeof(language_compilation_config) = 'object')
 );
 
 CREATE TABLE IF NOT EXISTS problem_languages (
@@ -33,11 +29,10 @@ CREATE TABLE IF NOT EXISTS problem_languages (
 
 CREATE TABLE IF NOT EXISTS test_cases (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  problem_id UUID NOT NULL REFERENCES problems(id) ON DELETE CASCADE,
+  problem_id UUID NOT NULL UNIQUE REFERENCES problems(id) ON DELETE CASCADE,
   input_data TEXT NOT NULL,
   expected_output TEXT NOT NULL,
-  is_sample BOOLEAN NOT NULL DEFAULT FALSE,
-  UNIQUE (problem_id, ordinal)
+  is_sample BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 COMMIT;
