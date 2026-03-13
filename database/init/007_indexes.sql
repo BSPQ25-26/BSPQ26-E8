@@ -4,10 +4,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_problem_languages_single_default
   ON problem_languages (problem_id)
   WHERE is_default;
 
-CREATE INDEX IF NOT EXISTS idx_problems_browse
-  ON problems (status, difficulty, published_at DESC)
-  WHERE deleted_at IS NULL;
-
 CREATE INDEX IF NOT EXISTS idx_test_cases_problem_sample
   ON test_cases (problem_id, is_sample);
 
