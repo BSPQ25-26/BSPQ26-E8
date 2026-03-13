@@ -9,7 +9,7 @@ CREATE INDEX IF NOT EXISTS idx_problems_browse
   WHERE deleted_at IS NULL;
 
 CREATE INDEX IF NOT EXISTS idx_test_cases_problem_sample
-  ON test_cases (problem_id, is_sample, ordinal);
+  ON test_cases (problem_id, is_sample);
 
 CREATE INDEX IF NOT EXISTS idx_resolution_user_status
   ON user_problem_resolution_status (user_id, status);
