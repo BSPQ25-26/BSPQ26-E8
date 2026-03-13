@@ -1,38 +1,31 @@
 BEGIN;
 
 DROP TRIGGER IF EXISTS trg_users_updated_at ON users;
-CREATE TRIGGER trg_users_updated_at
-BEFORE UPDATE ON users
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+-- Trigger creation for users.updated_at removed to avoid runtime errors
+-- when the users table does not define an updated_at column.
 
 DROP TRIGGER IF EXISTS trg_languages_updated_at ON languages;
-CREATE TRIGGER trg_languages_updated_at
-BEFORE UPDATE ON languages
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+-- Trigger creation for languages.updated_at removed to avoid runtime errors
+-- when the languages table does not define an updated_at column.
 
 DROP TRIGGER IF EXISTS trg_problems_updated_at ON problems;
-CREATE TRIGGER trg_problems_updated_at
-BEFORE UPDATE ON problems
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+-- Trigger creation for problems.updated_at removed to avoid runtime errors
+-- when the problems table does not define an updated_at column.
 
 DROP TRIGGER IF EXISTS trg_problem_languages_updated_at ON problem_languages;
-CREATE TRIGGER trg_problem_languages_updated_at
-BEFORE UPDATE ON problem_languages
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+-- Trigger creation for problem_languages.updated_at removed to avoid runtime errors
+-- when the problem_languages table does not define an updated_at column.
 
 DROP TRIGGER IF EXISTS trg_test_cases_updated_at ON test_cases;
-CREATE TRIGGER trg_test_cases_updated_at
-BEFORE UPDATE ON test_cases
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+-- Trigger creation for test_cases.updated_at removed to avoid runtime errors
+-- when the test_cases table does not define an updated_at column.
 
 DROP TRIGGER IF EXISTS trg_user_problem_resolution_status_updated_at ON user_problem_resolution_status;
-CREATE TRIGGER trg_user_problem_resolution_status_updated_at
-BEFORE UPDATE ON user_problem_resolution_status
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+-- Trigger creation for user_problem_resolution_status.updated_at removed
+-- to avoid runtime errors when the table does not define an updated_at column.
 
 DROP TRIGGER IF EXISTS trg_tags_updated_at ON tags;
-CREATE TRIGGER trg_tags_updated_at
-BEFORE UPDATE ON tags
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+-- Trigger creation for tags.updated_at removed to avoid runtime errors
+-- when the tags table does not define an updated_at column.
 
 COMMIT;
