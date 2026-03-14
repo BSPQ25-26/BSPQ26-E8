@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS problem_languages (
 
 CREATE TABLE IF NOT EXISTS test_cases (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  problem_id UUID NOT NULL UNIQUE REFERENCES problems(id) ON DELETE CASCADE,
+  problem_id UUID NOT NULL REFERENCES problems(id) ON DELETE CASCADE,
   input_data TEXT NOT NULL,
   expected_output TEXT NOT NULL,
   is_sample BOOLEAN NOT NULL DEFAULT FALSE
