@@ -2,6 +2,7 @@ package com.bspq26e8.backend.user;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -15,8 +16,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @DataJpaTest
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Tag("integration")
 class UserRepositoryIntegrationTest {
 
+    @SuppressWarnings("resource")
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("test_db")
@@ -41,11 +44,5 @@ class UserRepositoryIntegrationTest {
 
         assertTrue(userRepository.findByUsername("john_doe").isPresent());
         assertTrue(userRepository.existsByEmail("john@example.com"));
-    }
-
-    //destructor
-    @Override
-    protected void finalize() throws Throwable {
-        postgres.stop();
     }
 }

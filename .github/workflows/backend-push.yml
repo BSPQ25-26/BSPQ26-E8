@@ -1,0 +1,41 @@
+name: Backend Push CI (Test A)
+
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  job-a-unit:
+    name: Job A - Unit And Coverage
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: src/backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+
+      - name: Run unit tests and coverage gate
+        run: gradle clean test jacocoTestCoverageVerification jacocoTestReport --no-daemon
+
+      - name: Upload unit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-unit-test-reports
+          path: |
+            src/backend/build/reports/tests/test
+            src/backend/build/reports/jacoco/test/html

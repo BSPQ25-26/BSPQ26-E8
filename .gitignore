@@ -27,4 +27,4 @@ replay_pid*
 /target
 .gradle/
 **/build/
-.env.example
+.env
