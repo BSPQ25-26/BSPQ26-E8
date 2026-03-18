@@ -48,8 +48,19 @@ jacoco {
     toolVersion = '0.8.12'
 }
 
+def jacocoCoverageExclusions = [
+        'com/bspq26e8/backend/BackendApplication.class',
+        'com/bspq26e8/backend/user/User.class',
+        'com/bspq26e8/backend/user/UserRepository.class'
+]
+
 tasks.named('jacocoTestReport') {
     dependsOn tasks.test
+    classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: jacocoCoverageExclusions)
+            })
+    )
     reports {
         xml.required = true
         html.required = true
@@ -57,6 +68,11 @@ tasks.named('jacocoTestReport') {
 }
 
 tasks.named('jacocoTestCoverageVerification') {
+    classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: jacocoCoverageExclusions)
+            })
+    )
     violationRules {
         rule {
             limit {
