@@ -24,7 +24,8 @@ class UserRepositoryIntegrationTest {
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("test_db")
             .withUsername("test")
-            .withPassword("test");
+            .withPassword("test")
+            .withInitScript("testcontainers-init.sql");
 
     @DynamicPropertySource
     static void overrideProperties(DynamicPropertyRegistry registry) {
