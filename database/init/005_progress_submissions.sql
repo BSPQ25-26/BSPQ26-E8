@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS user_problem_resolution_status (
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   problem_id UUID NOT NULL REFERENCES problems(id) ON DELETE CASCADE,
   status resolution_status NOT NULL DEFAULT 'not_started',
-  CONSTRAINT user_problem_resolution_status_unique UNIQUE (user_id, problem_id),
+  CONSTRAINT user_problem_resolution_status_unique UNIQUE (user_id, problem_id)
 );
 
 CREATE TABLE IF NOT EXISTS submissions (

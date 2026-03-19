@@ -1,38 +1,32 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BSPQ26-E8 Frontend</title>
-  <style>
-    body {
-      font-family: Segoe UI, sans-serif;
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-      color: #1f2937;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode Clone - BSPQ26-E8</title>
 
-    .card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-      text-align: center;
-      max-width: 520px;
-    }
-
-    h1 {
-      margin-top: 0;
-    }
-  </style>
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <main class="card">
-    <h1>Frontend Container Ready</h1>
-    <p>This is a placeholder frontend.</p>
-  </main>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#/" class="nav-brand">LeetCode Clone</a>
+            <ul class="nav-menu">
+                <li><a href="#/" class="nav-link">Problems</a></li>
+                <li><a href="#/problems/create" class="nav-link">Create Problem</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main App Container - Views will be rendered here -->
+    <div id="app" class="app-container">
+        <!-- Loading state -->
+        <div class="loading">Loading...</div>
+    </div>
+
+    <!-- Scripts - Using ES6 Modules -->
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
