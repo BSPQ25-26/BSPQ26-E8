@@ -1,0 +1,22 @@
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email CITEXT NOT NULL UNIQUE,
+  username CITEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+  CONSTRAINT users_username_len_ck CHECK (char_length(username) BETWEEN 3 AND 30)
+);
+
+CREATE TABLE IF NOT EXISTS languages (
+  id BIGSERIAL PRIMARY KEY,
+  code VARCHAR(200) NOT NULL UNIQUE,
+  name VARCHAR(50) NOT NULL UNIQUE,
+  compile_cmd TEXT,
+  run_cmd TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+COMMIT;

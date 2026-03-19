@@ -25,3 +25,7 @@ replay_pid*
 
 #exclude contents of /target folder
 /target
+.gradle/
+**/build/
+.env
+.idea/
