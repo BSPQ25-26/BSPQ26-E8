@@ -1,4 +1,4 @@
-package com.bspq26e8.backend.user;
+package com.bspq26e8.backend.user.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,14 +16,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "email", nullable = false, unique = true, columnDefinition = "citext")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "username", nullable = false, unique = true, columnDefinition = "citext")
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
+
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive = true;
+
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified = false;
 
     protected User() {
     }
@@ -48,5 +54,13 @@ public class User {
 
     public String getPasswordHash() {
         return passwordHash;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
     }
 }

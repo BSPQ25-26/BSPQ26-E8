@@ -1,4 +1,4 @@
-package com.bspq26e8.backend.user;
+package com.bspq26e8.backend.user.service;
 
 import org.springframework.stereotype.Service;
 

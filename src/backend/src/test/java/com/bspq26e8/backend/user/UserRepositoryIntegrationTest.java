@@ -2,6 +2,8 @@ package com.bspq26e8.backend.user;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.bspq26e8.backend.user.entity.User;
+import com.bspq26e8.backend.user.repository.UserRepository;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
