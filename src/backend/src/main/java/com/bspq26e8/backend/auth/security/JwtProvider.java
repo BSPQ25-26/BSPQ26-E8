@@ -3,17 +3,15 @@ package com.bspq26e8.backend.auth.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import java.util.UUID;
-import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class JwtProvider {
 
-    @Value("${jwt.secret:mySecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm}")
+    @Value("${jwt.secret:mySecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm12345678}")
     private String jwtSecret;
 
     @Value("${jwt.expiration:3600000}")
@@ -27,12 +25,12 @@ public class JwtProvider {
      */
     public String generateAccessToken(UUID userId, String email, String username) {
         return Jwts.builder()
-            .subject(userId.toString())
+            .setSubject(userId.toString())
             .claim("email", email)
             .claim("username", username)
-            .issuedAt(new Date())
-            .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+            .signWith(SignatureAlgorithm.HS256, jwtSecret.getBytes())
             .compact();
     }
 
@@ -41,18 +39,11 @@ public class JwtProvider {
      */
     public String generateRefreshToken(UUID userId) {
         return Jwts.builder()
-            .subject(userId.toString())
-            .issuedAt(new Date())
-            .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMs))
-            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+            .setSubject(userId.toString())
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMs))
+            .signWith(SignatureAlgorithm.HS256, jwtSecret.getBytes())
             .compact();
-    }
-
-    /**
-     * Get signing key from secret
-     */
-    private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
     /**
@@ -60,9 +51,8 @@ public class JwtProvider {
      */
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
+            Jwts.parser()
+                .setSigningKey(jwtSecret.getBytes())
                 .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
@@ -74,9 +64,8 @@ public class JwtProvider {
      * Get user ID from token
      */
     public UUID getUserIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
-            .build()
+        Claims claims = Jwts.parser()
+            .setSigningKey(jwtSecret.getBytes())
             .parseClaimsJws(token)
             .getBody();
         return UUID.fromString(claims.getSubject());
@@ -86,9 +75,8 @@ public class JwtProvider {
      * Get email from token
      */
     public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
-            .build()
+        Claims claims = Jwts.parser()
+            .setSigningKey(jwtSecret.getBytes())
             .parseClaimsJws(token)
             .getBody();
         return claims.get("email", String.class);
@@ -98,9 +86,8 @@ public class JwtProvider {
      * Get username from token
      */
     public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
-            .build()
+        Claims claims = Jwts.parser()
+            .setSigningKey(jwtSecret.getBytes())
             .parseClaimsJws(token)
             .getBody();
         return claims.get("username", String.class);
