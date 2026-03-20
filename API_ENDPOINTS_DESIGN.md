@@ -10,8 +10,8 @@ http://localhost:8080/api
 ## 1. User Management (`/users`)
 
 ### GET /api/users/{id}
-**Descripción:** Obtener un usuario por su ID
-**Respuesta:** 200 OK
+**Description:** Get a user by their ID
+**Response:** 200 OK
 ```json
 {
   "id": "uuid",
@@ -21,12 +21,12 @@ http://localhost:8080/api
 ```
 
 ### GET /api/users/username/{username}
-**Descripción:** Obtener un usuario por su username
-**Parámetro:** username (string)
-**Respuesta:** 200 OK (mismo formato que arriba)
+**Description:** Get a user by their username
+**Parameter:** username (string)
+**Response:** 200 OK (same format as above)
 
 ### POST /api/users
-**Descripción:** Crear un nuevo usuario
+**Description:** Create a new user
 **Body:**
 ```json
 {
@@ -35,22 +35,22 @@ http://localhost:8080/api
   "password": "secure_password"
 }
 ```
-**Respuesta:** 201 Created
-**Errores:**
-- 400: Email ya existe o username inválido
+**Response:** 201 Created
+**Errors:**
+- 400: Email already exists or invalid username
 
 ---
 
 ## 2. Problems (`/problems`)
 
 ### GET /api/problems
-**Descripción:** Listar todos los problemas (con paginación)
+**Description:** List all problems (with pagination)
 **Query Params:**
 - `page` (int, default=0)
 - `size` (int, default=20)
 - `difficulty` (EASY, MEDIUM, HARD, optional)
 
-**Respuesta:** 200 OK
+**Response:** 200 OK
 ```json
 {
   "content": [
@@ -69,8 +69,8 @@ http://localhost:8080/api
 ```
 
 ### GET /api/problems/{id}
-**Descripción:** Obtener detalles completos de un problema
-**Respuesta:** 200 OK
+**Description:** Get complete problem details
+**Response:** 200 OK
 ```json
 {
   "id": "uuid",
@@ -88,8 +88,8 @@ http://localhost:8080/api
 ```
 
 ### GET /api/problems/{id}/testcases
-**Descripción:** Obtener test cases (solo samples públicos)
-**Respuesta:** 200 OK
+**Description:** Get test cases (public samples only)
+**Response:** 200 OK
 ```json
 {
   "testCases": [
@@ -103,8 +103,8 @@ http://localhost:8080/api
 ```
 
 ### POST /api/problems
-**Descripción:** Crear un nuevo problema (solo para admin/author)
-**Autorización:** JWT Token requerido
+**Description:** Create a new problem (admin/author only)
+**Authorization:** JWT Token required
 **Body:**
 ```json
 {
@@ -115,22 +115,22 @@ http://localhost:8080/api
   "languages": ["java", "python"]
 }
 ```
-**Respuesta:** 201 Created
+**Response:** 201 Created
 
 ---
 
 ## 3. Submissions (`/submissions`)
 
 ### GET /api/submissions
-**Descripción:** Listar envíos del usuario autenticado
+**Description:** List authenticated user's submissions
 **Query Params:**
 - `page` (int)
 - `size` (int)
 - `problemId` (UUID, optional)
 - `status` (QUEUED, ACCEPTED, WRONG_ANSWER, TIME_LIMIT_EXCEEDED, RUNTIME_ERROR, optional)
 
-**Autorización:** JWT Token requerido
-**Respuesta:** 200 OK
+**Authorization:** JWT Token required
+**Response:** 200 OK
 ```json
 {
   "content": [
@@ -154,13 +154,13 @@ http://localhost:8080/api
 ```
 
 ### GET /api/submissions/{id}
-**Descripción:** Obtener detalles de un envío
-**Autorización:** JWT Token requerido (solo owner puede ver)
-**Respuesta:** 200 OK (mismo objeto que en lista)
+**Description:** Get submission details
+**Authorization:** JWT Token required (owner only)
+**Response:** 200 OK (same object as in list)
 
 ### POST /api/submissions
-**Descripción:** Crear un nuevo envío/solución
-**Autorización:** JWT Token requerido
+**Description:** Create a new submission/solution
+**Authorization:** JWT Token required
 **Body:**
 ```json
 {
@@ -169,7 +169,7 @@ http://localhost:8080/api
   "sourceCode": "public class Solution { ... }"
 }
 ```
-**Respuesta:** 201 Created
+**Response:** 201 Created
 ```json
 {
   "id": "uuid",
@@ -178,9 +178,9 @@ http://localhost:8080/api
 ```
 
 ### GET /api/submissions/{id}/source
-**Descripción:** Obtener el código fuente de un envío
-**Autorización:** JWT Token requerido
-**Respuesta:** 200 OK
+**Description:** Get the source code of a submission
+**Authorization:** JWT Token required
+**Response:** 200 OK
 ```json
 {
   "sourceCode": "public class Solution { ... }",
@@ -193,8 +193,8 @@ http://localhost:8080/api
 ## 4. Languages (`/languages`)
 
 ### GET /api/languages
-**Descripción:** Listar lenguajes disponibles
-**Respuesta:** 200 OK
+**Description:** List available languages
+**Response:** 200 OK
 ```json
 {
   "languages": [
@@ -219,7 +219,7 @@ http://localhost:8080/api
 ## 5. Authentication (`/auth`)
 
 ### POST /api/auth/login
-**Descripción:** Login con email/username y password
+**Description:** Login with email and password
 **Body:**
 ```json
 {
@@ -227,7 +227,7 @@ http://localhost:8080/api
   "password": "password123"
 }
 ```
-**Respuesta:** 200 OK
+**Response:** 200 OK
 ```json
 {
   "accessToken": "jwt.token.here",
@@ -237,14 +237,14 @@ http://localhost:8080/api
 ```
 
 ### POST /api/auth/refresh
-**Descripción:** Obtener nuevo access token
+**Description:** Get a new access token
 **Body:**
 ```json
 {
   "refreshToken": "refresh.token.here"
 }
 ```
-**Respuesta:** 200 OK
+**Response:** 200 OK
 ```json
 {
   "accessToken": "new.jwt.token.here",
@@ -257,8 +257,8 @@ http://localhost:8080/api
 ## 6. User Progress (`/users/{userId}/progress`)
 
 ### GET /api/users/{userId}/progress
-**Descripción:** Obtener progreso del usuario en los problemas
-**Respuesta:** 200 OK
+**Description:** Get user's progress on problems
+**Response:** 200 OK
 ```json
 {
   "userId": "uuid",
@@ -274,8 +274,8 @@ http://localhost:8080/api
 ```
 
 ### GET /api/users/{userId}/progress/{problemId}
-**Descripción:** Obtener progreso del usuario en un problema específico
-**Respuesta:** 200 OK
+**Description:** Get user's progress on a specific problem
+**Response:** 200 OK
 ```json
 {
   "problemId": "uuid",
@@ -290,14 +290,14 @@ http://localhost:8080/api
 
 ## HTTP Status Codes
 
-- `200 OK` - Éxito
-- `201 Created` - Recurso creado
-- `400 Bad Request` - Datos inválidos
-- `401 Unauthorized` - No autenticado
-- `403 Forbidden` - No autorizado
-- `404 Not Found` - Recurso no existe
-- `409 Conflict` - Conflicto (ej: email duplicado)
-- `500 Internal Server Error` - Error del servidor
+- `200 OK` - Success
+- `201 Created` - Resource created
+- `400 Bad Request` - Invalid data
+- `401 Unauthorized` - Not authenticated
+- `403 Forbidden` - Not authorized
+- `404 Not Found` - Resource not found
+- `409 Conflict` - Conflict (e.g., duplicate email)
+- `500 Internal Server Error` - Server error
 
 ---
 
@@ -313,24 +313,24 @@ http://localhost:8080/api
 
 ---
 
-## Próximos Pasos
+## Next Steps
 
-1. ✅ UserController - CREADO
-2. ⏳ ProblemController - POR CREAR
-3. ⏳ SubmissionController - POR CREAR
-4. ⏳ AuthController - POR CREAR
-5. ⏳ LanguageController - POR CREAR
-6. ⏳ Crear JPA Entities para Problem, TestCase, Submission, Language
-7. ⏳ Crear Repositories
-8. ⏳ Implementar seguridad con JWT
-9. ⏳ Tests para todos los endpoints
+1. ✅ UserController - CREATED
+2. ⏳ ProblemController - TO CREATE
+3. ⏳ SubmissionController - TO CREATE
+4. ✅ AuthController - CREATED
+5. ⏳ LanguageController - TO CREATE
+6. ⏳ Create JPA Entities for Problem, TestCase, Submission, Language
+7. ⏳ Create Repositories
+8. ✅ Implement JWT Security
+9. ⏳ Tests for all endpoints
 
 ---
 
-## Notas de Implementación
+## Implementation Notes
 
-- Usar DTOs para separar la capa REST de la persistencia
-- Validación de entrada en controladores
-- Manejo de excepciones centralizado
-- Paginación en listas grandes
-- Logging para debugging
+- Use DTOs to separate REST layer from persistence layer
+- Input validation in controllers
+- Centralized exception handling
+- Pagination for large lists
+- Logging for debugging
