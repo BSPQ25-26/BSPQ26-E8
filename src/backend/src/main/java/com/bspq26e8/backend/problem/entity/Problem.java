@@ -56,7 +56,7 @@ public class Problem {
     private OffsetDateTime createdAt;
 
 
-    @OneToMany(mappedBy = "problem")
+    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TestCase> testCases;
 
     @ManyToMany

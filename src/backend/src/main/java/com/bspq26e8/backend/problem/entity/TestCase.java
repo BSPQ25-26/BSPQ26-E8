@@ -11,7 +11,7 @@ public class TestCase {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID uuid;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name="problem_id", nullable = false)
     private Problem problem;
 
