@@ -48,12 +48,16 @@ public class Problem {
     private String solutionTemplate;
 
 
+
     @Column(name = "language_compilation_config", nullable = false, columnDefinition = "jsonb")
     private String languageCompilationConfig = "{}";
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
+
+    @OneToMany(mappedBy = "problem")
+    private List<TestCase> testCases;
 
     @ManyToMany
     @JoinTable (
