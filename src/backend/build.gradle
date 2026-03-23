@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'springdoc-openapi-starter-webmvc-ui
+    implementation 'springdoc-openapi-starter-webmvc-ui'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     runtimeOnly 'org.postgresql:postgresql'
