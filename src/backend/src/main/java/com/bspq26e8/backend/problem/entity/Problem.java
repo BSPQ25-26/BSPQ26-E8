@@ -2,6 +2,9 @@ package com.bspq26e8.backend.problem.entity;
 
 import com.bspq26e8.backend.user.entity.User;
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnTransformer;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -36,8 +39,9 @@ public class Problem {
     @Column(name = "hints_md", columnDefinition = "text")
     private String hintsMd;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "difficulty", nullable = false)
+    @Convert(converter = ProblemDifficultyConverter.class)
+    @ColumnTransformer(write = "?::problem_difficulty")
+    @Column(name = "difficulty", nullable = false, columnDefinition = "problem_difficulty")
     private ProblemDifficulty difficulty;
 
     @ManyToOne
@@ -49,6 +53,7 @@ public class Problem {
 
 
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "language_compilation_config", nullable = false, columnDefinition = "jsonb")
     private String languageCompilationConfig = "{}";
 
@@ -69,6 +74,35 @@ public class Problem {
 
     protected Problem() {
     }
+
+        public Problem(
+            String slug,
+            String title,
+            String statementMd,
+            String inputSpecMd,
+            String outputSpecMd,
+            String constraintsMd,
+            String hintsMd,
+            ProblemDifficulty difficulty,
+            User author,
+            String solutionTemplate,
+            String languageCompilationConfig
+        ) {
+        this.slug = slug;
+        this.title = title;
+        this.statementMd = statementMd;
+        this.inputSpecMd = inputSpecMd;
+        this.outputSpecMd = outputSpecMd;
+        this.constraintsMd = constraintsMd;
+        this.hintsMd = hintsMd;
+        this.difficulty = difficulty;
+        this.author = author;
+        this.solutionTemplate = solutionTemplate;
+        this.languageCompilationConfig = (languageCompilationConfig == null || languageCompilationConfig.isBlank())
+            ? "{}"
+            : languageCompilationConfig;
+        this.createdAt = OffsetDateTime.now();
+        }
 
     public UUID getId() {
         return id;
@@ -120,5 +154,49 @@ public class Problem {
 
     public OffsetDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public void updateEditableFields(
+            String slug,
+            String title,
+            String statementMd,
+            String inputSpecMd,
+            String outputSpecMd,
+            String constraintsMd,
+            String hintsMd,
+            ProblemDifficulty difficulty,
+            String solutionTemplate,
+            String languageCompilationConfig
+    ) {
+        if (slug != null) {
+            this.slug = slug;
+        }
+        if (title != null) {
+            this.title = title;
+        }
+        if (statementMd != null) {
+            this.statementMd = statementMd;
+        }
+        if (inputSpecMd != null) {
+            this.inputSpecMd = inputSpecMd;
+        }
+        if (outputSpecMd != null) {
+            this.outputSpecMd = outputSpecMd;
+        }
+        if (constraintsMd != null) {
+            this.constraintsMd = constraintsMd;
+        }
+        if (hintsMd != null) {
+            this.hintsMd = hintsMd;
+        }
+        if (difficulty != null) {
+            this.difficulty = difficulty;
+        }
+        if (solutionTemplate != null) {
+            this.solutionTemplate = solutionTemplate;
+        }
+        if (languageCompilationConfig != null) {
+            this.languageCompilationConfig = languageCompilationConfig.isBlank() ? "{}" : languageCompilationConfig;
+        }
     }
 }
