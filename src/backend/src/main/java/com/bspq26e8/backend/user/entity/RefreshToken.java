@@ -76,4 +76,3 @@ public class RefreshToken {
         return createdAt;
     }
 }
-

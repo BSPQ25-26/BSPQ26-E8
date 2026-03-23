@@ -9,7 +9,8 @@ import java.util.UUID;
 public class TestCase {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    @Column(name = "id")
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name="problem_id", nullable = false)
