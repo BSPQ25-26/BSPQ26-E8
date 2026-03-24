@@ -44,6 +44,15 @@ public class RefreshToken {
     protected RefreshToken() {
     }
 
+    public RefreshToken(User user, String tokenHash, OffsetDateTime expiresAt, String ipAddress, String userAgent) {
+        this.user = user;
+        this.tokenHash = tokenHash;
+        this.expiresAt = expiresAt;
+        this.ipAddress = ipAddress;
+        this.userAgent = userAgent;
+        this.createdAt = OffsetDateTime.now();
+    }
+
     public UUID getId() {
         return id;
     }
@@ -74,5 +83,13 @@ public class RefreshToken {
 
     public OffsetDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public boolean isExpired(OffsetDateTime now) {
+        return expiresAt.isBefore(now);
+    }
+
+    public void revokeNow() {
+        this.revokedAt = OffsetDateTime.now();
     }
 }
