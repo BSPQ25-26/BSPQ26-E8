@@ -9,9 +9,9 @@ import java.util.Optional;
 import java.util.UUID;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 public class AccessTokenService {
 
     private static final String HMAC_SHA256 = "HmacSHA256";

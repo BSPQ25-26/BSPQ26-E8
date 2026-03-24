@@ -8,6 +8,7 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.library.Architectures;
 import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition;
+import jakarta.persistence.Converter;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.MappedSuperclass;
@@ -41,11 +42,13 @@ class ArchitectureTest {
     @ArchTest
     static final ArchRule controllersAreRestControllers = classes()
             .that().resideInAPackage("..controller..")
+            .and().areTopLevelClasses()
             .should().beAnnotatedWith(RestController.class);
 
     @ArchTest
     static final ArchRule servicesAreAnnotated = classes()
             .that().resideInAPackage("..service..")
+            .and().areTopLevelClasses()
             .should().beAnnotatedWith(Service.class);
 
     @ArchTest
@@ -65,6 +68,7 @@ class ArchitectureTest {
             .and().areNotEnums()
             .should().beAnnotatedWith(Entity.class)
             .orShould().beAnnotatedWith(Embeddable.class)
-            .orShould().beAnnotatedWith(MappedSuperclass.class);
+            .orShould().beAnnotatedWith(MappedSuperclass.class)
+            .orShould().beAnnotatedWith(Converter.class);
 }
 
