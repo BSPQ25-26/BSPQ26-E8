@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 class UserServiceTest {
 
-    private final UserService userService = new UserService();
+    private final UserService userService = new UserService(null);
 
     @Test
     void shouldAcceptValidUsername() {
