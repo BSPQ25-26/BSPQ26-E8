@@ -107,12 +107,18 @@ public class ProblemService {
 		return UpdateProblemResult.updated(toSummary(saved));
 	}
 
-	public Optional<DeleteProblemError> deleteProblem(UUID problemId) {
-		if (!problemRepository.existsById(problemId)) {
+	public Optional<DeleteProblemError> deleteProblemByAuthor(UUID problemId, UUID authorId) {
+		Optional<Problem> maybeProblem = problemRepository.findById(problemId);
+		if (maybeProblem.isEmpty()) {
 			return Optional.of(DeleteProblemError.NOT_FOUND);
 		}
 
-		problemRepository.deleteById(problemId);
+		Problem problem = maybeProblem.get();
+		if (problem.getAuthor() == null || !problem.getAuthor().getId().equals(authorId)) {
+			return Optional.of(DeleteProblemError.FORBIDDEN);
+		}
+
+		problemRepository.delete(problem);
 		return Optional.empty();
 	}
 
@@ -175,7 +181,8 @@ public class ProblemService {
 	}
 
 	public enum DeleteProblemError {
-		NOT_FOUND
+		NOT_FOUND,
+		FORBIDDEN
 	}
 
 	public record UpdateProblemCommand(

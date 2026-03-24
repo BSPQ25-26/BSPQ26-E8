@@ -1,5 +1,6 @@
 package com.bspq26e8.backend.problem.controller;
 
+import com.bspq26e8.backend.auth.security.AccessTokenService;
 import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
 import com.bspq26e8.backend.problem.service.ProblemService;
 import com.bspq26e8.backend.problem.service.ProblemService.CreateProblemCommand;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,15 +30,25 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class ProblemController {
 
 	private final ProblemService problemService;
+	private final AccessTokenService accessTokenService;
 
-	public ProblemController(ProblemService problemService) {
+	public ProblemController(ProblemService problemService, AccessTokenService accessTokenService) {
 		this.problemService = problemService;
+		this.accessTokenService = accessTokenService;
 	}
 
 	@PostMapping
-	public ResponseEntity<?> createProblem(@RequestBody(required = false) CreateProblemRequest request) {
+	public ResponseEntity<?> createProblem(
+			@RequestBody(required = false) CreateProblemRequest request,
+			HttpServletRequest httpRequest
+	) {
 		if (request == null) {
 			return ResponseEntity.badRequest().body(error("Request body is required"));
+		}
+
+		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
+		if (authenticatedUserId.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
 		}
 
 		if (isBlank(request.title()) || isBlank(request.statementMd()) || isBlank(request.difficulty())) {
@@ -63,7 +75,7 @@ public class ProblemController {
 				normalizeRequiredText(request.constraintsMd()),
 				normalizeOptionalText(request.hintsMd()),
 				difficulty.get(),
-				request.authorId(),
+				authenticatedUserId.get(),
 				normalizeOptionalText(request.solutionTemplate()),
 				normalizeJsonConfig(request.languageCompilationConfig())
 		);
@@ -96,9 +108,20 @@ public class ProblemController {
 	}
 
 	@DeleteMapping("/{problemId}")
-	public ResponseEntity<?> deleteProblem(@PathVariable UUID problemId) {
-		Optional<ProblemService.DeleteProblemError> error = problemService.deleteProblem(problemId);
+	public ResponseEntity<?> deleteProblem(
+			@PathVariable UUID problemId,
+			HttpServletRequest httpRequest
+	) {
+		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
+		if (authenticatedUserId.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
+		}
+
+		Optional<ProblemService.DeleteProblemError> error = problemService.deleteProblemByAuthor(problemId, authenticatedUserId.get());
 		if (error.isPresent()) {
+			if (error.get() == ProblemService.DeleteProblemError.FORBIDDEN) {
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Only the author can delete this problem"));
+			}
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Problem not found"));
 		}
 
@@ -114,10 +137,16 @@ public class ProblemController {
 	@PutMapping("/{problemId}")
 	public ResponseEntity<?> updateProblemByAuthor(
 			@PathVariable UUID problemId,
-			@RequestBody(required = false) UpdateProblemRequest request
+			@RequestBody(required = false) UpdateProblemRequest request,
+			HttpServletRequest httpRequest
 	) {
-		if (request == null || request.authorId() == null) {
-			return ResponseEntity.badRequest().body(error("authorId is required"));
+		if (request == null) {
+			return ResponseEntity.badRequest().body(error("Request body is required"));
+		}
+
+		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
+		if (authenticatedUserId.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
 		}
 
 		if (!isBlank(request.difficulty()) && problemService.parseDifficulty(request.difficulty()).isEmpty()) {
@@ -133,7 +162,7 @@ public class ProblemController {
 		}
 
 		UpdateProblemCommand command = new UpdateProblemCommand(
-				request.authorId(),
+				authenticatedUserId.get(),
 				normalizedSlug,
 				normalizeOptionalText(request.title()),
 				normalizeOptionalText(request.statementMd()),
@@ -194,6 +223,11 @@ public class ProblemController {
 		return Map.of("error", message);
 	}
 
+	private Optional<UUID> authenticatedUserId(HttpServletRequest httpRequest) {
+		String authorization = httpRequest.getHeader("Authorization");
+		return accessTokenService.extractUserIdFromAuthorizationHeader(authorization);
+	}
+
 	public record CreateProblemRequest(
 			String slug,
 			String title,
@@ -203,14 +237,12 @@ public class ProblemController {
 			String constraintsMd,
 			String hintsMd,
 			String difficulty,
-			UUID authorId,
 			String solutionTemplate,
 			String languageCompilationConfig
 	) {
 	}
 
 	public record UpdateProblemRequest(
-			UUID authorId,
 			String slug,
 			String title,
 			String statementMd,

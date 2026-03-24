@@ -1,5 +1,6 @@
 package com.bspq26e8.backend.auth.service;
 
+import com.bspq26e8.backend.auth.security.AccessTokenService;
 import com.bspq26e8.backend.user.entity.RefreshToken;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.RefreshTokenRepository;
@@ -25,15 +26,18 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserService userService;
+    private final AccessTokenService accessTokenService;
 
     public AuthService(
             UserRepository userRepository,
             RefreshTokenRepository refreshTokenRepository,
-            UserService userService
+            UserService userService,
+            AccessTokenService accessTokenService
     ) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.userService = userService;
+        this.accessTokenService = accessTokenService;
     }
 
     public RegisterResult register(String email, String username, String password) {
@@ -146,7 +150,7 @@ public class AuthService {
     }
 
     private SessionTokens createSessionTokens(User user, String ipAddress, String userAgent) {
-        String accessToken = UUID.randomUUID().toString();
+        String accessToken = accessTokenService.generateAccessToken(user.getId());
         String refreshToken = UUID.randomUUID().toString();
         String hashedRefreshToken = hashToken(refreshToken);
 

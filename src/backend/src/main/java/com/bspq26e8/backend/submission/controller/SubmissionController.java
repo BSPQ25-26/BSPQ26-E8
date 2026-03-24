@@ -1,5 +1,6 @@
 package com.bspq26e8.backend.submission.controller;
 
+import com.bspq26e8.backend.auth.security.AccessTokenService;
 import com.bspq26e8.backend.submission.service.SubmissionService;
 import com.bspq26e8.backend.submission.service.SubmissionService.CreateSubmissionCommand;
 import com.bspq26e8.backend.submission.service.SubmissionService.CreateSubmissionResult;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,23 +30,33 @@ import org.springframework.web.bind.annotation.RestController;
 public class SubmissionController {
 
 	private final SubmissionService submissionService;
+	private final AccessTokenService accessTokenService;
 
-	public SubmissionController(SubmissionService submissionService) {
+	public SubmissionController(SubmissionService submissionService, AccessTokenService accessTokenService) {
 		this.submissionService = submissionService;
+		this.accessTokenService = accessTokenService;
 	}
 
 	@PostMapping
-	public ResponseEntity<?> createSubmission(@RequestBody(required = false) CreateSubmissionRequest request) {
+	public ResponseEntity<?> createSubmission(
+			@RequestBody(required = false) CreateSubmissionRequest request,
+			HttpServletRequest httpRequest
+	) {
 		if (request == null) {
 			return ResponseEntity.badRequest().body(error("Request body is required"));
 		}
 
-		if (request.userId() == null || request.problemId() == null || request.languageId() == null || isBlank(request.sourceCode())) {
-			return ResponseEntity.badRequest().body(error("userId, problemId, languageId and sourceCode are required"));
+		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
+		if (authenticatedUserId.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
+		}
+
+		if (request.problemId() == null || request.languageId() == null || isBlank(request.sourceCode())) {
+			return ResponseEntity.badRequest().body(error("problemId, languageId and sourceCode are required"));
 		}
 
 		CreateSubmissionCommand command = new CreateSubmissionCommand(
-				request.userId(),
+				authenticatedUserId.get(),
 				request.problemId(),
 				request.languageId(),
 				request.sourceCode().trim()
@@ -60,15 +72,20 @@ public class SubmissionController {
 
 	@GetMapping("/mine")
 	public ResponseEntity<?> listMine(
-			@RequestParam UUID userId,
 			@RequestParam(required = false) UUID problemId,
-			@RequestParam(required = false) String status
+			@RequestParam(required = false) String status,
+			HttpServletRequest httpRequest
 	) {
+		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
+		if (authenticatedUserId.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
+		}
+
 		if (!isBlank(status) && submissionService.parseStatus(status).isEmpty()) {
 			return ResponseEntity.badRequest().body(error("Invalid status"));
 		}
 
-		List<SubmissionView> submissions = submissionService.listMine(userId, problemId, status);
+		List<SubmissionView> submissions = submissionService.listMine(authenticatedUserId.get(), problemId, status);
 		return ResponseEntity.ok(submissions);
 	}
 
@@ -87,10 +104,15 @@ public class SubmissionController {
 
 	@GetMapping("/mine/latest")
 	public ResponseEntity<?> latestMine(
-			@RequestParam UUID userId,
-			@RequestParam(required = false) UUID problemId
+			@RequestParam(required = false) UUID problemId,
+			HttpServletRequest httpRequest
 	) {
-		Optional<SubmissionView> latest = submissionService.findLatestMine(userId, problemId);
+		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
+		if (authenticatedUserId.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
+		}
+
+		Optional<SubmissionView> latest = submissionService.findLatestMine(authenticatedUserId.get(), problemId);
 		if (latest.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error("No submissions found"));
 		}
@@ -101,9 +123,14 @@ public class SubmissionController {
 	@GetMapping("/problem/{problemId}/best")
 	public ResponseEntity<?> bestByProblem(
 			@PathVariable UUID problemId,
-			@RequestParam UUID userId
+			HttpServletRequest httpRequest
 	) {
-		Optional<SubmissionView> best = submissionService.findBestMineByProblem(userId, problemId);
+		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
+		if (authenticatedUserId.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
+		}
+
+		Optional<SubmissionView> best = submissionService.findBestMineByProblem(authenticatedUserId.get(), problemId);
 		if (best.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error("No submissions found"));
 		}
@@ -114,10 +141,16 @@ public class SubmissionController {
 	@PutMapping("/{submissionId}")
 	public ResponseEntity<?> updateSubmission(
 			@PathVariable UUID submissionId,
-			@RequestBody(required = false) UpdateSubmissionRequest request
+			@RequestBody(required = false) UpdateSubmissionRequest request,
+			HttpServletRequest httpRequest
 	) {
-		if (request == null || request.userId() == null) {
-			return ResponseEntity.badRequest().body(error("userId is required"));
+		if (request == null) {
+			return ResponseEntity.badRequest().body(error("Request body is required"));
+		}
+
+		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
+		if (authenticatedUserId.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
 		}
 
 		if (isBlank(request.sourceCode()) && request.languageId() == null) {
@@ -126,7 +159,7 @@ public class SubmissionController {
 
 		UpdateSubmissionCommand command = new UpdateSubmissionCommand(
 				submissionId,
-				request.userId(),
+				authenticatedUserId.get(),
 				request.languageId(),
 				normalizeOptional(request.sourceCode())
 		);
@@ -142,15 +175,21 @@ public class SubmissionController {
 	@PostMapping("/{submissionId}/resubmit")
 	public ResponseEntity<?> resubmit(
 			@PathVariable UUID submissionId,
-			@RequestBody(required = false) ResubmitRequest request
+			@RequestBody(required = false) ResubmitRequest request,
+			HttpServletRequest httpRequest
 	) {
-		if (request == null || request.userId() == null) {
-			return ResponseEntity.badRequest().body(error("userId is required"));
+		if (request == null) {
+			return ResponseEntity.badRequest().body(error("Request body is required"));
+		}
+
+		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
+		if (authenticatedUserId.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
 		}
 
 		ResubmitCommand command = new ResubmitCommand(
 				submissionId,
-				request.userId(),
+				authenticatedUserId.get(),
 				request.languageId(),
 				normalizeOptional(request.sourceCode())
 		);
@@ -166,9 +205,14 @@ public class SubmissionController {
 	@DeleteMapping("/{submissionId}")
 	public ResponseEntity<?> deleteSubmission(
 			@PathVariable UUID submissionId,
-			@RequestParam UUID userId
+			HttpServletRequest httpRequest
 	) {
-		Optional<String> error = submissionService.deleteSubmission(submissionId, userId);
+		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
+		if (authenticatedUserId.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
+		}
+
+		Optional<String> error = submissionService.deleteSubmission(submissionId, authenticatedUserId.get());
 		if (error.isPresent()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", error.get()));
 		}
@@ -192,12 +236,17 @@ public class SubmissionController {
 		return Map.of("error", message);
 	}
 
-	public record CreateSubmissionRequest(UUID userId, UUID problemId, Long languageId, String sourceCode) {
+	private Optional<UUID> authenticatedUserId(HttpServletRequest httpRequest) {
+		String authorization = httpRequest.getHeader("Authorization");
+		return accessTokenService.extractUserIdFromAuthorizationHeader(authorization);
 	}
 
-	public record UpdateSubmissionRequest(UUID userId, Long languageId, String sourceCode) {
+	public record CreateSubmissionRequest(UUID problemId, Long languageId, String sourceCode) {
 	}
 
-	public record ResubmitRequest(UUID userId, Long languageId, String sourceCode) {
+	public record UpdateSubmissionRequest(Long languageId, String sourceCode) {
+	}
+
+	public record ResubmitRequest(Long languageId, String sourceCode) {
 	}
 }
