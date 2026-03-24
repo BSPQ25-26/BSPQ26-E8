@@ -4,9 +4,8 @@ import com.bspq26e8.backend.problem.entity.Language;
 import com.bspq26e8.backend.problem.entity.Problem;
 import com.bspq26e8.backend.user.entity.User;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import org.hibernate.annotations.ColumnTransformer;
 
 @Entity
 @Table(name = "submissions")
@@ -39,8 +39,9 @@ public class Submission {
     @Column(name = "source_code", nullable = false, columnDefinition = "text")
     private String sourceCode;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Convert(converter = SubmissionStatusConverter.class)
+    @ColumnTransformer(write = "?::submission_status")
+    @Column(name = "status", nullable = false, columnDefinition = "submission_status")
     private SubmissionStatus status;
 
     @Column(name = "verdict_message", columnDefinition = "text")
@@ -65,6 +66,15 @@ public class Submission {
     private OffsetDateTime evaluatedAt;
 
     protected Submission() {
+    }
+
+    public Submission(User user, Problem problem, Language language, String sourceCode) {
+        this.user = user;
+        this.problem = problem;
+        this.language = language;
+        this.sourceCode = sourceCode;
+        this.status = SubmissionStatus.QUEUED;
+        this.submittedAt = OffsetDateTime.now();
     }
 
     public UUID getId() {
@@ -117,5 +127,24 @@ public class Submission {
 
     public OffsetDateTime getEvaluatedAt() {
         return evaluatedAt;
+    }
+
+    public void updateEditableFields(Language language, String sourceCode) {
+        if (language != null) {
+            this.language = language;
+        }
+
+        if (sourceCode != null) {
+            this.sourceCode = sourceCode;
+        }
+
+        this.status = SubmissionStatus.QUEUED;
+        this.verdictMessage = null;
+        this.runtimeMs = null;
+        this.memoryMb = null;
+        this.testcasesPassed = 0;
+        this.testcasesTotal = null;
+        this.evaluatedAt = null;
+        this.submittedAt = OffsetDateTime.now();
     }
 }
