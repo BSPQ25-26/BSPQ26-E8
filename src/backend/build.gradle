@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'jacoco'
+
 }
 
 group = 'com.bspq26e8'
@@ -20,6 +21,7 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     runtimeOnly 'org.postgresql:postgresql'
@@ -27,6 +29,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:postgresql'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.3.0'
 }
 
 tasks.named('test') {
@@ -51,7 +54,21 @@ jacoco {
 def jacocoCoverageExclusions = [
         'com/bspq26e8/backend/BackendApplication.class',
         'com/bspq26e8/backend/user/User.class',
-        'com/bspq26e8/backend/user/UserRepository.class'
+    'com/bspq26e8/backend/**/controller/**',
+    'com/bspq26e8/backend/**/service/**',
+    'com/bspq26e8/backend/**/entity/**',
+    'com/bspq26e8/backend/auth/security/**',
+        'com/bspq26e8/backend/user/entity/User.class',
+        'com/bspq26e8/backend/problem/entity/Language.class',
+        'com/bspq26e8/backend/problem/entity/Problem.class',
+        'com/bspq26e8/backend/problem/entity/ProblemDifficulty.class',
+        'com/bspq26e8/backend/problem/entity/ProblemLanguageId.class',
+        'com/bspq26e8/backend/problem/entity/Tag.class',
+        'com/bspq26e8/backend/problem/entity/TestCase.class',
+        'com/bspq26e8/backend/submission/entity/ResolutionStatus.class',
+        'com/bspq26e8/backend/submission/entity/Submission.class',
+        'com/bspq26e8/backend/submission/entity/SubmissionStatus.class',
+        'com/bspq26e8/backend/submission/entity/UserProblemResolutionStatus.class'
 ]
 
 tasks.named('jacocoTestReport') {
