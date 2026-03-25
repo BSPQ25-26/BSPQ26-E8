@@ -29,3 +29,5 @@ replay_pid*
 **/build/
 .env
 .idea/
+# exclude vscode settings
+.vscode/
