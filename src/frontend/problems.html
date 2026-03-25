@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Problems — LeetCode Mini</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="base.css" />
+  <link rel="stylesheet" href="problems.css" />
+</head>
+<body>
+
+  <div class="accent-bar"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">
+      ⌨ LeetCode Mini
+    </a>
+    <ul class="nav-links">
+      <li><a href="problems.html" class="active">Problems</a></li>
+      <li><a href="create.html">Create</a></li>
+      <li><a href="profile.html">Profile</a></li>
+    </ul>
+  </nav>
+
+  <main class="page">
+    <div class="problems-layout">
+
+      <div class="problems-header anim-fade-up">
+        <h1 class="problems-title">Problems</h1>
+        <div class="problems-filters">
+          <select class="form-select" id="filter-difficulty">
+            <option value="">All difficulties</option>
+            <option value="EASY">Easy</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HARD">Hard</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="problems-grid" class="problems-grid anim-fade-up anim-delay-1">
+        <!-- Cards injected by problems.js -->
+      </div>
+
+      <p id="problems-status" class="problems-status"></p>
+
+    </div>
+  </main>
+
+  <div class="bottom-strip">
+    Frontend UI · React + Tailwind CSS inspired design
+  </div>
+
+  <script src="problems.js"></script>
+</body>
+</html>
