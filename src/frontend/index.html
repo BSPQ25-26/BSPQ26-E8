@@ -1,32 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LeetCode Clone - BSPQ26-E8</title>
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BSPQ26-E8 Frontend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
+  <!-- Estilos globales compartidos por todas las páginas -->
+  <link rel="stylesheet" href="css/base.css" />
+  <!-- Estilos específicos de la página -->
+  <link rel="stylesheet" href="css/index.css" />
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="#/" class="nav-brand">LeetCode Clone</a>
-            <ul class="nav-menu">
-                <li><a href="#/" class="nav-link">Problems</a></li>
-                <li><a href="#/problems/create" class="nav-link">Create Problem</a></li>
-            </ul>
-        </div>
-    </nav>
 
-    <!-- Main App Container - Views will be rendered here -->
-    <div id="app" class="app-container">
-        <!-- Loading state -->
-        <div class="loading">Loading...</div>
+  <div class="accent-bar"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">
+      ⌨ BSPQ26-E8 Frontend
+    </a>
+    <ul class="nav-links">
+      <li><a href="problems.html">Problems</a></li>
+      <li><a href="create.html">Create</a></li>
+      <li><a href="profile.html">Profile</a></li>
+    </ul>
+  </nav>
+
+  <main class="hero">
+
+    <div class="hero-left anim-fade-up anim-delay-1">
+      <p class="eyebrow">Software Process and Quality · Universidad de Destuo</p>
+      <h1 class="title">LeetCode<br>Mini</h1>
+      <p class="subtitle">Interface Design Mockups</p>
+      <div class="cta-group">
+        <a href="problems.html" class="btn-primary">Learn More →</a>
+        <a href="#" class="btn-secondary">Log Out</a>
+      </div>
     </div>
 
-    <!-- Scripts - Using ES6 Modules -->
-    <script type="module" src="js/app.js"></script>
+    <div class="hero-right anim-fade-left anim-delay-3">
+      <a href="problems.html" class="card card--blue screen-card">
+        <span class="badge badge--blue">01</span>
+        <span class="screen-label">Home / Search</span>
+        <span class="screen-arrow">→</span>
+      </a>
+      <a href="create.html" class="card card--green screen-card">
+        <span class="badge badge--easy">02</span>
+        <span class="screen-label">Problem Creation</span>
+        <span class="screen-arrow">→</span>
+      </a>
+      <a href="workspace.html" class="card card--purple screen-card">
+        <span class="badge badge--purple">03</span>
+        <span class="screen-label">Coding Workspace</span>
+        <span class="screen-arrow">→</span>
+      </a>
+    </div>
+
+  </main>
+
+  <div class="bottom-strip">
+    Frontend UI · React + Tailwind CSS inspired design
+  </div>
+
 </body>
 </html>

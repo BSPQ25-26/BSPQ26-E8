@@ -1,0 +1,89 @@
+/* ═══════════════════════════════════════════════
+    Estilo especifico para la landing page
+   ═══════════════════════════════════════════════ */
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  min-height: 100vh;
+  padding: 0 4rem 36px 3rem;
+  gap: 3rem;
+}
+
+/* Ladi izquierdo */
+.eyebrow {
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  margin-bottom: 1.25rem;
+}
+
+.title {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 4rem;
+  line-height: 1.05;
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--accent-light);
+  margin-bottom: 2.5rem;
+}
+
+.cta-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* ── Lado derecho ── */
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.screen-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  transition: transform 0.2s, background 0.2s,
+              border-color 0.2s, box-shadow 0.2s;
+}
+
+.screen-card:hover { transform: translateX(6px); }
+
+.screen-label {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  flex: 1;
+}
+
+.card--blue   .screen-label { color: var(--blue); }
+.card--green  .screen-label { color: var(--green); }
+.card--purple .screen-label { color: var(--accent-light); }
+
+.screen-arrow {
+  color: var(--text-dim);
+  transition: transform 0.2s, color 0.2s;
+}
+
+.screen-card:hover .screen-arrow {
+  transform: translateX(4px);
+  color: var(--text-mid);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 3rem 1.25rem 36px;
+    gap: 2.5rem;
+  }
+
+  .title { font-size: 2.8rem; }
+}
