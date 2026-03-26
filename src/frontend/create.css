@@ -61,12 +61,23 @@
 
 .form-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid var(--border);
 }
+
+#status-message {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  margin-right: auto;
+}
+
+#status-message[data-status="success"] { color: var(--green); }
+#status-message[data-status="error"]   { color: var(--red); }
 
 
 @media (max-width: 768px) {

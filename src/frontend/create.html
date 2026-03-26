@@ -30,12 +30,12 @@
     <div class="form-container anim-fade-up">
       <h1 class="page-title">Create Problem</h1>
 
-      <form class="problem-form">
+      <form class="problem-form" id="create-form">
         
         <div class="grid-row grid-3-1">
           <div class="form-group">
             <label class="form-label">Title</label>
-            <input class="form-input" type="text" placeholder="e.g. Two Sum" />
+            <input class="form-input" type="text" id="title" placeholder="e.g. Two Sum" />
           </div>
           <div class="form-group">
             <label class="form-label">ID</label>
@@ -45,21 +45,22 @@
 
         <div class="form-group">
           <label class="form-label">Description</label>
-          <textarea class="form-textarea" placeholder="Problem statement here..."></textarea>
+          <textarea class="form-textarea" id="statementMd" placeholder="Problem statement here..."></textarea>
         </div>
 
         <div class="form-group" style="width: 200px;">
           <label class="form-label">Difficulty</label>
-          <select class="form-select">
-            <option>Easy</option>
-            <option>Medium</option>
-            <option>Hard</option>
+          <select class="form-select" id="difficulty">
+            <option value="" disabled selected>Select…</option>
+            <option value="EASY">Easy</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HARD">Hard</option>
           </select>
         </div>
 
         <div class="form-group">
           <label class="form-label">Solutions</label>
-          <textarea class="form-textarea" placeholder="Explain the optimal approach..."></textarea>
+          <textarea class="form-textarea" id="solutionTemplate" placeholder="Explain the optimal approach..."></textarea>
         </div>
 
         <div class="card">
@@ -97,7 +98,7 @@
 
         <div class="form-group">
           <label class="form-label">Constraints</label>
-          <textarea class="form-textarea" style="min-height: 80px;" placeholder="e.g. 2 <= nums.length <= 10^4"></textarea>
+          <textarea class="form-textarea" id="constraintsMd" style="min-height: 80px;" placeholder="e.g. 2 <= nums.length <= 10^4"></textarea>
         </div>
 
         <div class="grid-row grid-1-1">
@@ -145,7 +146,8 @@
 
         <div class="form-actions">
           <button type="button" class="btn-secondary">Save as Draft</button>
-          <button type="button" class="btn-primary">Publish</button>
+          <button type="submit" class="btn-primary" id="submit-btn">Publish</button>
+          <span id="status-message"></span>
         </div>
 
       </form>
@@ -156,5 +158,6 @@
     Frontend UI · Custom design
   </div>
 
+  <script src="create.js"></script>
 </body>
 </html>
