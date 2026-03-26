@@ -145,6 +145,31 @@ ul { list-style: none; }
   transform: translateY(-1px);
 }
 
+.nav-avatar-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem !important;
+  border-radius: 999px !important;
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.nav-avatar-link:hover,
+.nav-avatar-link:focus-visible {
+  background: transparent !important;
+  border-color: var(--accent);
+}
+
+.nav-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  display: block;
+}
+
 
 /* ── 5. PAGE WRAPPER*/
 /*
