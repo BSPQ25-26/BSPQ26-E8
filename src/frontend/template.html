@@ -12,22 +12,7 @@
   <!-- Estilos específicos de la página — en caso de crear un nuevo archivo CSS para cada página -->
 <link rel="stylesheet" href="NOMBRE_DE_LA_PÁGINA_EN_CASO_DE_HABER.css" />
 </head>
-<body>
-
-  <!-- Accent bar -->
-  <div class="accent-bar"></div>
-
-  <!-- Navbar -->
-  <nav class="navbar">
-    <a href="index.html" class="nav-logo">
-      ⌨ LeetCode Mini
-    </a>
-    <ul class="nav-links">
-      <li><a href="problems.html">Problems</a></li>
-      <li><a href="create.html">Create</a></li>
-      <li><a href="profile.html">Profile</a></li>
-    </ul>
-  </nav>
+<body data-active-nav="" data-nav-variant="default">
 
   <!-- Contenido de la pagina: añadir class="page" para que comience debajo de la navbar -->
   <main class="page">
@@ -101,12 +86,8 @@
 
   </main>
 
-  <!-- Bottom strip -->
-  <div class="bottom-strip">
-    Frontend UI · React + Tailwind CSS inspired design
-  </div>
-
   <!-- Core JavaScript utilities - Include in all pages -->
+  <script src="js/layout.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
   <script src="js/utils.js"></script>

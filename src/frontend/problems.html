@@ -10,20 +10,7 @@
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/problems.css" />
 </head>
-<body>
-
-  <div class="accent-bar"></div>
-
-  <nav class="navbar">
-    <a href="index.html" class="nav-logo">
-      ⌨ LeetCode Mini
-    </a>
-    <ul class="nav-links">
-      <li><a href="problems.html" class="active">Problems</a></li>
-      <li><a href="create.html">Create</a></li>
-      <li><a href="profile.html">Profile</a></li>
-    </ul>
-  </nav>
+<body data-active-nav="problems">
 
   <main class="page">
     <div class="problems-layout">
@@ -49,11 +36,8 @@
     </div>
   </main>
 
-  <div class="bottom-strip">
-    Frontend UI · React + Tailwind CSS inspired design
-  </div>
-
   <!-- Core utilities (optional - available for use) -->
+  <script src="js/layout.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
   <script src="js/utils.js"></script>
