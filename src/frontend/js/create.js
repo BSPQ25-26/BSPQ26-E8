@@ -1,8 +1,6 @@
 /**
  * create.js — Problem creation form API integration
  *
- * Depends on: auth.js (auth singleton), api.js (api singleton)
- *
  * Expects the following element IDs in the page:
  *   Form:                    id="create-form"
  *   Submit button:           id="submit-btn"
@@ -21,10 +19,24 @@
  *   id="hintsMd"                   — hints (Markdown)
  *   id="solutionTemplate"          — starter code shown to solvers
  *   id="languageCompilationConfig" — JSON compilation config (defaults to {})
+ *
+ * Authentication:
+ *   Reads the Bearer access token from localStorage under the key 'accessToken'.
+ *   This is set automatically after a successful POST /api/auth/login response.
+ *
+ * Backend URL:
+ *   Reads from window.API_BASE if defined, otherwise defaults to http://localhost:8080.
+ *   Define it before this script loads to override: <script>window.API_BASE = '...';</script>
  */
 
 (function () {
   'use strict';
+
+  const API_BASE = window.API_BASE || 'http://localhost:8080';
+
+  function getAccessToken() {
+    return localStorage.getItem('accessToken');
+  }
 
   /** Returns trimmed string or null if blank */
   function field(id) {
@@ -54,8 +66,9 @@
 
     hideStatus(statusEl);
 
-    // Auth check via auth.js
-    if (!auth.isAuthenticated()) {
+    // Auth check
+    const token = getAccessToken();
+    if (!token) {
       showStatus(statusEl, 'You must be logged in to create a problem.', 'error');
       return;
     }
@@ -74,12 +87,12 @@
       title,
       statementMd,
       difficulty,
-      slug:                      field('slug'),
-      inputSpecMd:               field('inputSpecMd'),
-      outputSpecMd:              field('outputSpecMd'),
-      constraintsMd:             field('constraintsMd'),
-      hintsMd:                   field('hintsMd'),
-      solutionTemplate:          field('solutionTemplate'),
+      slug:                     field('slug'),
+      inputSpecMd:              field('inputSpecMd'),
+      outputSpecMd:             field('outputSpecMd'),
+      constraintsMd:            field('constraintsMd'),
+      hintsMd:                  field('hintsMd'),
+      solutionTemplate:         field('solutionTemplate'),
       languageCompilationConfig: field('languageCompilationConfig'),
     };
 
@@ -88,16 +101,29 @@
     submitBtn.textContent = 'Publishing…';
 
     try {
-      // api.js injects the Bearer token automatically
-      const data = await api.createProblem(body);
-      showStatus(statusEl, `Problem "${data.title}" created successfully!`, 'success');
-      form.reset();
-    } catch (err) {
-      if (err.message && err.message.includes('409')) {
-        showStatus(statusEl, 'A problem with that slug already exists.', 'error');
+      const response = await fetch(`${API_BASE}/api/problems`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 201) {
+        showStatus(statusEl, `Problem "${data.title}" created successfully!`, 'success');
+        form.reset();
+      } else if (response.status === 401) {
+        showStatus(statusEl, 'Session expired. Please log in again.', 'error');
+      } else if (response.status === 409) {
+        showStatus(statusEl, `Conflict: ${data.error || 'A problem with that slug already exists.'}`, 'error');
       } else {
-        showStatus(statusEl, 'Could not reach the server. Is the backend running?', 'error');
+        showStatus(statusEl, `Error: ${data.error || 'An unexpected error occurred.'}`, 'error');
       }
+    } catch (_err) {
+      showStatus(statusEl, 'Could not reach the server. Is the backend running?', 'error');
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalLabel;
