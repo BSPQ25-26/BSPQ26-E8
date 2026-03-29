@@ -59,18 +59,18 @@ class Auth {
 
     /**
      * Login user with credentials
-     * @param {string} username
+     * @param {string} email
      * @param {string} password
      * @returns {Promise<Object>} User data and token
      */
-    async login(username, password) {
+    async login(email, password) {
         try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch('http://localhost:8080/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ email, password })
             });
 
             if (!response.ok) {
@@ -80,8 +80,8 @@ class Auth {
             const data = await response.json();
 
             // Save token and user data
-            if (data.token) {
-                this.setToken(data.token);
+            if (data.accessToken) {
+                this.setToken(data.accessToken);
             }
             if (data.user) {
                 this.setUser(data.user);
