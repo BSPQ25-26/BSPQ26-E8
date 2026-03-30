@@ -34,10 +34,6 @@
 
   const API_BASE = window.API_BASE || 'http://localhost:8080';
 
-  function getAccessToken() {
-    return localStorage.getItem('accessToken');
-  }
-
   /** Returns trimmed string or null if blank */
   function field(id) {
     const el = document.getElementById(id);
@@ -66,8 +62,8 @@
 
     hideStatus(statusEl);
 
-    // Auth check
-    const token = getAccessToken();
+    // Auth check — token is read via auth.js (key: 'session_token')
+    const token = auth.getToken();
     if (!token) {
       showStatus(statusEl, 'You must be logged in to create a problem.', 'error');
       return;
@@ -131,6 +127,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    auth.requireAuth(); // redirects to login.html if no token
     const form = document.getElementById('create-form');
     if (form) {
       form.addEventListener('submit', submitCreateProblem);
