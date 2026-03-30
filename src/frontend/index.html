@@ -12,30 +12,9 @@
   <!-- Estilos específicos de la página -->
   <link rel="stylesheet" href="css/index.css" />
 </head>
-<body>
+<body data-active-nav="home">
 
-  <div class="accent-bar"></div>
-
-  <nav class="navbar">
-    <a href="index.html" class="nav-logo">
-      ⌨ BSPQ26-E8 Frontend
-    </a>
-    <ul class="nav-links">
-      <li><a href="problems.html">Problems</a></li>
-      <li><a href="create.html">Create</a></li>
-      <li>
-        <a class="nav-avatar-link" href="profile_page.html" aria-label="Open profile">
-          <img
-            class="nav-avatar"
-            src="https://i.pravatar.cc/96?img=12"
-            alt="Profile avatar"
-          />
-        </a>
-      </li>
-    </ul>
-  </nav>
-
-  <main class="hero">
+  <main class="hero page">
 
     <div class="hero-left anim-fade-up anim-delay-1">
       <p class="eyebrow">Software Process and Quality · Universidad de Destuo</p>
@@ -67,11 +46,8 @@
 
   </main>
 
-  <div class="bottom-strip">
-    Frontend UI · React + Tailwind CSS inspired design
-  </div>
-
   <!-- Core utilities -->
+  <script src="js/layout.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
   <script src="js/utils.js"></script>
