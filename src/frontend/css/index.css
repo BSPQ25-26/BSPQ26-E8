@@ -2,6 +2,88 @@
     Estilo especifico para la landing page
    ═══════════════════════════════════════════════ */
 
+/* --- Moving Geometry Background --- */
+.background-geometry {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.shape {
+  position: absolute;
+  opacity: 0.15;
+  filter: blur(1px);
+}
+
+.shape-circle {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle at top left, var(--blue, #3b82f6), transparent);
+  top: 10%;
+  left: -5%;
+  animation: float-slow 18s ease-in-out infinite alternate;
+}
+
+.shape-square {
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(135deg, var(--green, #10b981), transparent);
+  border-radius: 20px;
+  bottom: 20%;
+  right: 10%;
+  animation: float-spin 25s linear infinite;
+}
+
+.shape-triangle {
+  width: 0;
+  height: 0;
+  border-left: 100px solid transparent;
+  border-right: 100px solid transparent;
+  border-bottom: 170px solid var(--accent-light, #8b5cf6);
+  opacity: 0.1;
+  top: 50%;
+  left: 30%;
+  animation: float-triangle 20s ease-in-out infinite;
+}
+
+.shape-dots {
+  width: 150px;
+  height: 150px;
+  background-image: radial-gradient(var(--text-dim, rgba(255,255,255,0.2)) 2px, transparent 2px);
+  background-size: 20px 20px;
+  top: 20%;
+  right: 25%;
+  animation: float-slow 22s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes float-slow {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-40px) scale(1.05); }
+}
+
+@keyframes float-spin {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-50px) rotate(180deg); }
+  100% { transform: translateY(0) rotate(360deg); }
+}
+
+@keyframes float-triangle {
+  0% { transform: translate(0, 0) rotate(-10deg); }
+  50% { transform: translate(30px, -40px) rotate(10deg); }
+  100% { transform: translate(0, 0) rotate(-10deg); }
+}
+
+.z-forward {
+  position: relative;
+  z-index: 1;
+}
+
 .hero {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -35,7 +117,30 @@
 
 .cta-group {
   display: flex;
-  gap: 0.75rem;
+  gap: 1rem;
+}
+
+.btn-primary, .btn-secondary {
+  border-radius: 8px;
+  font-family: var(--font-mono, sans-serif);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.85rem 1.75rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:active, .btn-secondary:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); /* Material pressed state */
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.15); /* Material elevated hover state */
+  transform: translateY(-2px);
 }
 
 /* ── Lado derecho ── */
@@ -49,12 +154,40 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem 1.25rem;
-  transition: transform 0.2s, background 0.2s,
-              border-color 0.2s, box-shadow 0.2s;
+  padding: 1.25rem 1.5rem;
+  background: var(--surface-1, #1e1e1e);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* Material Elevation 1 */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.3s;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
 }
 
-.screen-card:hover { transform: translateX(6px); }
+.screen-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.screen-card:hover { 
+  transform: translateY(-4px) translateX(2px); 
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.15); /* Material Elevation 3 */
+}
+
+.screen-card:hover::after {
+  opacity: 1;
+}
 
 .screen-label {
   font-family: var(--font-mono);

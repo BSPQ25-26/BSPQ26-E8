@@ -3,23 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BSPQ26-E8 Frontend</title>
+  <title>Realcode — Problem Practive Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
-  <!-- Estilos globales compartidos por todas las páginas -->
   <link rel="stylesheet" href="css/base.css" />
   <!-- Estilos específicos de la página -->
   <link rel="stylesheet" href="css/index.css" />
 </head>
 <body data-active-nav="home">
 
-  <main class="hero page">
+  <!-- Background Geometry -->
+  <div class="background-geometry">
+    <div class="shape shape-circle"></div>
+    <div class="shape shape-square"></div>
+    <div class="shape shape-triangle"></div>
+    <div class="shape shape-dots"></div>
+  </div>
+
+  <main class="hero page z-forward">
 
     <div class="hero-left anim-fade-up anim-delay-1">
-      <p class="eyebrow">Software Process and Quality · Universidad de Destuo</p>
-      <h1 class="title">LeetCode<br>Mini</h1>
-      <p class="subtitle">Interface Design Mockups</p>
+      <h1 class="title">Realcode</h1>
       <div class="cta-group">
         <a href="problems.html" class="btn-primary">Learn More →</a>
         <a href="#" class="btn-secondary">Log Out</a>
@@ -35,11 +40,6 @@
       <a href="create.html" class="card card--green screen-card">
         <span class="badge badge--easy">02</span>
         <span class="screen-label">Problem Creation</span>
-        <span class="screen-arrow">→</span>
-      </a>
-      <a href="workspace.html" class="card card--purple screen-card">
-        <span class="badge badge--purple">03</span>
-        <span class="screen-label">Coding Workspace</span>
         <span class="screen-arrow">→</span>
       </a>
     </div>
