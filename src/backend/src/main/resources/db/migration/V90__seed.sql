@@ -1,11 +1,11 @@
 BEGIN;
 
-INSERT INTO languages (code, name, compile_cmd, run_cmd)
+INSERT INTO languages (code, name, compile_cmd, run_cmd, created_at)
 VALUES
-  ('python', 'Python 3', NULL, 'python3 main.py'),
-  ('javascript', 'Node.js', NULL, 'node main.js'),
-  ('java', 'Java', 'javac Main.java', 'java Main'),
-  ('cpp', 'C++', 'g++ -std=c++20 -O2 -o main main.cpp', './main')
+  ('python', 'Python 3', NULL, 'python3 main.py', NOW()),
+  ('javascript', 'Node.js', NULL, 'node main.js', NOW()),
+  ('java', 'Java', 'javac Main.java', 'java Main', NOW()),
+  ('cpp', 'C++', 'g++ -std=c++20 -O2 -o main main.cpp', './main', NOW())
 ON CONFLICT (code) DO NOTHING;
 
 INSERT INTO tags (slug, name)
