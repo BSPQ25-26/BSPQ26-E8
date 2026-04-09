@@ -1,6 +1,11 @@
 (function () {
   'use strict';
 
+  if (!localStorage.getItem('session_token') && (typeof auth === 'undefined' || !auth.isAuthenticated())) {
+    window.location.href = 'login.html';
+    return;
+  }
+
   const API_BASE = window.API_BASE || 'http://localhost:8080';
 
   const grid      = document.getElementById('problems-grid');

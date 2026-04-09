@@ -51,6 +51,29 @@
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
   <script src="js/utils.js"></script>
-
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const isAuthenticated = typeof auth !== 'undefined' ? auth.isAuthenticated() : localStorage.getItem('session_token');
+      
+      const ctaGroup = document.querySelector('.cta-group');
+      if (ctaGroup) {
+        if (isAuthenticated) {
+          ctaGroup.innerHTML = `
+            <a href="problems.html" class="btn-primary">Learn More →</a>
+            <a href="#" class="btn-secondary" onclick="auth.logout(); return false;">Log Out</a>
+          `;
+        } else {
+          ctaGroup.innerHTML = `
+            <a href="login.html" class="btn-primary">Log In to Continue</a>
+          `;
+          
+          // Disable proceeding to other core pages via right-side cards
+          document.querySelectorAll('.screen-card').forEach(card => {
+            card.href = 'login.html';
+          });
+        }
+      }
+    });
+  </script>
 </body>
 </html>

@@ -235,5 +235,13 @@
   <script src="js/api.js"></script>
   <script src="js/utils.js"></script>
 
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof auth !== 'undefined' && !auth.isAuthenticated() && !localStorage.getItem('session_token')) {
+        window.location.href = 'login.html';
+      }
+    });
+  </script>
+
 </body>
 </html>
