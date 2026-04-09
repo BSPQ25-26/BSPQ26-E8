@@ -7,6 +7,10 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/${POSTGRES_DB:app_db}}
     username: ${SPRING_DATASOURCE_USERNAME:${POSTGRES_USER:BSPQ26E8}}
     password: ${SPRING_DATASOURCE_PASSWORD:${POSTGRES_PASSWORD:skillissue}}
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
   jpa:
     hibernate:
       ddl-auto: update
