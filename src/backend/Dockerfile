@@ -6,6 +6,5 @@ RUN gradle clean bootJar -x test --no-daemon
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
-ENV PORT=8080
-EXPOSE ${PORT}
-ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT} -jar /app/app.jar"]
+EXPOSE 8080
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT:-8080} -jar /app/app.jar"]
