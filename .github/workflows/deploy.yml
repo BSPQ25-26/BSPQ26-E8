@@ -1,0 +1,25 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches:
+      - main
+      - Live-Deployment
+
+jobs:
+  deploy:
+    name: Trigger Render Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Render Deploy Hooks
+        run: |
+          if [ ! -z "${{ secrets.RENDER_BACKEND_HOOK_URL }}" ]; then
+            echo "Triggering Backend deployment..."
+            curl -X POST -d {} "${{ secrets.RENDER_BACKEND_HOOK_URL }}"
+          fi
+          
+          if [ ! -z "${{ secrets.RENDER_FRONTEND_HOOK_URL }}" ]; then
+            echo "Triggering Frontend deployment..."
+            curl -X POST -d {} "${{ secrets.RENDER_FRONTEND_HOOK_URL }}"
+          fi
+        shell: bash
