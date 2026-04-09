@@ -34,7 +34,7 @@
 
     return `
       <nav class="navbar">
-        <a href="index.html" class="nav-logo">⌨ LeetCode Mini</a>
+        <a href="index.html" class="nav-logo">Realcode</a>
         <ul class="nav-links">${links.join('')}</ul>
       </nav>
     `;
