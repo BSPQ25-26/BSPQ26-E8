@@ -39,3 +39,22 @@ jobs:
           path: |
             src/backend/build/reports/tests/test
             src/backend/build/reports/jacoco/test/html
+
+  deploy:
+    name: Job C - Trigger Render Deployment
+    runs-on: ubuntu-latest
+    needs: job-a-unit  # This strictly waits for the tests to pass successfully!
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/Live-Deployment'
+    steps:
+      - name: Call Render Deploy Hooks
+        run: |
+          if [ ! -z "${{ secrets.RENDER_BACKEND_HOOK_URL }}" ]; then
+            echo "Triggering Backend deployment..."
+            curl -X POST -d {} "${{ secrets.RENDER_BACKEND_HOOK_URL }}"
+          fi
+          
+          if [ ! -z "${{ secrets.RENDER_FRONTEND_HOOK_URL }}" ]; then
+            echo "Triggering Frontend deployment..."
+            curl -X POST -d {} "${{ secrets.RENDER_FRONTEND_HOOK_URL }}"
+          fi
+        shell: bash
