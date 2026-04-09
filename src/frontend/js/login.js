@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const API_BASE = 'http://localhost:8080';
+  const API_BASE = 'http://localhost:10000';
 
   function showError(message) {
     const el = document.getElementById('error-message');

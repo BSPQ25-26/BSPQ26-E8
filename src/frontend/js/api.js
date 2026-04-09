@@ -5,7 +5,7 @@
 
 class ApiClient {
     constructor() {
-        this.baseURL = 'http://localhost:8080/api';
+        this.baseURL = 'http://localhost:10000/api';
     }
 
     /**
