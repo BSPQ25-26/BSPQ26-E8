@@ -26,8 +26,39 @@
       <nav class="navbar">
         <a href="index.html" class="nav-logo">⌨ LeetCode Mini</a>
         <ul class="nav-links">${links.join('')}</ul>
+        <button class="nav-hamburger" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
       </nav>
     `;
+  }
+
+  function setupHamburger() {
+    const navbar = document.querySelector('.navbar');
+    const btn = navbar && navbar.querySelector('.nav-hamburger');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+      const isOpen = navbar.classList.toggle('nav-open');
+      btn.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    // Close menu when a nav link is clicked
+    const navLinks = navbar.querySelectorAll('.nav-links a');
+    navLinks.forEach(function (link) {
+      link.addEventListener('click', function () {
+        navbar.classList.remove('nav-open');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function (e) {
+      if (!navbar.contains(e.target)) {
+        navbar.classList.remove('nav-open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
   }
 
   function injectLayout() {
@@ -62,5 +93,8 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', injectLayout);
+  document.addEventListener('DOMContentLoaded', function () {
+    injectLayout();
+    setupHamburger();
+  });
 })();
