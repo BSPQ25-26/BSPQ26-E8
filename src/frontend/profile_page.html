@@ -152,6 +152,21 @@
         padding: 1.5rem 1.25rem;
       }
     }
+
+    @media (max-width: 480px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .stat-box {
+        border-bottom: 1px solid var(--border);
+      }
+
+      .stat-box:last-child {
+        border-bottom: none;
+      }
+    }
   </style>
 </head>
 <body data-active-nav="profile">
