@@ -16,11 +16,21 @@
       navLink('create.html', 'Create', activeKey, 'create'),
     ];
 
-    links.push(
-      '<li><a class="nav-avatar-link" href="profile_page.html" aria-label="Open profile">' +
-        '<img class="nav-avatar" src="https://i.pravatar.cc/96?img=12" alt="Profile avatar" />' +
-      '</a></li>'
-    );
+    const isAuthenticated = typeof auth !== 'undefined' ? auth.isAuthenticated() : localStorage.getItem('session_token') !== null;
+
+    if (isAuthenticated) {
+      links.push(
+        '<li><a class="nav-avatar-link" href="profile_page.html" aria-label="Open profile">' +
+          '<img class="nav-avatar" src="https://i.pravatar.cc/96?img=12" alt="Profile avatar" />' +
+        '</a></li>'
+      );
+    } else {
+      links.push(
+        '<li><a class="nav-login-link" href="login.html" aria-label="Log in">' +
+          'Log In' +
+        '</a></li>'
+      );
+    }
 
     return `
       <nav class="navbar">
