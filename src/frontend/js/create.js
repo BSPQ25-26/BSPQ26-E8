@@ -25,14 +25,14 @@
  *   This is set automatically after a successful POST /api/auth/login response.
  *
  * Backend URL:
- *   Reads from window.API_BASE if defined, otherwise defaults to http://localhost:8080.
+ *   Reads from window.API_BASE if defined, otherwise defaults to http://localhost:10000.
  *   Define it before this script loads to override: <script>window.API_BASE = '...';</script>
  */
 
 (function () {
   'use strict';
 
-  const API_BASE = window.API_BASE || 'http://localhost:8080';
+  const API_BASE = window.API_BASE || 'http://localhost:10000';
 
   /** Returns trimmed string or null if blank */
   function field(id) {

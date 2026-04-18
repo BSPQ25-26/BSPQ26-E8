@@ -65,7 +65,8 @@ class Auth {
      */
     async login(email, password) {
         try {
-            const response = await fetch('http://localhost:8080/api/auth/login', {
+            const API_BASE = window.API_BASE || 'http://localhost:10000';
+            const response = await fetch(`${API_BASE}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -6,7 +6,7 @@
     return;
   }
 
-  const API_BASE = window.API_BASE || 'http://localhost:8080';
+  const API_BASE = window.API_BASE || 'http://localhost:10000';
 
   const grid      = document.getElementById('problems-grid');
   const statusEl  = document.getElementById('problems-status');
