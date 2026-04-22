@@ -1,5 +1,5 @@
 .problems-layout {
-  max-width: 960px;
+  max-width: 1140px;
   margin: 0 auto;
   padding: 2.5rem var(--page-padding) 3rem;
   display: flex;
@@ -8,21 +8,77 @@
 }
 
 .problems-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  display: block;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.problems-heading {
+  width: 100%;
+  margin-bottom: 0.8rem;
 }
 
 .problems-title {
   font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--text);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
 }
 
-.problems-filters select {
-  width: 180px;
+.problems-controls {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(320px, 2.2fr) minmax(150px, 1fr) minmax(150px, 1fr) minmax(210px, 1.15fr);
+  gap: 0.65rem;
+  align-items: center;
+  margin-bottom: 0.55rem;
+}
+
+.problems-search {
+  width: 100%;
+  min-width: 0;
+}
+
+.problems-sort-clear {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) 40px;
+  gap: 0.45rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.problems-count {
+  font-family: var(--font-mono);
+  color: var(--text-mid);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.problems-clear {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text-mid);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition), background var(--transition);
+}
+
+.problems-clear:hover {
+  border-color: var(--accent);
+  color: var(--text);
+  background: rgba(108, 99, 255, 0.1);
 }
 
 /* ── Grid */
@@ -37,7 +93,36 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  min-height: 154px;
   cursor: default;
+  border-radius: 10px;
+  background: rgba(37, 40, 54, 0.36);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 24px rgba(10, 12, 18, 0.25);
+  transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.problem-card:hover {
+  transform: translateY(-4px);
+  background: rgba(37, 40, 54, 0.48);
+  box-shadow: 0 16px 32px rgba(10, 12, 18, 0.34);
+}
+
+.problem-card.card--green:hover {
+  border-color: rgba(34, 197, 94, 0.6);
+  box-shadow: 0 16px 32px rgba(10, 12, 18, 0.34), 0 0 0 1px rgba(34, 197, 94, 0.24);
+}
+
+.problem-card.card--orange:hover {
+  border-color: rgba(245, 158, 11, 0.6);
+  box-shadow: 0 16px 32px rgba(10, 12, 18, 0.34), 0 0 0 1px rgba(245, 158, 11, 0.24);
+}
+
+.problem-card.card--red:hover {
+  border-color: rgba(239, 68, 68, 0.58);
+  box-shadow: 0 16px 32px rgba(10, 12, 18, 0.34), 0 0 0 1px rgba(239, 68, 68, 0.22);
 }
 
 .problem-card-top {
@@ -49,15 +134,24 @@
 .problem-card-slug {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: var(--text-dim);
+  color: rgba(148, 163, 184, 0.46);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .problem-card-title {
   font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 1.12rem;
+  font-weight: 700;
   color: var(--text);
-  line-height: 1.4;
+  line-height: 1.35;
+}
+
+.problem-card-meta {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  color: rgba(148, 163, 184, 0.42);
+  font-size: 0.72rem;
 }
 
 /* ── Status messages */
@@ -66,7 +160,7 @@
   font-size: 0.82rem;
   color: var(--text-mid);
   text-align: center;
-  padding: 2rem 0;
+  padding: 2.5rem 0;
 }
 
 .problems-status.error {
@@ -80,11 +174,19 @@
   }
 
   .problems-header {
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 0;
   }
 
-  .problems-filters select {
+  .problems-controls {
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  .problems-sort-clear {
+    grid-template-columns: minmax(0, 1fr) 40px;
+  }
+
+  .problems-search {
     width: 100%;
   }
 }
@@ -92,5 +194,10 @@
 @media (min-width: 769px) and (max-width: 1024px) {
   .problems-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .problems-controls {
+    width: 100%;
+    grid-template-columns: minmax(220px, 1.8fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(190px, 1.1fr);
   }
 }
