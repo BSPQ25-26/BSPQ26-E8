@@ -82,6 +82,29 @@
 
 @media (max-width: 768px) {
   .grid-3-1, .grid-1-1, .grid-1-1-1 {
-    grid-template-columns: 1fr; 
+    grid-template-columns: 1fr;
   }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .form-actions .btn-primary,
+  .form-actions .btn-secondary {
+    justify-content: center;
+  }
+
+  #status-message {
+    margin-right: 0;
+    text-align: center;
+  }
+
+  .page-title { font-size: 1.5rem; }
 }

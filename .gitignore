@@ -31,3 +31,8 @@ replay_pid*
 .idea/
 # exclude vscode settings
 .vscode/
+
+# Node / Playwright
+node_modules/
+playwright-report/
+test-results/

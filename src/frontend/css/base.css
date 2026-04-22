@@ -426,11 +426,80 @@ ul { list-style: none; }
 .anim-delay-4   { animation-delay: 0.55s; }
 
 
-/* ── 13. RESPONSIVE ────────────────────────────── */
+/* ── 13. HAMBURGER BUTTON */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: auto;
+}
+
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text-mid);
+  border-radius: 2px;
+  transition: transform var(--transition), opacity var(--transition), background var(--transition);
+}
+
+.nav-hamburger:hover span { background: var(--text); }
+
+/* Animated X when open */
+.navbar.nav-open .nav-hamburger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.navbar.nav-open .nav-hamburger span:nth-child(2) { opacity: 0; }
+.navbar.nav-open .nav-hamburger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+
+/* ── 14. RESPONSIVE ────────────────────────────── */
 @media (max-width: 768px) {
   :root { --page-padding: 1.25rem; }
 
   .navbar { padding: 0 1.25rem; }
 
   .bottom-strip { padding: 0 1.25rem; }
+
+  /* Buttons stack on very small screens */
+  .cta-group {
+    flex-wrap: wrap;
+  }
+
+  /* Table scroll on mobile */
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Show hamburger, hide desktop nav links */
+  .nav-hamburger { display: flex; }
+
+  .nav-links {
+    display: none;
+    position: fixed;
+    top: 52px;
+    left: 0;
+    right: 0;
+    background: var(--sidebar);
+    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem 1.25rem 1rem;
+    gap: 0.25rem;
+    z-index: 98;
+  }
+
+  .nav-links a { padding: 0.6rem 0.75rem; }
+
+  .navbar.nav-open .nav-links { display: flex; }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  :root { --page-padding: 2rem; }
 }
