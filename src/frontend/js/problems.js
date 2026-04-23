@@ -55,6 +55,30 @@
     return `Created ${date.toLocaleDateString()}`;
   }
 
+  function formatLanguages(languages) {
+    if (!Array.isArray(languages) || languages.length === 0) {
+      return 'Language: Not specified';
+    }
+
+    const visible = languages
+      .filter((value) => typeof value === 'string' && value.trim().length > 0)
+      .map((value) => value.trim())
+      .map((value) => {
+        if (value === 'Node.js') return 'JavaScript';
+        if (value === 'Python 3') return 'Python';
+        return value;
+      });
+    if (visible.length === 0) {
+      return 'Language: Not specified';
+    }
+
+    if (visible.length === 1) {
+      return `Language: ${visible[0]}`;
+    }
+
+    return `Languages: ${visible.join(', ')}`;
+  }
+
   function buildParams() {
     const params = new URLSearchParams();
     if (state.search) params.set('name', state.search);
@@ -116,6 +140,7 @@
         <span class="badge ${diff.badge}">${diff.label}</span>
       </div>
       <p class="problem-card-title">${safeTitle}</p>
+      <p class="problem-card-language">${formatLanguages(problem.languages)}</p>
       <p class="problem-card-meta">${formatCreatedAt(problem.createdAt)}</p>
     `;
 

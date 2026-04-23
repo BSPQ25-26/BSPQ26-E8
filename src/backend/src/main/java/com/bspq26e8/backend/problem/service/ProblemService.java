@@ -2,10 +2,15 @@ package com.bspq26e8.backend.problem.service;
 
 import com.bspq26e8.backend.problem.entity.Problem;
 import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
+import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -14,10 +19,16 @@ import org.springframework.stereotype.Service;
 public class ProblemService {
 
 	private final ProblemRepository problemRepository;
+	private final ProblemLanguageRepository problemLanguageRepository;
 	private final UserRepository userRepository;
 
-	public ProblemService(ProblemRepository problemRepository, UserRepository userRepository) {
+	public ProblemService(
+			ProblemRepository problemRepository,
+			ProblemLanguageRepository problemLanguageRepository,
+			UserRepository userRepository
+	) {
 		this.problemRepository = problemRepository;
+		this.problemLanguageRepository = problemLanguageRepository;
 		this.userRepository = userRepository;
 	}
 
@@ -47,7 +58,9 @@ public class ProblemService {
 		);
 
 		Problem saved = problemRepository.save(problem);
-		return CreateProblemResult.created(toSummary(saved));
+		List<String> languages = resolveLanguagesByProblemIds(List.of(saved.getId()))
+				.getOrDefault(saved.getId(), List.of());
+		return CreateProblemResult.created(toSummary(saved, languages));
 	}
 
 	public List<ProblemSummary> listPublicProblems(
@@ -61,17 +74,13 @@ public class ProblemService {
 				.map(value -> value.name().toLowerCase())
 				.orElse(null);
 
-		return problemRepository.findPublicProblems(language, parsedDifficulty, authorId, author, name)
-				.stream()
-				.map(this::toSummary)
-				.toList();
+		List<Problem> problems = problemRepository.findPublicProblems(language, parsedDifficulty, authorId, author, name);
+		return toSummaries(problems);
 	}
 
 	public List<ProblemSummary> listProblemsByAuthor(UUID authorId) {
-		return problemRepository.findByAuthorIdOrderByCreatedAtDesc(authorId)
-				.stream()
-				.map(this::toSummary)
-				.toList();
+		List<Problem> problems = problemRepository.findByAuthorIdOrderByCreatedAtDesc(authorId);
+		return toSummaries(problems);
 	}
 
 	public UpdateProblemResult updateProblemByAuthor(UUID problemId, UpdateProblemCommand command) {
@@ -104,7 +113,9 @@ public class ProblemService {
 		);
 
 		Problem saved = problemRepository.save(problem);
-		return UpdateProblemResult.updated(toSummary(saved));
+		List<String> languages = resolveLanguagesByProblemIds(List.of(saved.getId()))
+				.getOrDefault(saved.getId(), List.of());
+		return UpdateProblemResult.updated(toSummary(saved, languages));
 	}
 
 	public Optional<DeleteProblemError> deleteProblemByAuthor(UUID problemId, UUID authorId) {
@@ -142,7 +153,33 @@ public class ProblemService {
 		return userRepository.findById(authorId);
 	}
 
-	private ProblemSummary toSummary(Problem problem) {
+	private List<ProblemSummary> toSummaries(List<Problem> problems) {
+		Map<UUID, List<String>> languagesByProblemId = resolveLanguagesByProblemIds(
+				problems.stream().map(Problem::getId).toList()
+		);
+
+		return problems.stream()
+				.map(problem -> toSummary(problem, languagesByProblemId.getOrDefault(problem.getId(), List.of())))
+				.toList();
+	}
+
+	private Map<UUID, List<String>> resolveLanguagesByProblemIds(Collection<UUID> problemIds) {
+		if (problemIds == null || problemIds.isEmpty()) {
+			return Map.of();
+		}
+
+		Map<UUID, LinkedHashSet<String>> grouped = new LinkedHashMap<>();
+		problemLanguageRepository.findLanguageRowsByProblemIds(problemIds)
+				.forEach(row -> grouped
+						.computeIfAbsent(row.getProblemId(), key -> new LinkedHashSet<>())
+						.add(row.getLanguageName()));
+
+		Map<UUID, List<String>> result = new LinkedHashMap<>();
+		grouped.forEach((problemId, languageNames) -> result.put(problemId, List.copyOf(languageNames)));
+		return result;
+	}
+
+	private ProblemSummary toSummary(Problem problem, List<String> languages) {
 		UUID authorId = problem.getAuthor() == null ? null : problem.getAuthor().getId();
 
 		return new ProblemSummary(
@@ -151,7 +188,8 @@ public class ProblemService {
 				problem.getTitle(),
 				problem.getDifficulty(),
 				authorId,
-				problem.getCreatedAt()
+				problem.getCreatedAt(),
+				languages
 		);
 	}
 
@@ -176,7 +214,8 @@ public class ProblemService {
 			String title,
 			ProblemDifficulty difficulty,
 			UUID authorId,
-			java.time.OffsetDateTime createdAt
+			java.time.OffsetDateTime createdAt,
+			List<String> languages
 	) {
 	}
 

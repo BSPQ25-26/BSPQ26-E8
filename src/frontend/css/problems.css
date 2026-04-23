@@ -84,7 +84,7 @@
 /* ── Grid */
 .problems-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 1rem;
 }
 
@@ -147,6 +147,12 @@
   line-height: 1.35;
 }
 
+.problem-card-language {
+  font-family: var(--font-mono);
+  font-size: 0.69rem;
+  color: rgba(148, 163, 184, 0.72);
+}
+
 .problem-card-meta {
   margin-top: auto;
   font-family: var(--font-mono);
@@ -192,10 +198,6 @@
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-  .problems-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .problems-controls {
     width: 100%;
     grid-template-columns: minmax(220px, 1.8fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(190px, 1.1fr);
