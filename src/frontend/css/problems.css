@@ -94,7 +94,7 @@
   flex-direction: column;
   gap: 0.75rem;
   min-height: 154px;
-  cursor: default;
+  cursor: pointer;
   border-radius: 10px;
   background: rgba(37, 40, 54, 0.36);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -158,6 +158,159 @@
   font-family: var(--font-mono);
   color: rgba(148, 163, 184, 0.42);
   font-size: 0.72rem;
+}
+
+/* ── Card toggle arrow */
+.problem-card-top {
+  align-items: flex-start;
+}
+
+.problem-card-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(148, 163, 184, 0.5);
+  font-size: 0.65rem;
+  transition: transform 0.25s ease, color var(--transition);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  user-select: none;
+}
+
+.problem-card.is-expanded .problem-card-toggle {
+  transform: rotate(180deg);
+  color: var(--accent-light);
+}
+
+/* ── Expanded card state */
+.problem-card.is-expanded {
+  transform: none;
+  border-color: rgba(108, 99, 255, 0.35);
+  box-shadow: 0 0 0 1px rgba(108, 99, 255, 0.18), 0 16px 40px rgba(10, 12, 18, 0.4);
+}
+
+.problem-card.is-expanded:hover {
+  transform: none;
+}
+
+/* ── Detail panel */
+.problem-detail {
+  display: none;
+  flex-direction: column;
+  gap: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 1.25rem;
+  margin-top: 0.25rem;
+}
+
+.problem-detail.is-open {
+  display: flex;
+}
+
+/* ── Detail sections */
+.problem-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.problem-detail-section-title {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent-light);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.problem-detail-section-body {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--text-mid);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+/* ── Examples */
+.problem-detail-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.problem-detail-example {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.problem-detail-example-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.problem-detail-example-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.problem-detail-example-code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text);
+  background: rgba(15, 17, 23, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.55rem 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ── Start Coding button */
+.problem-detail-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.problem-detail-start-btn {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--white);
+  background: var(--accent);
+  border: none;
+  border-radius: 5px;
+  padding: 0.6rem 1.4rem;
+  cursor: pointer;
+  transition: background var(--transition), transform 0.15s, box-shadow var(--transition);
+}
+
+.problem-detail-start-btn:hover {
+  background: var(--accent-light);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(108, 99, 255, 0.35);
+}
+
+/* ── Detail loading / error */
+.problem-detail-loading {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  padding: 0.5rem 0;
+}
+
+.problem-detail-error {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--red);
+  padding: 0.5rem 0;
 }
 
 /* ── Status messages */
