@@ -1,6 +1,7 @@
 package com.bspq26e8.backend.common;
 
 import com.bspq26e8.backend.problem.repository.LanguageRepository;
+import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
 import com.bspq26e8.backend.submission.repository.SubmissionRepository;
 import com.bspq26e8.backend.user.repository.RefreshTokenRepository;
@@ -44,6 +45,9 @@ class WebConfigTest {
 
     @MockBean
     private LanguageRepository languageRepository;
+
+    @MockBean
+    private ProblemLanguageRepository problemLanguageRepository;
 
     @Test
     void preflight_request_returns_cors_headers() throws Exception {

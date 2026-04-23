@@ -16,15 +16,43 @@
     <div class="problems-layout">
 
       <div class="problems-header anim-fade-up">
-        <h1 class="problems-title">Problems</h1>
-        <div class="problems-filters">
+        <div class="problems-heading">
+          <h1 class="problems-title">Problems</h1>
+        </div>
+        <div class="problems-controls">
+          <input
+            class="form-input problems-search"
+            id="search-name"
+            type="search"
+            placeholder="Search by name"
+            autocomplete="off"
+          />
+
           <select class="form-select" id="filter-difficulty">
             <option value="">All difficulties</option>
             <option value="EASY">Easy</option>
             <option value="MEDIUM">Medium</option>
             <option value="HARD">Hard</option>
           </select>
+
+          <select class="form-select" id="filter-language">
+            <option value="">All languages</option>
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
+          </select>
+
+          <div class="problems-sort-clear">
+            <select class="form-select" id="filter-sort">
+              <option value="difficulty_name">Difficulty</option>
+              <option value="alphabetical">Alphabetical</option>
+              <option value="created_at">Creation date</option>
+            </select>
+            <button type="button" class="problems-clear" id="clear-filters" aria-label="Clear filters">X</button>
+          </div>
         </div>
+        <p id="problems-count" class="problems-count">0 problems found</p>
       </div>
 
       <div id="problems-grid" class="problems-grid anim-fade-up anim-delay-1">
