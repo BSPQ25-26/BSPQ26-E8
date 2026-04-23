@@ -10,20 +10,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ProblemLanguageRepository extends JpaRepository<ProblemLanguage, ProblemLanguageId> {
-
-	interface ProblemLanguageView {
-		UUID getProblemId();
-		String getLanguageName();
-		boolean getDefaultLanguage();
-	}
-
 	@Query("""
-			SELECT pl.problem.id AS problemId,
-			       pl.language.name AS languageName,
-			       pl.isDefault AS defaultLanguage
+			SELECT pl.problem.id,
+			       pl.language.name
 			FROM ProblemLanguage pl
 			WHERE pl.problem.id IN :problemIds
 			ORDER BY pl.problem.id, pl.isDefault DESC, pl.language.name ASC
 			""")
-	List<ProblemLanguageView> findLanguageRowsByProblemIds(@Param("problemIds") Collection<UUID> problemIds);
+	List<Object[]> findLanguageRowsByProblemIds(@Param("problemIds") Collection<UUID> problemIds);
 }

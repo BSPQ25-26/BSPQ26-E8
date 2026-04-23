@@ -170,9 +170,17 @@ public class ProblemService {
 
 		Map<UUID, LinkedHashSet<String>> grouped = new LinkedHashMap<>();
 		problemLanguageRepository.findLanguageRowsByProblemIds(problemIds)
-				.forEach(row -> grouped
-						.computeIfAbsent(row.getProblemId(), key -> new LinkedHashSet<>())
-						.add(row.getLanguageName()));
+				.forEach(row -> {
+					UUID problemId = row[0] instanceof UUID value ? value : null;
+					String languageName = row[1] instanceof String value ? value : null;
+
+					if (problemId == null || languageName == null || languageName.isBlank()) {
+						return;
+					}
+
+					grouped.computeIfAbsent(problemId, key -> new LinkedHashSet<>())
+							.add(languageName);
+				});
 
 		Map<UUID, List<String>> result = new LinkedHashMap<>();
 		grouped.forEach((problemId, languageNames) -> result.put(problemId, List.copyOf(languageNames)));
