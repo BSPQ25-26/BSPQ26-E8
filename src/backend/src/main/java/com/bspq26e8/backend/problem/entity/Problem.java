@@ -156,6 +156,10 @@ public class Problem {
         return createdAt;
     }
 
+    public List<TestCase> getTestCases() {
+        return testCases;
+    }
+
     public void updateEditableFields(
             String slug,
             String title,
