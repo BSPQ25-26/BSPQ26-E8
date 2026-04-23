@@ -39,6 +39,7 @@ jobs:
           path: |
             src/backend/build/reports/tests/test
             src/backend/build/reports/jacoco/test/html
+          retention-days: 3
 
   deploy:
     name: Job C - Trigger Render Deployment
