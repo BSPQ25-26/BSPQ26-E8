@@ -32,6 +32,8 @@
     loadedProblems: [],
   };
 
+  const detailCache = new Map();
+
   let searchTimer = null;
 
   function setStatus(message, isError = false) {
@@ -126,6 +128,96 @@
     return sorted;
   }
 
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function buildDetailSection(title, body) {
+    return `
+      <div class="problem-detail-section">
+        <span class="problem-detail-section-title">${title}</span>
+        <p class="problem-detail-section-body">${escapeHtml(body)}</p>
+      </div>`;
+  }
+
+  function renderDetail(detailEl, data) {
+    const sections = [];
+
+    if (data.statementMd) sections.push(buildDetailSection('Problem Statement', data.statementMd));
+    if (data.inputSpecMd) sections.push(buildDetailSection('Input', data.inputSpecMd));
+    if (data.outputSpecMd) sections.push(buildDetailSection('Output', data.outputSpecMd));
+    if (data.constraintsMd) sections.push(buildDetailSection('Constraints', data.constraintsMd));
+    if (data.hintsMd) sections.push(buildDetailSection('Hints', data.hintsMd));
+
+    let examplesHtml = '';
+    if (Array.isArray(data.examples) && data.examples.length > 0) {
+      const items = data.examples.map((ex) => `
+        <div class="problem-detail-example">
+          <div class="problem-detail-example-block">
+            <span class="problem-detail-example-label">Input</span>
+            <pre class="problem-detail-example-code">${escapeHtml(ex.inputData || '')}</pre>
+          </div>
+          <div class="problem-detail-example-block">
+            <span class="problem-detail-example-label">Output</span>
+            <pre class="problem-detail-example-code">${escapeHtml(ex.expectedOutput || '')}</pre>
+          </div>
+        </div>`).join('');
+      examplesHtml = `
+        <div class="problem-detail-section">
+          <span class="problem-detail-section-title">Examples</span>
+          <div class="problem-detail-examples">${items}</div>
+        </div>`;
+    }
+
+    detailEl.innerHTML = `
+      ${sections.join('')}
+      ${examplesHtml}
+      <div class="problem-detail-footer">
+        <button type="button" class="problem-detail-start-btn">Start Coding</button>
+      </div>`;
+
+    detailEl.querySelector('.problem-detail-start-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
+
+  async function toggleDetail(card, problem) {
+    const detailEl = card.querySelector('.problem-detail');
+
+    if (card.classList.contains('is-expanded')) {
+      card.classList.remove('is-expanded');
+      detailEl.classList.remove('is-open');
+      return;
+    }
+
+    card.classList.add('is-expanded');
+    detailEl.classList.add('is-open');
+
+    if (detailCache.has(problem.id)) {
+      renderDetail(detailEl, detailCache.get(problem.id));
+      return;
+    }
+
+    detailEl.innerHTML = '<p class="problem-detail-loading">Loading...</p>';
+
+    try {
+      const response = await fetch(`${API_BASE}/api/problems/${problem.id}`);
+      if (!response.ok) {
+        detailEl.innerHTML = '<p class="problem-detail-error">Could not load problem details.</p>';
+        return;
+      }
+      const data = await response.json();
+      detailCache.set(problem.id, data);
+      renderDetail(detailEl, data);
+    } catch (err) {
+      detailEl.innerHTML = '<p class="problem-detail-error">Could not reach the server.</p>';
+    }
+  }
+
   function buildCard(problem) {
     const diff = DIFFICULTY[problem.difficulty] || DIFFICULTY.EASY;
     const safeSlug = problem.slug || 'no-slug';
@@ -137,13 +229,18 @@
     card.innerHTML = `
       <div class="problem-card-top">
         <span class="problem-card-slug">${safeSlug}</span>
-        <span class="badge ${diff.badge}">${diff.label}</span>
+        <div style="display:flex;align-items:center;gap:0.6rem">
+          <span class="badge ${diff.badge}">${diff.label}</span>
+          <span class="problem-card-toggle">▼</span>
+        </div>
       </div>
       <p class="problem-card-title">${safeTitle}</p>
       <p class="problem-card-language">${formatLanguages(problem.languages)}</p>
       <p class="problem-card-meta">${formatCreatedAt(problem.createdAt)}</p>
+      <div class="problem-detail"></div>
     `;
 
+    card.addEventListener('click', () => toggleDetail(card, problem));
     return card;
   }
 
