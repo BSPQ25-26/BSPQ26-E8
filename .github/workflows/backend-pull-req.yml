@@ -37,3 +37,4 @@ jobs:
         with:
           name: backend-integration-test-reports
           path: src/backend/build/reports/tests/integrationTest
+          retention-days: 3
