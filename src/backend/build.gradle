@@ -55,22 +55,10 @@ jacoco {
 
 def jacocoCoverageExclusions = [
         'com/bspq26e8/backend/BackendApplication.class',
-        'com/bspq26e8/backend/user/User.class',
-    'com/bspq26e8/backend/**/controller/**',
-    'com/bspq26e8/backend/**/service/**',
-    'com/bspq26e8/backend/**/entity/**',
-    'com/bspq26e8/backend/auth/security/**',
-        'com/bspq26e8/backend/user/entity/User.class',
-        'com/bspq26e8/backend/problem/entity/Language.class',
-        'com/bspq26e8/backend/problem/entity/Problem.class',
-        'com/bspq26e8/backend/problem/entity/ProblemDifficulty.class',
-        'com/bspq26e8/backend/problem/entity/ProblemLanguageId.class',
-        'com/bspq26e8/backend/problem/entity/Tag.class',
-        'com/bspq26e8/backend/problem/entity/TestCase.class',
-        'com/bspq26e8/backend/submission/entity/ResolutionStatus.class',
-        'com/bspq26e8/backend/submission/entity/Submission.class',
-        'com/bspq26e8/backend/submission/entity/SubmissionStatus.class',
-        'com/bspq26e8/backend/submission/entity/UserProblemResolutionStatus.class'
+        'com/bspq26e8/backend/codeexecution/*',
+        'com/bspq26e8/backend/**/controller/*',
+        'com/bspq26e8/backend/**/entity/*',
+        'com/bspq26e8/backend/**/repository/*'
 ]
 
 tasks.named('jacocoTestReport') {
@@ -101,6 +89,24 @@ tasks.named('jacocoTestCoverageVerification') {
             }
         }
     }
+
+
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        html.required = true
+        xml.required = false
+        csv.required = false
+    }
+
+    classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: jacocoCoverageExclusions)
+            })
+    )
 }
 
 tasks.named('check') {
