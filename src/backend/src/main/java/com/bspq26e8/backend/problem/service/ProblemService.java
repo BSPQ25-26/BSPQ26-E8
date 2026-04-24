@@ -2,6 +2,7 @@ package com.bspq26e8.backend.problem.service;
 
 import com.bspq26e8.backend.problem.entity.Problem;
 import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
+import com.bspq26e8.backend.problem.entity.TestCase;
 import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
 import com.bspq26e8.backend.user.entity.User;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProblemService {
@@ -116,6 +118,42 @@ public class ProblemService {
 		List<String> languages = resolveLanguagesByProblemIds(List.of(saved.getId()))
 				.getOrDefault(saved.getId(), List.of());
 		return UpdateProblemResult.updated(toSummary(saved, languages));
+	}
+
+	@Transactional(readOnly = true)
+	public Optional<ProblemDetail> getProblemDetail(UUID problemId) {
+		Optional<Problem> maybeProblem = problemRepository.findById(problemId);
+		if (maybeProblem.isEmpty()) {
+			return Optional.empty();
+		}
+
+		Problem problem = maybeProblem.get();
+		List<String> languages = resolveLanguagesByProblemIds(List.of(problem.getId()))
+				.getOrDefault(problem.getId(), List.of());
+
+		List<SampleTestCase> examples = problem.getTestCases() == null ? List.of() :
+				problem.getTestCases().stream()
+						.filter(TestCase::isSample)
+						.map(tc -> new SampleTestCase(tc.getInputData(), tc.getExpectedOutput()))
+						.toList();
+
+		UUID authorId = problem.getAuthor() == null ? null : problem.getAuthor().getId();
+
+		return Optional.of(new ProblemDetail(
+				problem.getId(),
+				problem.getSlug(),
+				problem.getTitle(),
+				problem.getDifficulty(),
+				authorId,
+				problem.getCreatedAt(),
+				languages,
+				problem.getStatementMd(),
+				problem.getInputSpecMd(),
+				problem.getOutputSpecMd(),
+				problem.getConstraintsMd(),
+				problem.getHintsMd(),
+				examples
+		));
 	}
 
 	public Optional<DeleteProblemError> deleteProblemByAuthor(UUID problemId, UUID authorId) {
@@ -224,6 +262,25 @@ public class ProblemService {
 			UUID authorId,
 			java.time.OffsetDateTime createdAt,
 			List<String> languages
+	) {
+	}
+
+	public record SampleTestCase(String inputData, String expectedOutput) {}
+
+	public record ProblemDetail(
+			UUID id,
+			String slug,
+			String title,
+			ProblemDifficulty difficulty,
+			UUID authorId,
+			java.time.OffsetDateTime createdAt,
+			List<String> languages,
+			String statementMd,
+			String inputSpecMd,
+			String outputSpecMd,
+			String constraintsMd,
+			String hintsMd,
+			List<SampleTestCase> examples
 	) {
 	}
 

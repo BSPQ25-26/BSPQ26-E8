@@ -5,6 +5,7 @@ import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
 import com.bspq26e8.backend.problem.service.ProblemService;
 import com.bspq26e8.backend.problem.service.ProblemService.CreateProblemCommand;
 import com.bspq26e8.backend.problem.service.ProblemService.CreateProblemResult;
+import com.bspq26e8.backend.problem.service.ProblemService.ProblemDetail;
 import com.bspq26e8.backend.problem.service.ProblemService.ProblemSummary;
 import com.bspq26e8.backend.problem.service.ProblemService.UpdateProblemCommand;
 import com.bspq26e8.backend.problem.service.ProblemService.UpdateProblemResult;
@@ -126,6 +127,15 @@ public class ProblemController {
 		}
 
 		return ResponseEntity.noContent().build();
+	}
+
+	@GetMapping("/{problemId}")
+	public ResponseEntity<?> getProblemDetail(@PathVariable UUID problemId) {
+		Optional<ProblemDetail> detail = problemService.getProblemDetail(problemId);
+		if (detail.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error("Problem not found"));
+		}
+		return ResponseEntity.ok(detail.get());
 	}
 
 	@GetMapping("/by-author/{authorId}")

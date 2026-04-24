@@ -26,8 +26,15 @@ public class TestCase {
     @Column(nullable = false)
     private boolean isSample = false;
 
+    public String getInputData() {
+        return inputData;
+    }
 
+    public String getExpectedOutput() {
+        return expectedOutput;
+    }
 
-
-
+    public boolean isSample() {
+        return isSample;
+    }
 }
