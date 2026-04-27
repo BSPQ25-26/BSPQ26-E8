@@ -70,7 +70,7 @@ tasks.named('jacocoTestReport') {
             })
     )
     reports {
-        xml.required = true
+        xml.required = false
         html.required = true
     }
 }
@@ -84,7 +84,7 @@ tasks.named('jacocoTestCoverageVerification') {
     violationRules {
         rule {
             limit {
-                counter = 'LINE'
+                    counter = 'LINE'
                 value = 'COVEREDRATIO'
                 minimum = 0.60
             }
@@ -94,21 +94,6 @@ tasks.named('jacocoTestCoverageVerification') {
 
 }
 
-jacocoTestReport {
-    dependsOn test
-
-    reports {
-        html.required = true
-        xml.required = false
-        csv.required = false
-    }
-
-    classDirectories.setFrom(
-            files(classDirectories.files.collect {
-                fileTree(dir: it, exclude: jacocoCoverageExclusions)
-            })
-    )
-}
 
 tasks.named('check') {
     dependsOn tasks.jacocoTestCoverageVerification
