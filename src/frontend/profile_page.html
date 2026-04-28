@@ -186,7 +186,7 @@
               alt="Profile avatar"
             />
           </div>
-          <p class="profile-name">username</p>
+          <p class="profile-name" id="profile-username">username</p>
           <span class="badge badge--blue">is_active</span>
           <p class="profile-role">Software Quality · Deusto</p>
         </div>
@@ -194,10 +194,8 @@
         <!-- Favourite tags -->
         <div class="card" style="padding: 1rem 0 0.25rem;">
           <p class="sidebar-section-title">Used Lenguajes</p>
-          <div class="tag-list">
-            <span class="badge badge--blue">Example 1</span>
-            <span class="badge badge--blue">Example 2</span>
-            <span class="badge badge--blue">Example 3</span>
+          <div class="tag-list" id="profile-used-languages">
+            <span class="badge badge--blue">-</span>
           </div>
         </div>
 
@@ -209,15 +207,15 @@
         <!-- Stats -->
         <div class="stats-row">
           <div class="stat-box">
-            <div class="stat-number">0</div>
+            <div class="stat-number" id="profile-in-progress-count">0</div>
             <div class="stat-label">In Progress</div>
           </div>
           <div class="stat-box">
-            <div class="stat-number">0</div>
+            <div class="stat-number" id="profile-created-count">0</div>
             <div class="stat-label">Created</div>
           </div>
           <div class="stat-box">
-            <div class="stat-number">0</div>
+            <div class="stat-number" id="profile-submissions-count">0</div>
             <div class="stat-label">Submissions</div>
           </div>
         </div>
@@ -227,15 +225,15 @@
           <p class="section-header">Difficulty Breakdown (Submissions)</p>
           <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border-radius: 4px; overflow: hidden;">
             <div class="stat-box">
-              <div class="stat-number green">0</div>
+              <div class="stat-number green" id="profile-easy-submissions-count">0</div>
               <div class="stat-label">Easy</div>
             </div>
             <div class="stat-box">
-              <div class="stat-number orange">0</div>
+              <div class="stat-number orange" id="profile-medium-submissions-count">0</div>
               <div class="stat-label">Medium</div>
             </div>
             <div class="stat-box">
-              <div class="stat-number red">0</div>
+              <div class="stat-number red" id="profile-hard-submissions-count">0</div>
               <div class="stat-label">Hard</div>
             </div>
           </div>
@@ -251,9 +249,197 @@
   <script src="js/utils.js"></script>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
+      const ERROR_COUNT = '-1';
+
       if (typeof auth !== 'undefined' && !auth.isAuthenticated() && !localStorage.getItem('session_token')) {
         window.location.href = 'login.html';
+        return;
+      }
+
+      let currentUser = typeof auth !== 'undefined' ? auth.getUser() : null;
+      const usernameElement = document.getElementById('profile-username');
+      const inProgressCountElement = document.getElementById('profile-in-progress-count');
+      const createdCountElement = document.getElementById('profile-created-count');
+      const submissionsCountElement = document.getElementById('profile-submissions-count');
+      const easySubmissionsCountElement = document.getElementById('profile-easy-submissions-count');
+      const mediumSubmissionsCountElement = document.getElementById('profile-medium-submissions-count');
+      const hardSubmissionsCountElement = document.getElementById('profile-hard-submissions-count');
+      const usedLanguagesContainer = document.getElementById('profile-used-languages');
+
+      const setDifficultyCounts = (easyCount, mediumCount, hardCount) => {
+        if (easySubmissionsCountElement) {
+          easySubmissionsCountElement.textContent = String(easyCount);
+        }
+        if (mediumSubmissionsCountElement) {
+          mediumSubmissionsCountElement.textContent = String(mediumCount);
+        }
+        if (hardSubmissionsCountElement) {
+          hardSubmissionsCountElement.textContent = String(hardCount);
+        }
+      };
+
+      const setUsedLanguages = (languageLabels) => {
+        if (!usedLanguagesContainer) {
+          return;
+        }
+
+        usedLanguagesContainer.innerHTML = '';
+
+        if (!Array.isArray(languageLabels) || languageLabels.length === 0) {
+          const emptyBadge = document.createElement('span');
+          emptyBadge.className = 'badge badge--blue';
+          emptyBadge.textContent = 'None';
+          usedLanguagesContainer.appendChild(emptyBadge);
+          return;
+        }
+
+        languageLabels.forEach((label) => {
+          const badge = document.createElement('span');
+          badge.className = 'badge badge--blue';
+          badge.textContent = label;
+          usedLanguagesContainer.appendChild(badge);
+        });
+      };
+
+      if (typeof api === 'undefined') {
+        if (submissionsCountElement) {
+          submissionsCountElement.textContent = ERROR_COUNT;
+        }
+        if (inProgressCountElement) {
+          inProgressCountElement.textContent = ERROR_COUNT;
+        }
+        if (createdCountElement) {
+          createdCountElement.textContent = ERROR_COUNT;
+        }
+        setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
+        setUsedLanguages(['Error']);
+        return;
+      }
+
+      if ((!currentUser || !currentUser.username || !currentUser.id) && typeof api !== 'undefined') {
+        try {
+          if (currentUser && currentUser.id) {
+            currentUser = await api.get(`/users/${currentUser.id}`);
+          } else if (currentUser && currentUser.email) {
+            const encodedEmail = encodeURIComponent(currentUser.email);
+            currentUser = await api.get(`/users/by-email?email=${encodedEmail}`);
+          }
+
+          if (currentUser && typeof auth !== 'undefined') {
+            auth.setUser(currentUser);
+          }
+        } catch (_error) {
+          // Keep default value if user data cannot be refreshed.
+        }
+      }
+
+      if (usernameElement && currentUser && currentUser.username) {
+        usernameElement.textContent = currentUser.username;
+      }
+
+      if (submissionsCountElement && typeof api !== 'undefined') {
+        try {
+          const submissions = await api.get('/submissions/mine');
+          if (Array.isArray(submissions)) {
+            const inProgressStatuses = new Set(['QUEUED', 'RUNNING']);
+            const inProgressCount = submissions.filter(submission => {
+              const status = submission && submission.status ? String(submission.status).toUpperCase() : '';
+              return inProgressStatuses.has(status);
+            }).length;
+
+            submissionsCountElement.textContent = String(submissions.length);
+            if (inProgressCountElement) {
+              inProgressCountElement.textContent = String(inProgressCount);
+            }
+
+            const languageSet = new Set();
+            submissions.forEach((submission) => {
+              if (!submission) {
+                return;
+              }
+
+              if (submission.languageName) {
+                languageSet.add(String(submission.languageName));
+                return;
+              }
+
+              if (submission.languageCode) {
+                languageSet.add(String(submission.languageCode));
+                return;
+              }
+
+              if (submission.languageId !== null && submission.languageId !== undefined) {
+                languageSet.add(`Lang ${submission.languageId}`);
+              }
+            });
+            setUsedLanguages(Array.from(languageSet));
+
+            if (submissions.length === 0) {
+              setDifficultyCounts(0, 0, 0);
+            } else {
+              try {
+                const problems = await api.get('/problems');
+                if (!Array.isArray(problems)) {
+                  setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
+                } else {
+                  const problemDifficultyById = new Map();
+                  problems.forEach(problem => {
+                    if (problem && problem.id && problem.difficulty) {
+                      problemDifficultyById.set(String(problem.id), String(problem.difficulty).toUpperCase());
+                    }
+                  });
+
+                  let easyCount = 0;
+                  let mediumCount = 0;
+                  let hardCount = 0;
+
+                  submissions.forEach(submission => {
+                    const difficulty = problemDifficultyById.get(String(submission.problemId));
+                    if (difficulty === 'EASY') {
+                      easyCount += 1;
+                    } else if (difficulty === 'MEDIUM') {
+                      mediumCount += 1;
+                    } else if (difficulty === 'HARD') {
+                      hardCount += 1;
+                    }
+                  });
+
+                  setDifficultyCounts(easyCount, mediumCount, hardCount);
+                }
+              } catch (_error) {
+                setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
+              }
+            }
+          } else {
+            submissionsCountElement.textContent = ERROR_COUNT;
+            if (inProgressCountElement) {
+              inProgressCountElement.textContent = ERROR_COUNT;
+            }
+            setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
+            setUsedLanguages(['Error']);
+          }
+        } catch (_error) {
+          submissionsCountElement.textContent = ERROR_COUNT;
+          if (inProgressCountElement) {
+            inProgressCountElement.textContent = ERROR_COUNT;
+          }
+          setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
+          setUsedLanguages(['Error']);
+        }
+      }
+
+      if (createdCountElement && currentUser && currentUser.id && typeof api !== 'undefined') {
+        try {
+          const createdProblems = await api.get(`/problems/by-author/${currentUser.id}`);
+          if (Array.isArray(createdProblems)) {
+            createdCountElement.textContent = String(createdProblems.length);
+          } else {
+            createdCountElement.textContent = ERROR_COUNT;
+          }
+        } catch (_error) {
+          createdCountElement.textContent = ERROR_COUNT;
+        }
       }
     });
   </script>
