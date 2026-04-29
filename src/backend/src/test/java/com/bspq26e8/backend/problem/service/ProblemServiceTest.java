@@ -5,6 +5,7 @@ import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
+import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,6 +30,9 @@ public class ProblemServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private ProblemLanguageRepository problemLanguageRepository;
 
     @InjectMocks
     private ProblemService problemService;
