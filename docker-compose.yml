@@ -37,6 +37,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "10000:10000"
+      - "9010:9010"
 
   frontend:
     image: bspq26e8-frontend:latest
@@ -50,5 +51,17 @@ services:
     ports:
       - "3000:80"
 
+  performance:
+    image: grafana/k6:latest
+    container_name: realcode-performance
+    user: "1000:1000"
+    depends_on:
+      - backend
+    ports:
+      - "6565:6565"
+    volumes:
+      - ./src/backend/src/test/performance:/scripts
+      - ./src/backend/src/test/performance/reports:/reports
+    command: run /scripts/performanceTest.js >>
 volumes:
   postgres_data:
