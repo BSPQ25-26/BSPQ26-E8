@@ -1,0 +1,253 @@
+[
+  {
+    "email": "testuser1@example.com",
+    "username": "testuser1",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser2@example.com",
+    "username": "testuser2",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser4@example.com",
+    "username": "testuser03",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser4@example.com",
+    "username": "testuser04",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser5@example.com",
+    "username": "testuser05",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser6@example.com",
+    "username": "testuser06",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser7@example.com",
+    "username": "testuser07",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser8@example.com",
+    "username": "testuser08",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser9@example.com",
+    "username": "testuser09",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser10@example.com",
+    "username": "testuser10",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser11@example.com",
+    "username": "testuser11",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser12@example.com",
+    "username": "testuser12",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser13@example.com",
+    "username": "testuser13",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser14@example.com",
+    "username": "testuser14",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser15@example.com",
+    "username": "testuser15",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser16@example.com",
+    "username": "testuser16",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser17@example.com",
+    "username": "testuser17",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser18@example.com",
+    "username": "testuser18",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser19@example.com",
+    "username": "testuser19",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser20@example.com",
+    "username": "testuser20",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser21@example.com",
+    "username": "testuser21",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser22@example.com",
+    "username": "testuser22",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser23@example.com",
+    "username": "testuser23",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser24@example.com",
+    "username": "testuser24",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser25@example.com",
+    "username": "testuser25",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser26@example.com",
+    "username": "testuser26",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser27@example.com",
+    "username": "testuser27",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser28@example.com",
+    "username": "testuser28",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser29@example.com",
+    "username": "testuser29",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser30@example.com",
+    "username": "testuser30",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser31@example.com",
+    "username": "testuser31",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser32@example.com",
+    "username": "testuser32",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser33@example.com",
+    "username": "testuser33",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser34@example.com",
+    "username": "testuser34",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser35@example.com",
+    "username": "testuser35",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser36@example.com",
+    "username": "testuser36",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser37@example.com",
+    "username": "testuser37",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser38@example.com",
+    "username": "testuser38",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser39@example.com",
+    "username": "testuser39",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser40@example.com",
+    "username": "testuser40",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser41@example.com",
+    "username": "testuser41",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser42@example.com",
+    "username": "testuser42",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser43@example.com",
+    "username": "testuser43",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser44@example.com",
+    "username": "testuser44",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser45@example.com",
+    "username": "testuser45",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser46@example.com",
+    "username": "testuser46",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser47@example.com",
+    "username": "testuser47",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser48@example.com",
+    "username": "testuser48",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser49@example.com",
+    "username": "testuser49",
+    "password": "TestPassword!"
+  },
+  {
+    "email": "testuser50@example.com",
+    "username": "testuser50",
+    "password": "TestPassword!"
+  }
+]
+
