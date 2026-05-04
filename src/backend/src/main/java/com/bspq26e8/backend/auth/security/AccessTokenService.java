@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +17,13 @@ public class AccessTokenService {
 
     private static final String HMAC_SHA256 = "HmacSHA256";
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final String TOKEN_SECRET = "bspq26e8-dev-access-token-secret";
+    private final String tokenSecret;
+
+    public AccessTokenService(
+            @Value("${security.access-token.secret:bspq26e8-dev-access-token-secret}") String tokenSecret
+    ) {
+        this.tokenSecret = tokenSecret;
+    }
 
     public String generateAccessToken(UUID userId) {
         String payload = userId + ":" + Instant.now().getEpochSecond();
@@ -71,7 +78,7 @@ public class AccessTokenService {
     private byte[] hmacSha256(String data) {
         try {
             Mac mac = Mac.getInstance(HMAC_SHA256);
-            SecretKeySpec secretKeySpec = new SecretKeySpec(TOKEN_SECRET.getBytes(StandardCharsets.UTF_8), HMAC_SHA256);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(tokenSecret.getBytes(StandardCharsets.UTF_8), HMAC_SHA256);
             mac.init(secretKeySpec);
             return mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
         } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
