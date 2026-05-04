@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AccessTokenServiceTest {
 
-    private final AccessTokenService accessTokenService = new AccessTokenService();
+    private final AccessTokenService accessTokenService = new AccessTokenService("test-access-token-secret");
 
     @Test
     void generateAccessTokenAndExtractUserId() {

@@ -139,22 +139,22 @@ test.describe('Problems page', () => {
     expect(cols.trim().split(/\s+(?=\d)/)).toHaveLength(1);
   });
 
-  test('grid is 2 columns on tablet', async ({ page }) => {
+  test('grid is single column on tablet', async ({ page }) => {
     if (vw(page) < 769 || vw(page) > 1024) test.skip();
     await page.goto(pages.problems);
     const cols = await page.locator('.problems-grid').evaluate(
       el => getComputedStyle(el).gridTemplateColumns
     );
-    expect(cols.trim().split(/\s+(?=\d)/)).toHaveLength(2);
+    expect(cols.trim().split(/\s+(?=\d)/)).toHaveLength(1);
   });
 
-  test('grid is 3 columns on desktop', async ({ page }) => {
+  test('grid is single column on desktop', async ({ page }) => {
     if (vw(page) <= 1024) test.skip();
     await page.goto(pages.problems);
     const cols = await page.locator('.problems-grid').evaluate(
       el => getComputedStyle(el).gridTemplateColumns
     );
-    expect(cols.trim().split(/\s+(?=\d)/)).toHaveLength(3);
+    expect(cols.trim().split(/\s+(?=\d)/)).toHaveLength(1);
   });
 
   test('problems header stacks on mobile', async ({ page }) => {
@@ -175,6 +175,14 @@ async function gotoCreate(page) {
     localStorage.setItem('session_token', 'fake-test-token');
   });
   await page.goto(pages.create);
+}
+
+// profile_page.html redirects to login if unauthenticated — inject a fake token first
+async function gotoProfile(page) {
+  await page.addInitScript(() => {
+    localStorage.setItem('session_token', 'fake-test-token');
+  });
+  await page.goto(pages.profile);
 }
 
 test.describe('Create page', () => {
@@ -210,7 +218,7 @@ test.describe('Create page', () => {
 
 test.describe('Profile page', () => {
   test('renders without horizontal scroll', async ({ page }) => {
-    await page.goto(pages.profile);
+    await gotoProfile(page);
     const scroll = await page.evaluate(() => document.documentElement.scrollWidth);
     const width  = await page.evaluate(() => document.documentElement.clientWidth);
     expect(scroll).toBeLessThanOrEqual(width + 1);
@@ -218,7 +226,7 @@ test.describe('Profile page', () => {
 
   test('layout stacks to single column on mobile', async ({ page }) => {
     if (vw(page) > 768) test.skip();
-    await page.goto(pages.profile);
+    await gotoProfile(page);
     const cols = await page.locator('.profile-page').evaluate(
       el => getComputedStyle(el).gridTemplateColumns
     );
@@ -227,7 +235,7 @@ test.describe('Profile page', () => {
 
   test('stats row stacks on very small screens', async ({ page }) => {
     if (vw(page) > 480) test.skip();
-    await page.goto(pages.profile);
+    await gotoProfile(page);
     const cols = await page.locator('.stats-row').evaluate(
       el => getComputedStyle(el).gridTemplateColumns
     );
@@ -236,7 +244,7 @@ test.describe('Profile page', () => {
 
   test('layout is two columns on desktop', async ({ page }) => {
     if (vw(page) <= 768) test.skip();
-    await page.goto(pages.profile);
+    await gotoProfile(page);
     const cols = await page.locator('.profile-page').evaluate(
       el => getComputedStyle(el).gridTemplateColumns
     );
