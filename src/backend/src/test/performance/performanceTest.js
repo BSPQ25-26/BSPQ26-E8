@@ -1,6 +1,8 @@
 import http from "k6/http";
 import { check } from "k6";
 import { sleep } from "k6";
+import sql from "k6/x/sql"
+import driver from "k6/x/sql/driver/postgres";
 import { SharedArray } from 'k6/data';
 import { htmlReport } from 'https://raw.githubusercontent.com/benc-uk/k6-reporter/latest/dist/bundle.js'
 const BASE_URL = __ENV.BASE_URL || "http://backend:10000";
@@ -9,6 +11,10 @@ const users = new SharedArray('users',function() {
   return JSON.parse(open('./userstest.json'));
 });
 
+const connectionString = `postgres://${__ENV.POSTGRES_USER}:${__ENV.POSTGRES_PASSWORD}` +
+    `@postgres:${__ENV.POSTGRES_PORT}/${__ENV.POSTGRES_DB}?sslmode=disable`;
+
+const db = sql.open(driver,connectionString)
 export function handleSummary(data) {
   return {
     '/reports/summaryperfSuccess.html': htmlReport(data),
@@ -86,4 +92,9 @@ export default function () {
   createProblem(user, authHeader);
   sleep(1);
   listProblem(user);
+}
+
+export function teardown(){
+  db.exec("DELETE FROM PROBLEMS;")
+  db.close()
 }

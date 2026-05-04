@@ -4,10 +4,13 @@ import { sleep } from "k6";
 import { SharedArray } from 'k6/data';
 import { htmlReport } from 'https://raw.githubusercontent.com/benc-uk/k6-reporter/latest/dist/bundle.js'
 const BASE_URL = __ENV.BASE_URL || "http://backend:10000";
+import sql from "k6/x/sql"
+import driver from "k6/x/sql/driver/postgres";
+
 
 export function handleSummary(data) {
     return {
-        'reports/summaryPerfFail.html': htmlReport(data),
+        '/reports/summaryPerfFail.html': htmlReport(data),
     }
 }
 
@@ -15,13 +18,19 @@ const users = new SharedArray('users',function() {
     return JSON.parse(open('./userstest.json'));
 });
 
+const connectionString = `postgres://${__ENV.POSTGRES_USER}:${__ENV.POSTGRES_PASSWORD}` +
+    `@postgres:${__ENV.POSTGRES_PORT}/${__ENV.POSTGRES_DB}?sslmode=disable`;
+
+const db = sql.open(driver,connectionString)
+
+
 
 
 export const options = {
     vus: 50,
     iterations:500,
-    thresholds : {
-        http_req_duration: ['p(95) < 100'],
+    thresholds  : {
+        http_req_duration: ['p(95) < 30'],
         http_req_failed: ['rate < 0.01']
 
     }
@@ -94,4 +103,9 @@ export default function () {
     createProblem(user, authHeader);
     sleep(1);
     listProblem(user);
+}
+
+export function teardown(){
+    db.exec("DELETE FROM PROBLEMS;")
+    db.close()
 }
