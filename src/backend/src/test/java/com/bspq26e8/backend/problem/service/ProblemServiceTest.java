@@ -39,7 +39,7 @@ public class ProblemServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(problemLanguageRepository.findLanguageRowsByProblemIds(any())).thenReturn(List.of());
+        lenient().when(problemLanguageRepository.findLanguageRowsByProblemIds(any())).thenReturn(List.of());
     }
 
     @Test
