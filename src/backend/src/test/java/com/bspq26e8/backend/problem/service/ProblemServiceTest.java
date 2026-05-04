@@ -6,7 +6,7 @@ import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
-import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,11 +34,13 @@ public class ProblemServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private ProblemLanguageRepository problemLanguageRepository;
-
     @InjectMocks
     private ProblemService problemService;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(problemLanguageRepository.findLanguageRowsByProblemIds(any())).thenReturn(List.of());
+    }
 
     @Test
     void createProblem_Success() {
