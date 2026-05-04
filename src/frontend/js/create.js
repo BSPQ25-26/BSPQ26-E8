@@ -21,8 +21,7 @@
  *   id="languageCompilationConfig" — JSON compilation config (defaults to {})
  *
  * Authentication:
- *   Reads the Bearer access token from localStorage under the key 'accessToken'.
- *   This is set automatically after a successful POST /api/auth/login response.
+ *   Uses api.js so expired access tokens are refreshed through POST /api/auth/refresh.
  *
  * Backend URL:
  *   Reads from window.API_BASE if defined, otherwise defaults to http://localhost:10000.
@@ -31,8 +30,6 @@
 
 (function () {
   'use strict';
-
-  const API_BASE = window.API_BASE || 'http://localhost:10000';
 
   /** Returns trimmed string or null if blank */
   function field(id) {
@@ -62,9 +59,8 @@
 
     hideStatus(statusEl);
 
-    // Auth check — token is read via auth.js (key: 'session_token')
-    const token = auth.getToken();
-    if (!token) {
+    // Auth check - auth.js stores the access and refresh tokens.
+    if (!auth.isAuthenticated()) {
       showStatus(statusEl, 'You must be logged in to create a problem.', 'error');
       return;
     }
@@ -97,29 +93,19 @@
     submitBtn.textContent = 'Publishing…';
 
     try {
-      const response = await fetch(`${API_BASE}/api/problems`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-
-      if (response.status === 201) {
-        showStatus(statusEl, `Problem "${data.title}" created successfully!`, 'success');
-        form.reset();
-      } else if (response.status === 401) {
+      const data = await api.post('/problems', body);
+      showStatus(statusEl, `Problem "${data.title}" created successfully!`, 'success');
+      form.reset();
+    } catch (err) {
+      if (err && err.status === 401) {
         showStatus(statusEl, 'Session expired. Please log in again.', 'error');
-      } else if (response.status === 409) {
-        showStatus(statusEl, `Conflict: ${data.error || 'A problem with that slug already exists.'}`, 'error');
+      } else if (err && err.status === 409) {
+        showStatus(statusEl, `Conflict: ${err.message || 'A problem with that slug already exists.'}`, 'error');
+      } else if (!err || !err.status) {
+        showStatus(statusEl, 'Could not reach the server. Is the backend running?', 'error');
       } else {
-        showStatus(statusEl, `Error: ${data.error || 'An unexpected error occurred.'}`, 'error');
+        showStatus(statusEl, `Error: ${(err && err.message) || 'An unexpected error occurred.'}`, 'error');
       }
-    } catch (_err) {
-      showStatus(statusEl, 'Could not reach the server. Is the backend running?', 'error');
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalLabel;
