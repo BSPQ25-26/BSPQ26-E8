@@ -32,9 +32,6 @@ public class ProblemServiceTest {
     private ProblemRepository problemRepository;
 
     @Mock
-    private ProblemLanguageRepository problemLanguageRepository;
-
-    @Mock
     private UserRepository userRepository;
 
     @InjectMocks
