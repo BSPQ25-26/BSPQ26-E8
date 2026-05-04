@@ -27,6 +27,8 @@ import static org.mockito.Mockito.*;
 public class ProblemServiceTest {
 
     @Mock
+    private ProblemLanguageRepository problemLanguageRepository;
+    @Mock
     private ProblemRepository problemRepository;
 
     @Mock
