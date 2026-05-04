@@ -53,8 +53,12 @@ services:
 
   performance:
     image: grafana/k6:latest
+    profiles:
+      - perf
     container_name: realcode-performance
-    user: "1000:1000"
+    user: "root:root"
+    env_file:
+      - .env
     depends_on:
       - backend
     ports:
@@ -62,6 +66,6 @@ services:
     volumes:
       - ./src/backend/src/test/performance:/scripts
       - ./src/backend/src/test/performance/reports:/reports
-    command: run /scripts/performanceTest.js >>
+    command: run /scripts/performanceTestFail
 volumes:
   postgres_data:
