@@ -2,6 +2,7 @@ package com.bspq26e8.backend.problem.service;
 
 import com.bspq26e8.backend.problem.entity.Problem;
 import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
+import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
@@ -24,6 +25,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class ProblemServiceTest {
 
+    @Mock
+    private ProblemLanguageRepository problemLanguageRepository;
     @Mock
     private ProblemRepository problemRepository;
 
