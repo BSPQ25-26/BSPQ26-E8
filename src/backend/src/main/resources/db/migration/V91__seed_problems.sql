@@ -101,6 +101,9 @@ JOIN languages l ON l.code IN ('cpp', 'java')
 WHERE p.slug = 'shortest-path-grid'
 ON CONFLICT (problem_id, language_id) DO NOTHING;
 
+ALTER TABLE test_cases
+  ALTER COLUMN id SET DEFAULT gen_random_uuid();
+
 INSERT INTO test_cases (problem_id, input_data, expected_output, is_sample)
 SELECT p.id, '4\n2 7 11 15\n9\n', '0 1\n', TRUE
 FROM problems p
