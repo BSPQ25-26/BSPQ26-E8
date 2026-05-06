@@ -1,3 +1,19 @@
+/* ── Animated Background ── */
+.bg-animation {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: -1;
+  background: linear-gradient(-45deg, var(--bg), var(--sidebar), var(--panel), var(--bg));
+  background-size: 400% 400%;
+  animation: ambientGlow 18s ease infinite;
+}
+
+@keyframes ambientGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 .problems-layout {
   max-width: 1140px;
   margin: 0 auto;
@@ -88,53 +104,40 @@
   gap: 1rem;
 }
 
-/* ── Problem card */
 .problem-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  min-height: 154px;
+  gap: 0.4rem; /* Tighter gap between elements */
+  padding: 1rem 1.25rem; /* Overrides the bulky 1.5rem from base.css */
+  min-height: auto; /* Removes the old 154px tall limit */
   cursor: pointer;
-  border-radius: 10px;
-  background: rgba(37, 40, 54, 0.36);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 10px 24px rgba(10, 12, 18, 0.25);
-  transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  border-radius: 6px;
+  background: var(--card); /* Solid Material background */
+  border: 1px solid var(--border);
+  
+  /* Material Elevation 1 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease;
 }
 
 .problem-card:hover {
-  transform: translateY(-4px);
-  background: rgba(37, 40, 54, 0.48);
-  box-shadow: 0 16px 32px rgba(10, 12, 18, 0.34);
-}
-
-.problem-card.card--green:hover {
-  border-color: rgba(34, 197, 94, 0.6);
-  box-shadow: 0 16px 32px rgba(10, 12, 18, 0.34), 0 0 0 1px rgba(34, 197, 94, 0.24);
-}
-
-.problem-card.card--orange:hover {
-  border-color: rgba(245, 158, 11, 0.6);
-  box-shadow: 0 16px 32px rgba(10, 12, 18, 0.34), 0 0 0 1px rgba(245, 158, 11, 0.24);
-}
-
-.problem-card.card--red:hover {
-  border-color: rgba(239, 68, 68, 0.58);
-  box-shadow: 0 16px 32px rgba(10, 12, 18, 0.34), 0 0 0 1px rgba(239, 68, 68, 0.22);
+  transform: translateY(-2px);
+  /* Material Elevation 3 */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  background: var(--panel);
 }
 
 .problem-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 0.25rem;
 }
 
 .problem-card-slug {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: rgba(148, 163, 184, 0.46);
+  color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -144,63 +147,54 @@
   font-size: 1.12rem;
   font-weight: 700;
   color: var(--text);
-  line-height: 1.35;
+  line-height: 1.2;
+  margin: 0;
 }
 
 .problem-card-language {
   font-family: var(--font-mono);
-  font-size: 0.69rem;
-  color: rgba(148, 163, 184, 0.72);
+  font-size: 0.7rem;
+  color: var(--text-mid);
+  margin: 0;
 }
 
 .problem-card-meta {
-  margin-top: auto;
+  margin-top: 0.25rem;
   font-family: var(--font-mono);
-  color: rgba(148, 163, 184, 0.42);
-  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-size: 0.7rem;
 }
 
-/* ── Card toggle arrow */
-.problem-card-top {
-  align-items: flex-start;
-}
-
+/* ── Card toggle arrow ── */
 .problem-card-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: rgba(148, 163, 184, 0.5);
+  color: var(--text-dim);
   font-size: 0.65rem;
   transition: transform 0.25s ease, color var(--transition);
-  flex-shrink: 0;
-  margin-top: 0.1rem;
   user-select: none;
 }
 
 .problem-card.is-expanded .problem-card-toggle {
   transform: rotate(180deg);
-  color: var(--accent-light);
+  color: var(--accent);
 }
 
-/* ── Expanded card state */
 .problem-card.is-expanded {
   transform: none;
   border-color: rgba(108, 99, 255, 0.35);
-  box-shadow: 0 0 0 1px rgba(108, 99, 255, 0.18), 0 16px 40px rgba(10, 12, 18, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
 }
 
-.problem-card.is-expanded:hover {
-  transform: none;
-}
-
-/* ── Detail panel */
+/* ── Detail panel ── */
 .problem-detail {
   display: none;
   flex-direction: column;
   gap: 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid var(--border);
   padding-top: 1.25rem;
-  margin-top: 0.25rem;
+  margin-top: 0.5rem; /* Slight separation from the meta text */
 }
 
 .problem-detail.is-open {

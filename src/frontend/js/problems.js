@@ -226,6 +226,7 @@
     const card = document.createElement('div');
     card.className = `card ${diff.card} problem-card`;
 
+    // Restored to your original vertical layout
     card.innerHTML = `
       <div class="problem-card-top">
         <span class="problem-card-slug">${safeSlug}</span>
