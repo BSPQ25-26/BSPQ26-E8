@@ -1,3 +1,20 @@
+/* ── Animated Background ── */
+.bg-animation {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: -1;
+  background: linear-gradient(-45deg, var(--bg), var(--sidebar), var(--panel), var(--bg));
+  background-size: 400% 400%;
+  animation: ambientGlow 18s ease infinite;
+}
+
+@keyframes ambientGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Layout & Header ── */
 .problems-layout {
   max-width: 1140px;
   margin: 0 auto;
@@ -13,7 +30,6 @@
   border: none;
   border-radius: 0;
   background: transparent;
-  backdrop-filter: none;
 }
 
 .problems-heading {
@@ -81,133 +97,115 @@
   background: rgba(108, 99, 255, 0.1);
 }
 
-/* ── Grid */
+/* ── Grid ── */
 .problems-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-/* ── Problem card */
-.problem-card {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  min-height: 154px;
+}
+
+/* ── Problem card (Material Redesign) ── */
+.problem-card {
+  display: flex;
+  flex-direction: column;
   cursor: pointer;
-  border-radius: 10px;
-  background: rgba(37, 40, 54, 0.36);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 10px 24px rgba(10, 12, 18, 0.25);
-  transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  border-radius: 8px;
+  background: var(--card);
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease;
+  min-height: auto;
 }
 
 .problem-card:hover {
-  transform: translateY(-4px);
-  background: rgba(37, 40, 54, 0.48);
-  box-shadow: 0 16px 32px rgba(10, 12, 18, 0.34);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  background: var(--panel);
 }
 
-.problem-card.card--green:hover {
-  border-color: rgba(34, 197, 94, 0.6);
-  box-shadow: 0 16px 32px rgba(10, 12, 18, 0.34), 0 0 0 1px rgba(34, 197, 94, 0.24);
-}
-
-.problem-card.card--orange:hover {
-  border-color: rgba(245, 158, 11, 0.6);
-  box-shadow: 0 16px 32px rgba(10, 12, 18, 0.34), 0 0 0 1px rgba(245, 158, 11, 0.24);
-}
-
-.problem-card.card--red:hover {
-  border-color: rgba(239, 68, 68, 0.58);
-  box-shadow: 0 16px 32px rgba(10, 12, 18, 0.34), 0 0 0 1px rgba(239, 68, 68, 0.22);
-}
-
-.problem-card-top {
+/* ── Horizontal Summary Layout ── */
+.problem-card-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 1rem 1.5rem;
+  gap: 1rem;
+}
+
+.problem-card-main {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.problem-card-meta-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
 }
 
 .problem-card-slug {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: rgba(148, 163, 184, 0.46);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  min-width: 60px;
 }
 
 .problem-card-title {
   font-family: var(--font-body);
-  font-size: 1.12rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 600;
   color: var(--text);
-  line-height: 1.35;
+  margin: 0;
 }
 
 .problem-card-language {
   font-family: var(--font-mono);
-  font-size: 0.69rem;
-  color: rgba(148, 163, 184, 0.72);
+  font-size: 0.75rem;
+  color: var(--text-mid);
 }
 
 .problem-card-meta {
-  margin-top: auto;
   font-family: var(--font-mono);
-  color: rgba(148, 163, 184, 0.42);
-  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-size: 0.75rem;
 }
 
-/* ── Card toggle arrow */
-.problem-card-top {
-  align-items: flex-start;
-}
-
+/* ── Toggle arrow ── */
 .problem-card-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(148, 163, 184, 0.5);
-  font-size: 0.65rem;
-  transition: transform 0.25s ease, color var(--transition);
-  flex-shrink: 0;
-  margin-top: 0.1rem;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  transition: transform 0.3s ease, color 0.3s ease;
   user-select: none;
 }
 
 .problem-card.is-expanded .problem-card-toggle {
   transform: rotate(180deg);
-  color: var(--accent-light);
+  color: var(--accent);
 }
 
-/* ── Expanded card state */
 .problem-card.is-expanded {
-  transform: none;
-  border-color: rgba(108, 99, 255, 0.35);
-  box-shadow: 0 0 0 1px rgba(108, 99, 255, 0.18), 0 16px 40px rgba(10, 12, 18, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  background: var(--panel);
 }
 
-.problem-card.is-expanded:hover {
-  transform: none;
-}
-
-/* ── Detail panel */
+/* ── Detail panel ── */
 .problem-detail {
   display: none;
   flex-direction: column;
   gap: 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-  padding-top: 1.25rem;
-  margin-top: 0.25rem;
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0;
+  padding-top: 1.5rem;
 }
 
 .problem-detail.is-open {
   display: flex;
 }
 
-/* ── Detail sections */
+/* ── Detail sections ── */
 .problem-detail-section {
   display: flex;
   flex-direction: column;
@@ -231,7 +229,7 @@
   white-space: pre-wrap;
 }
 
-/* ── Examples */
+/* ── Examples ── */
 .problem-detail-examples {
   display: flex;
   flex-direction: column;
@@ -271,7 +269,7 @@
   word-break: break-word;
 }
 
-/* ── Start Coding button */
+/* ── Start Coding button ── */
 .problem-detail-footer {
   display: flex;
   justify-content: flex-end;
@@ -298,7 +296,7 @@
   box-shadow: 0 6px 20px rgba(108, 99, 255, 0.35);
 }
 
-/* ── Detail loading / error */
+/* ── Detail loading / error ── */
 .problem-detail-loading {
   font-family: var(--font-mono);
   font-size: 0.78rem;
@@ -313,7 +311,7 @@
   padding: 0.5rem 0;
 }
 
-/* ── Status messages */
+/* ── Status messages ── */
 .problems-status {
   font-family: var(--font-mono);
   font-size: 0.82rem;
@@ -326,29 +324,36 @@
   color: var(--red);
 }
 
-/* ── Responsive */
+/* ── Responsive ── */
 @media (max-width: 768px) {
-  .problems-grid {
-    grid-template-columns: 1fr;
-  }
-
   .problems-header {
     display: flex;
     flex-direction: column;
     padding: 0;
   }
-
   .problems-controls {
     width: 100%;
     grid-template-columns: 1fr;
   }
-
   .problems-sort-clear {
     grid-template-columns: minmax(0, 1fr) 40px;
   }
-
   .problems-search {
     width: 100%;
+  }
+  .problem-card-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .problem-card-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .problem-card-meta-group {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 1rem;
   }
 }
 
