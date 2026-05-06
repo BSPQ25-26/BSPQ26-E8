@@ -1,11 +1,10 @@
 /* ── Animated Background ── */
-.bg-animation {
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  z-index: -1;
+/* ── Animated Background (Applied directly to body) ── */
+body {
+  /* Overrides the solid background from base.css */
   background: linear-gradient(-45deg, var(--bg), var(--sidebar), var(--panel), var(--bg));
   background-size: 400% 400%;
-  animation: ambientGlow 18s ease infinite;
+  animation: ambientGlow 15s ease infinite;
 }
 
 @keyframes ambientGlow {
@@ -14,7 +13,6 @@
   100% { background-position: 0% 50%; }
 }
 
-/* ── Layout & Header ── */
 .problems-layout {
   max-width: 1140px;
   margin: 0 auto;
@@ -99,57 +97,47 @@
 
 /* ── Grid ── */
 .problems-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
-/* ── Problem card (Material Redesign) ── */
 .problem-card {
   display: flex;
   flex-direction: column;
+  gap: 0.4rem; /* Tighter gap between elements */
+  padding: 1rem 1.25rem; /* Overrides the bulky 1.5rem from base.css */
+  min-height: auto; /* Removes the old 154px tall limit */
   cursor: pointer;
-  border-radius: 8px;
-  background: var(--card);
-  border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  background: var(--card); /* Solid Material background */
+  border: 1px solid var(--border);
+  
+  /* Material Elevation 1 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease;
-  min-height: auto;
 }
 
 .problem-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  /* Material Elevation 3 */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   background: var(--panel);
 }
 
-/* ── Horizontal Summary Layout ── */
-.problem-card-summary {
+.problem-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
-  gap: 1rem;
-}
-
-.problem-card-main {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  flex: 1;
-}
-
-.problem-card-meta-group {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
+  margin-bottom: 0.25rem;
 }
 
 .problem-card-slug {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--text-dim);
-  min-width: 60px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .problem-card-title {
@@ -157,26 +145,32 @@
   font-size: 1.05rem;
   font-weight: 600;
   color: var(--text);
+  line-height: 1.2;
   margin: 0;
 }
 
 .problem-card-language {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--text-mid);
+  margin: 0;
 }
 
 .problem-card-meta {
+  margin-top: 0.25rem;
   font-family: var(--font-mono);
   color: var(--text-dim);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
-/* ── Toggle arrow ── */
+/* ── Card toggle arrow ── */
 .problem-card-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-dim);
-  font-size: 0.75rem;
-  transition: transform 0.3s ease, color 0.3s ease;
+  font-size: 0.65rem;
+  transition: transform 0.25s ease, color var(--transition);
   user-select: none;
 }
 
@@ -186,8 +180,9 @@
 }
 
 .problem-card.is-expanded {
+  transform: none;
+  border-color: rgba(108, 99, 255, 0.35);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
-  background: var(--panel);
 }
 
 /* ── Detail panel ── */
@@ -195,10 +190,9 @@
   display: none;
   flex-direction: column;
   gap: 1.25rem;
-  padding: 0 1.5rem 1.5rem 1.5rem;
   border-top: 1px solid var(--border);
-  margin-top: 0;
-  padding-top: 1.5rem;
+  padding-top: 1.25rem;
+  margin-top: 0.5rem; /* Slight separation from the meta text */
 }
 
 .problem-detail.is-open {

@@ -226,11 +226,11 @@
     const card = document.createElement('div');
     card.className = `card ${diff.card} problem-card`;
 
-    // Replaced layout with the new horizontal summary structure
+    // Restored to your original vertical layout
     card.innerHTML = `
       <div class="problem-card-summary">
         <div class="problem-card-main">
-          <span class="problem-card-slug">${safeSlug}</span>
+          <!-- Slug removed here -->
           <span class="problem-card-title">${safeTitle}</span>
           <span class="problem-card-language">${formatLanguages(problem.languages)}</span>
         </div>
