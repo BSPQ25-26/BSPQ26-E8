@@ -1,11 +1,10 @@
 /* ── Animated Background ── */
-.bg-animation {
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  z-index: -1;
+/* ── Animated Background (Applied directly to body) ── */
+body {
+  /* Overrides the solid background from base.css */
   background: linear-gradient(-45deg, var(--bg), var(--sidebar), var(--panel), var(--bg));
   background-size: 400% 400%;
-  animation: ambientGlow 18s ease infinite;
+  animation: ambientGlow 15s ease infinite;
 }
 
 @keyframes ambientGlow {
