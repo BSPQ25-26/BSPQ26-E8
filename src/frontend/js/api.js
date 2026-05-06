@@ -5,7 +5,12 @@
 
 class ApiClient {
     constructor() {
-        this.baseURL = 'http://localhost:10000/api';
+        const apiBase = window.API_BASE || 'http://localhost:10000';
+        this.baseURL = `${apiBase.replace(/\/$/, '')}/api`;
+    }
+
+    isAuthEndpoint(endpoint) {
+        return typeof endpoint === 'string' && endpoint.startsWith('/auth/');
     }
 
     /**
@@ -17,7 +22,7 @@ class ApiClient {
             ...customHeaders
         };
 
-        const token = auth.getToken();
+        const token = typeof auth !== 'undefined' ? auth.getToken() : null;
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
@@ -28,7 +33,11 @@ class ApiClient {
     /**
      * Generic fetch wrapper
      */
-    async request(endpoint, options = {}) {
+    async request(endpoint, options = {}, shouldRetryAuth = true) {
+        if (!this.isAuthEndpoint(endpoint) && typeof auth !== 'undefined') {
+            await auth.getValidToken();
+        }
+
         const url = `${this.baseURL}${endpoint}`;
 
         const config = {
@@ -41,22 +50,52 @@ class ApiClient {
 
             // Handle 401 Unauthorized - token expired or invalid
             if (response.status === 401) {
-                auth.clearToken();
+                if (shouldRetryAuth && !this.isAuthEndpoint(endpoint) && typeof auth !== 'undefined') {
+                    const refreshedToken = await auth.refreshAccessToken();
+                    if (refreshedToken) {
+                        return this.request(endpoint, options, false);
+                    }
+                }
+
+                if (typeof auth !== 'undefined') {
+                    auth.clearToken();
+                }
                 window.location.href = 'login.html';
                 throw new Error('Unauthorized - Please login again');
             }
 
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                const errorBody = await this.parseResponse(response);
+                const message = errorBody && errorBody.error
+                    ? errorBody.error
+                    : `HTTP ${response.status}: ${response.statusText}`;
+                const error = new Error(message);
+                error.status = response.status;
+                error.data = errorBody;
+                throw error;
             }
 
-            // Handle empty responses
-            const text = await response.text();
-            return text ? JSON.parse(text) : null;
+            return this.parseResponse(response);
 
         } catch (error) {
             console.error('API Request failed:', error);
             throw error;
+        }
+    }
+
+    /**
+     * Parse JSON responses while keeping no-content responses as null.
+     */
+    async parseResponse(response) {
+        const text = await response.text();
+        if (!text) {
+            return null;
+        }
+
+        try {
+            return JSON.parse(text);
+        } catch (_error) {
+            return text;
         }
     }
 
