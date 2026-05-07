@@ -76,7 +76,7 @@
     if (!body) return;
 
     const activeNav = body.dataset.activeNav || '';
-    const bottomText = body.dataset.bottomText || 'Frontend UI · React + Tailwind CSS inspired design';
+    const bottomText = body.dataset.bottomText || '';
 
     if (!body.querySelector('.accent-bar')) {
       const accent = document.createElement('div');

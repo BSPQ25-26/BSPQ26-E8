@@ -1,16 +1,47 @@
-/* ── Animated Background ── */
-/* ── Animated Background (Applied directly to body) ── */
-body {
-  /* Overrides the solid background from base.css */
-  background: linear-gradient(-45deg, var(--bg), var(--sidebar), var(--panel), var(--bg));
-  background-size: 400% 400%;
-  animation: ambientGlow 15s ease infinite;
+/* ── Moving & Rotating Shapes Background ── */
+.bg-shapes {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: -1;
+  margin: 0; padding: 0;
+  background: var(--bg); /* Uses your default dark theme background */
+  overflow: hidden;
 }
 
-@keyframes ambientGlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.bg-shapes li {
+  position: absolute;
+  display: block;
+  list-style: none;
+  /* Very subtle accent color for a professional look */
+  background: rgba(108, 99, 255, 0.03); 
+  border: 1px solid rgba(108, 99, 255, 0.05);
+  animation: floatUp 25s linear infinite;
+  bottom: -150px;
+}
+
+/* Randomizing size, position, and speed for a natural feel */
+.bg-shapes li:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; }
+.bg-shapes li:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
+.bg-shapes li:nth-child(3) { left: 70%; width: 20px; height: 20px; animation-delay: 4s; }
+.bg-shapes li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
+.bg-shapes li:nth-child(5) { left: 65%; width: 20px; height: 20px; animation-delay: 0s; }
+.bg-shapes li:nth-child(6) { left: 75%; width: 110px; height: 110px; animation-delay: 3s; }
+.bg-shapes li:nth-child(7) { left: 35%; width: 150px; height: 150px; animation-delay: 7s; }
+.bg-shapes li:nth-child(8) { left: 50%; width: 25px; height: 25px; animation-delay: 15s; animation-duration: 45s; }
+.bg-shapes li:nth-child(9) { left: 20%; width: 15px; height: 15px; animation-delay: 2s; animation-duration: 35s; }
+.bg-shapes li:nth-child(10) { left: 85%; width: 150px; height: 150px; animation-delay: 0s; animation-duration: 11s; }
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+    border-radius: 0;
+  }
+  100% {
+    transform: translateY(-1000px) rotate(720deg);
+    opacity: 0;
+    border-radius: 50%;
+  }
 }
 
 .problems-layout {
@@ -28,7 +59,6 @@ body {
   border: none;
   border-radius: 0;
   background: transparent;
-  backdrop-filter: none;
 }
 
 .problems-heading {
@@ -96,7 +126,7 @@ body {
   background: rgba(108, 99, 255, 0.1);
 }
 
-/* ── Grid */
+/* ── Grid ── */
 .problems-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -143,8 +173,8 @@ body {
 
 .problem-card-title {
   font-family: var(--font-body);
-  font-size: 1.12rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 600;
   color: var(--text);
   line-height: 1.2;
   margin: 0;
@@ -200,7 +230,7 @@ body {
   display: flex;
 }
 
-/* ── Detail sections */
+/* ── Detail sections ── */
 .problem-detail-section {
   display: flex;
   flex-direction: column;
@@ -224,7 +254,7 @@ body {
   white-space: pre-wrap;
 }
 
-/* ── Examples */
+/* ── Examples ── */
 .problem-detail-examples {
   display: flex;
   flex-direction: column;
@@ -264,7 +294,7 @@ body {
   word-break: break-word;
 }
 
-/* ── Start Coding button */
+/* ── Start Coding button ── */
 .problem-detail-footer {
   display: flex;
   justify-content: flex-end;
@@ -291,7 +321,7 @@ body {
   box-shadow: 0 6px 20px rgba(108, 99, 255, 0.35);
 }
 
-/* ── Detail loading / error */
+/* ── Detail loading / error ── */
 .problem-detail-loading {
   font-family: var(--font-mono);
   font-size: 0.78rem;
@@ -306,7 +336,7 @@ body {
   padding: 0.5rem 0;
 }
 
-/* ── Status messages */
+/* ── Status messages ── */
 .problems-status {
   font-family: var(--font-mono);
   font-size: 0.82rem;
@@ -319,29 +349,36 @@ body {
   color: var(--red);
 }
 
-/* ── Responsive */
+/* ── Responsive ── */
 @media (max-width: 768px) {
-  .problems-grid {
-    grid-template-columns: 1fr;
-  }
-
   .problems-header {
     display: flex;
     flex-direction: column;
     padding: 0;
   }
-
   .problems-controls {
     width: 100%;
     grid-template-columns: 1fr;
   }
-
   .problems-sort-clear {
     grid-template-columns: minmax(0, 1fr) 40px;
   }
-
   .problems-search {
     width: 100%;
+  }
+  .problem-card-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .problem-card-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .problem-card-meta-group {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 1rem;
   }
 }
 
