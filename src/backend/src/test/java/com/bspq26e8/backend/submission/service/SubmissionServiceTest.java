@@ -160,6 +160,41 @@ class SubmissionServiceTest {
     }
 
     @Test
+    void markExecutionStartedReturnsNotFoundWhenSubmissionDoesNotExist() {
+        UUID submissionId = UUID.randomUUID();
+
+        when(submissionRepository.findById(submissionId)).thenReturn(Optional.empty());
+
+        SubmissionService.StartExecutionResult result = submissionService.markExecutionStarted(submissionId);
+
+        assertFalse(result.started());
+        assertTrue(result.notFound());
+        assertEquals("Submission not found", result.errorMessage());
+        verify(submissionRepository, never()).save(any(Submission.class));
+    }
+
+    @Test
+    void markExecutionStartedMarksQueuedSubmissionRunningAndSaves() {
+        UUID submissionId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        UUID problemId = UUID.randomUUID();
+        Submission existingSubmission = org.mockito.Mockito.mock(Submission.class);
+        Submission savedSubmission = mockedSubmission(submissionId, userId, problemId, 1L, SubmissionStatus.RUNNING);
+
+        when(existingSubmission.getStatus()).thenReturn(SubmissionStatus.QUEUED);
+        when(submissionRepository.findById(submissionId)).thenReturn(Optional.of(existingSubmission));
+        when(submissionRepository.save(existingSubmission)).thenReturn(savedSubmission);
+
+        SubmissionService.StartExecutionResult result = submissionService.markExecutionStarted(submissionId);
+
+        assertTrue(result.started());
+        assertFalse(result.notFound());
+        assertEquals(SubmissionStatus.RUNNING, result.submission().status());
+        verify(existingSubmission).markRunning();
+        verify(submissionRepository).save(existingSubmission);
+    }
+
+    @Test
     void applyExecutionResultReturnsNotFoundWhenSubmissionDoesNotExist() {
         UUID submissionId = UUID.randomUUID();
         SubmissionService.ApplyExecutionResultCommand command =
