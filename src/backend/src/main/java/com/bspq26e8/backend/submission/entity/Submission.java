@@ -129,24 +129,22 @@ public class Submission {
         return evaluatedAt;
     }
 
-    public void applyExecutionResult(
-            SubmissionStatus status,
-            String verdictMessage,
-            Integer runtimeMs,
-            Integer memoryMb,
-            int testcasesPassed,
-            Integer testcasesTotal
-    ) {
-        if (status == null) {
-            throw new IllegalArgumentException("status is required");
+    public void updateEditableFields(Language language, String sourceCode) {
+        if (language != null) {
+            this.language = language;
         }
 
-        this.status = status;
-        this.verdictMessage = verdictMessage;
-        this.runtimeMs = runtimeMs;
-        this.memoryMb = memoryMb;
-        this.testcasesPassed = testcasesPassed;
-        this.testcasesTotal = testcasesTotal;
-        this.evaluatedAt = OffsetDateTime.now();
+        if (sourceCode != null) {
+            this.sourceCode = sourceCode;
+        }
+
+        this.status = SubmissionStatus.QUEUED;
+        this.verdictMessage = null;
+        this.runtimeMs = null;
+        this.memoryMb = null;
+        this.testcasesPassed = 0;
+        this.testcasesTotal = null;
+        this.evaluatedAt = null;
+        this.submittedAt = OffsetDateTime.now();
     }
 }
