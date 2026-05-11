@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -161,64 +160,65 @@ class SubmissionServiceTest {
     }
 
     @Test
-    void updateSubmissionReturnsNotFoundWhenSubmissionDoesNotBelongToUser() {
+    void applyExecutionResultReturnsNotFoundWhenSubmissionDoesNotExist() {
         UUID submissionId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
-        SubmissionService.UpdateSubmissionCommand command =
-                new SubmissionService.UpdateSubmissionCommand(submissionId, userId, 2L, "new code");
+        SubmissionService.ApplyExecutionResultCommand command =
+                new SubmissionService.ApplyExecutionResultCommand(
+                        submissionId,
+                        SubmissionStatus.ACCEPTED,
+                        "Accepted",
+                        42,
+                        128,
+                        10,
+                        10
+                );
 
-        when(submissionRepository.findByIdAndUserId(submissionId, userId)).thenReturn(Optional.empty());
+        when(submissionRepository.findById(submissionId)).thenReturn(Optional.empty());
 
-        SubmissionService.UpdateSubmissionResult result = submissionService.updateSubmission(command);
+        SubmissionService.ApplyExecutionResultResult result = submissionService.applyExecutionResult(command);
 
         assertFalse(result.updated());
         assertTrue(result.notFound());
-        assertEquals("Submission not found for this user", result.errorMessage());
+        assertEquals("Submission not found", result.errorMessage());
         verify(submissionRepository, never()).save(any(Submission.class));
     }
 
     @Test
-    void updateSubmissionReturnsNotFoundWhenNewLanguageDoesNotExist() {
-        UUID submissionId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
-        Submission existingSubmission = org.mockito.Mockito.mock(Submission.class);
-
-        SubmissionService.UpdateSubmissionCommand command =
-                new SubmissionService.UpdateSubmissionCommand(submissionId, userId, 99L, "new code");
-
-        when(submissionRepository.findByIdAndUserId(submissionId, userId)).thenReturn(Optional.of(existingSubmission));
-        when(languageRepository.findById(99L)).thenReturn(Optional.empty());
-
-        SubmissionService.UpdateSubmissionResult result = submissionService.updateSubmission(command);
-
-        assertFalse(result.updated());
-        assertTrue(result.notFound());
-        assertEquals("Language not found", result.errorMessage());
-        verify(submissionRepository, never()).save(any(Submission.class));
-    }
-
-    @Test
-    void updateSubmissionUpdatesEditableFieldsAndSaves() {
+    void applyExecutionResultUpdatesResultFieldsAndSaves() {
         UUID submissionId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         UUID problemId = UUID.randomUUID();
         Submission existingSubmission = org.mockito.Mockito.mock(Submission.class);
-        Language newLanguage = org.mockito.Mockito.mock(Language.class);
-        Submission savedSubmission = mockedSubmission(submissionId, userId, problemId, 2L, SubmissionStatus.QUEUED);
+        Submission savedSubmission = mockedSubmission(submissionId, userId, problemId, 1L, SubmissionStatus.ACCEPTED);
 
-        SubmissionService.UpdateSubmissionCommand command =
-                new SubmissionService.UpdateSubmissionCommand(submissionId, userId, 2L, "new code");
+        SubmissionService.ApplyExecutionResultCommand command =
+                new SubmissionService.ApplyExecutionResultCommand(
+                        submissionId,
+                        SubmissionStatus.ACCEPTED,
+                        "Accepted",
+                        42,
+                        128,
+                        10,
+                        10
+                );
 
-        when(submissionRepository.findByIdAndUserId(submissionId, userId)).thenReturn(Optional.of(existingSubmission));
-        when(languageRepository.findById(2L)).thenReturn(Optional.of(newLanguage));
+        when(submissionRepository.findById(submissionId)).thenReturn(Optional.of(existingSubmission));
         when(submissionRepository.save(existingSubmission)).thenReturn(savedSubmission);
 
-        SubmissionService.UpdateSubmissionResult result = submissionService.updateSubmission(command);
+        SubmissionService.ApplyExecutionResultResult result = submissionService.applyExecutionResult(command);
 
         assertTrue(result.updated());
         assertFalse(result.notFound());
         assertEquals(submissionId, result.submission().id());
-        verify(existingSubmission).updateEditableFields(newLanguage, "new code");
+        assertEquals(SubmissionStatus.ACCEPTED, result.submission().status());
+        verify(existingSubmission).applyExecutionResult(
+                SubmissionStatus.ACCEPTED,
+                "Accepted",
+                42,
+                128,
+                10,
+                10
+        );
         verify(submissionRepository).save(existingSubmission);
     }
 
@@ -237,35 +237,6 @@ class SubmissionServiceTest {
         assertFalse(result.created());
         assertTrue(result.notFound());
         assertEquals("Base submission not found for this user", result.errorMessage());
-    }
-
-
-
-    @Test
-    void deleteSubmissionReturnsErrorWhenNotOwnedByUser() {
-        UUID submissionId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
-
-        when(submissionRepository.findByIdAndUserId(submissionId, userId)).thenReturn(Optional.empty());
-
-        Optional<String> result = submissionService.deleteSubmission(submissionId, userId);
-
-        assertTrue(result.isPresent());
-        assertEquals("Submission not found for this user", result.get());
-    }
-
-    @Test
-    void deleteSubmissionDeletesWhenOwnedByUser() {
-        UUID submissionId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
-        Submission submission = org.mockito.Mockito.mock(Submission.class);
-
-        when(submissionRepository.findByIdAndUserId(submissionId, userId)).thenReturn(Optional.of(submission));
-
-        Optional<String> result = submissionService.deleteSubmission(submissionId, userId);
-
-        assertTrue(result.isEmpty());
-        verify(submissionRepository).delete(submission);
     }
 
     @Test
