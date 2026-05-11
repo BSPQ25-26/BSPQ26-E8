@@ -2,9 +2,11 @@ package com.bspq26e8.backend.problem.service;
 
 import com.bspq26e8.backend.problem.entity.Problem;
 import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
+import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,6 +20,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -30,8 +33,18 @@ public class ProblemServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private ProblemLanguageRepository problemLanguageRepository;
+
     @InjectMocks
     private ProblemService problemService;
+
+    @BeforeEach
+    void setUp() {
+        lenient()
+                .when(problemLanguageRepository.findLanguageRowsByProblemIds(anyCollection()))
+                .thenReturn(List.of());
+    }
 
     @Test
     void createProblem_Success() {
