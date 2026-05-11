@@ -83,6 +83,22 @@ public class SubmissionService {
 		return submissionRepository.findBestMineByProblem(userId, problemId).map(this::toView);
 	}
 
+	public StartExecutionResult markExecutionStarted(UUID submissionId) {
+		Optional<Submission> maybeSubmission = submissionRepository.findById(submissionId);
+		if (maybeSubmission.isEmpty()) {
+			return StartExecutionResult.notFound("Submission not found");
+		}
+
+		Submission submission = maybeSubmission.get();
+		if (submission.getStatus() != SubmissionStatus.QUEUED) {
+			return StartExecutionResult.skipped("Submission is not queued", toView(submission));
+		}
+
+		submission.markRunning();
+		Submission saved = submissionRepository.save(submission);
+		return StartExecutionResult.started(toView(saved));
+	}
+
 	public ApplyExecutionResultResult applyExecutionResult(ApplyExecutionResultCommand command) {
 		Optional<Submission> maybeSubmission = submissionRepository.findById(command.submissionId());
 		if (maybeSubmission.isEmpty()) {
@@ -191,6 +207,27 @@ public class SubmissionService {
 	}
 
 	public record ResubmitCommand(UUID baseSubmissionId, UUID userId, Long languageId, String sourceCode) {
+	}
+
+	public record StartExecutionResult(
+			boolean started,
+			boolean notFound,
+			boolean skipped,
+			String errorMessage,
+			SubmissionView submission
+	) {
+
+		public static StartExecutionResult started(SubmissionView submission) {
+			return new StartExecutionResult(true, false, false, null, submission);
+		}
+
+		public static StartExecutionResult notFound(String message) {
+			return new StartExecutionResult(false, true, false, message, null);
+		}
+
+		public static StartExecutionResult skipped(String message, SubmissionView submission) {
+			return new StartExecutionResult(false, false, true, message, submission);
+		}
 	}
 
 	public record CreateSubmissionResult(boolean created, boolean notFound, String errorMessage, SubmissionView submission) {

@@ -129,6 +129,10 @@ public class Submission {
         return evaluatedAt;
     }
 
+    public void markRunning() {
+        this.status = SubmissionStatus.RUNNING;
+    }
+
     public void applyExecutionResult(
             SubmissionStatus status,
             String verdictMessage,
