@@ -5,7 +5,6 @@ import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
 import com.bspq26e8.backend.problem.entity.TestCase;
 import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
-import com.bspq26e8.backend.problem.repository.TestCaseRepository;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
 import java.util.Collection;
@@ -24,18 +23,15 @@ public class ProblemService {
 	private final ProblemRepository problemRepository;
 	private final ProblemLanguageRepository problemLanguageRepository;
 	private final UserRepository userRepository;
-	private final TestCaseRepository testCaseRepository;
 
 	public ProblemService(
 			ProblemRepository problemRepository,
 			ProblemLanguageRepository problemLanguageRepository,
-			UserRepository userRepository,
-			TestCaseRepository testCaseRepository
+			UserRepository userRepository
 	) {
 		this.problemRepository = problemRepository;
 		this.problemLanguageRepository = problemLanguageRepository;
 		this.userRepository = userRepository;
-		this.testCaseRepository = testCaseRepository;
 	}
 
 	@Transactional
@@ -64,19 +60,19 @@ public class ProblemService {
 				command.languageCompilationConfig()
 		);
 
-		Problem saved = problemRepository.save(problem);
-
 		if (command.examples() != null && !command.examples().isEmpty()) {
 			List<TestCase> sampleCases = command.examples().stream()
 					.filter(ex -> ex.inputData() != null && !ex.inputData().isBlank())
 					.map(ex -> new TestCase(
-							saved,
+							problem,
 							ex.inputData().trim(),
 							ex.expectedOutput() == null ? "" : ex.expectedOutput().trim(),
 							true))
 					.toList();
-			testCaseRepository.saveAll(sampleCases);
+			problem.setTestCases(sampleCases);
 		}
+
+		Problem saved = problemRepository.save(problem);
 
 		List<String> languages = resolveLanguagesByProblemIds(List.of(saved.getId()))
 				.getOrDefault(saved.getId(), List.of());

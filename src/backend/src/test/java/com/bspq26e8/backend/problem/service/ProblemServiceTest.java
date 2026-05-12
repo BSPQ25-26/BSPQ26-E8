@@ -4,7 +4,6 @@ import com.bspq26e8.backend.problem.entity.Problem;
 import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
 import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
-import com.bspq26e8.backend.problem.repository.TestCaseRepository;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,10 +30,9 @@ public class ProblemServiceTest {
     private ProblemLanguageRepository problemLanguageRepository;
     @Mock
     private ProblemRepository problemRepository;
+
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private TestCaseRepository testCaseRepository;
 
     @InjectMocks
     private ProblemService problemService;
