@@ -5,6 +5,7 @@ import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
 import com.bspq26e8.backend.problem.entity.TestCase;
 import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
+import com.bspq26e8.backend.problem.repository.TestCaseRepository;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
 import java.util.Collection;
@@ -23,17 +24,21 @@ public class ProblemService {
 	private final ProblemRepository problemRepository;
 	private final ProblemLanguageRepository problemLanguageRepository;
 	private final UserRepository userRepository;
+	private final TestCaseRepository testCaseRepository;
 
 	public ProblemService(
 			ProblemRepository problemRepository,
 			ProblemLanguageRepository problemLanguageRepository,
-			UserRepository userRepository
+			UserRepository userRepository,
+			TestCaseRepository testCaseRepository
 	) {
 		this.problemRepository = problemRepository;
 		this.problemLanguageRepository = problemLanguageRepository;
 		this.userRepository = userRepository;
+		this.testCaseRepository = testCaseRepository;
 	}
 
+	@Transactional
 	public CreateProblemResult createProblem(CreateProblemCommand command) {
 		if (problemRepository.existsBySlug(command.slug())) {
 			return CreateProblemResult.conflict("A problem with that slug already exists");
@@ -60,6 +65,19 @@ public class ProblemService {
 		);
 
 		Problem saved = problemRepository.save(problem);
+
+		if (command.examples() != null && !command.examples().isEmpty()) {
+			List<TestCase> sampleCases = command.examples().stream()
+					.filter(ex -> ex.inputData() != null && !ex.inputData().isBlank())
+					.map(ex -> new TestCase(
+							saved,
+							ex.inputData().trim(),
+							ex.expectedOutput() == null ? "" : ex.expectedOutput().trim(),
+							true))
+					.toList();
+			testCaseRepository.saveAll(sampleCases);
+		}
+
 		List<String> languages = resolveLanguagesByProblemIds(List.of(saved.getId()))
 				.getOrDefault(saved.getId(), List.of());
 		return CreateProblemResult.created(toSummary(saved, languages));
@@ -239,6 +257,8 @@ public class ProblemService {
 		);
 	}
 
+	public record ExampleInput(String inputData, String expectedOutput) {}
+
 	public record CreateProblemCommand(
 			String slug,
 			String title,
@@ -250,7 +270,8 @@ public class ProblemService {
 			ProblemDifficulty difficulty,
 			UUID authorId,
 			String solutionTemplate,
-			String languageCompilationConfig
+			String languageCompilationConfig,
+			List<ExampleInput> examples
 	) {
 	}
 
