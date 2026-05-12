@@ -4,6 +4,7 @@ import com.bspq26e8.backend.problem.entity.Problem;
 import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
 import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
+import com.bspq26e8.backend.problem.repository.TestCaseRepository;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,9 +31,10 @@ public class ProblemServiceTest {
     private ProblemLanguageRepository problemLanguageRepository;
     @Mock
     private ProblemRepository problemRepository;
-
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private TestCaseRepository testCaseRepository;
 
     @InjectMocks
     private ProblemService problemService;
@@ -46,7 +48,7 @@ public class ProblemServiceTest {
     void createProblem_Success() {
         ProblemService.CreateProblemCommand command = new ProblemService.CreateProblemCommand(
                 "test-slug", "Test Title", "statement", "input", "output", "constraints", "hints",
-                ProblemDifficulty.EASY, UUID.randomUUID(), "template", "config"
+                ProblemDifficulty.EASY, UUID.randomUUID(), "template", "config", List.of()
         );
         User mockUser = mock(User.class);
         when(userRepository.findById(command.authorId())).thenReturn(Optional.of(mockUser));
@@ -79,7 +81,7 @@ public class ProblemServiceTest {
     void createProblem_AuthorNotFound() {
         ProblemService.CreateProblemCommand command = new ProblemService.CreateProblemCommand(
                 "test-slug", "Test Title", "statement", "input", "output", "constraints", "hints",
-                ProblemDifficulty.EASY, UUID.randomUUID(), "template", "config"
+                ProblemDifficulty.EASY, UUID.randomUUID(), "template", "config", List.of()
         );
         when(problemRepository.existsBySlug(command.slug())).thenReturn(false);
         when(userRepository.findById(command.authorId())).thenReturn(Optional.empty());
@@ -97,7 +99,7 @@ public class ProblemServiceTest {
     void createProblem_NullAuthorId() {
         ProblemService.CreateProblemCommand command = new ProblemService.CreateProblemCommand(
                 "test-slug", "Test Title", "statement", "input", "output", "constraints", "hints",
-                ProblemDifficulty.EASY, null, "template", "config"
+                ProblemDifficulty.EASY, null, "template", "config", List.of()
         );
         when(problemRepository.existsBySlug(command.slug())).thenReturn(false);
 
