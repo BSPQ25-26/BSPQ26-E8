@@ -105,25 +105,25 @@ ALTER TABLE test_cases
   ALTER COLUMN id SET DEFAULT gen_random_uuid();
 
 INSERT INTO test_cases (id, problem_id, input_data, expected_output, is_sample)
-SELECT gen_random_uuid(), p.id, '4\n2 7 11 15\n9\n', '0 1\n', TRUE
+SELECT gen_random_uuid(), p.id, E'4\n2 7 11 15\n9\n', E'0 1\n', TRUE
 FROM problems p
 WHERE p.slug = 'two-sum'
   AND NOT EXISTS (SELECT 1 FROM test_cases tc WHERE tc.problem_id = p.id);
 
 INSERT INTO test_cases (id, problem_id, input_data, expected_output, is_sample)
-SELECT gen_random_uuid(), p.id, '()[]{}', 'true\n', TRUE
+SELECT gen_random_uuid(), p.id, '()[]{}', E'true\n', TRUE
 FROM problems p
 WHERE p.slug = 'valid-parentheses'
   AND NOT EXISTS (SELECT 1 FROM test_cases tc WHERE tc.problem_id = p.id);
 
 INSERT INTO test_cases (id, problem_id, input_data, expected_output, is_sample)
-SELECT gen_random_uuid(), p.id, '3\n1 2 5\n11\n', '3\n', TRUE
+SELECT gen_random_uuid(), p.id, E'3\n1 2 5\n11\n', E'3\n', TRUE
 FROM problems p
 WHERE p.slug = 'coin-change'
   AND NOT EXISTS (SELECT 1 FROM test_cases tc WHERE tc.problem_id = p.id);
 
 INSERT INTO test_cases (id, problem_id, input_data, expected_output, is_sample)
-SELECT gen_random_uuid(), p.id, '3 3\n0 0 0\n1 1 0\n0 0 0\n', '4\n', TRUE
+SELECT gen_random_uuid(), p.id, E'3 3\n0 0 0\n1 1 0\n0 0 0\n', E'4\n', TRUE
 FROM problems p
 WHERE p.slug = 'shortest-path-grid'
   AND NOT EXISTS (SELECT 1 FROM test_cases tc WHERE tc.problem_id = p.id);
