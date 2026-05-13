@@ -3,12 +3,16 @@ package com.bspq26e8.backend.auth.security;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Clock;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,10 +20,24 @@ public class AccessTokenService {
 
     private static final String HMAC_SHA256 = "HmacSHA256";
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final String TOKEN_SECRET = "bspq26e8-dev-access-token-secret";
+    private static final long ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
+    private final String tokenSecret;
+    private final Clock clock;
+
+    @Autowired
+    public AccessTokenService(
+            @Value("${security.access-token.secret:bspq26e8-dev-access-token-secret}") String tokenSecret
+    ) {
+        this(tokenSecret, Clock.systemUTC());
+    }
+
+    AccessTokenService(String tokenSecret, Clock clock) {
+        this.tokenSecret = tokenSecret;
+        this.clock = clock;
+    }
 
     public String generateAccessToken(UUID userId) {
-        String payload = userId + ":" + Instant.now().getEpochSecond();
+        String payload = userId + ":" + Instant.now(clock).getEpochSecond();
         String encodedPayload = base64UrlEncode(payload);
         String signature = base64UrlEncode(hmacSha256(payload));
         return encodedPayload + "." + signature;
@@ -56,22 +74,32 @@ public class AccessTokenService {
             return Optional.empty();
         }
 
-        String[] payloadParts = payload.split(":");
-        if (payloadParts.length < 1) {
+        String[] payloadParts = payload.split(":", -1);
+        if (payloadParts.length != 2) {
             return Optional.empty();
         }
 
         try {
-            return Optional.of(UUID.fromString(payloadParts[0]));
-        } catch (IllegalArgumentException ex) {
+            UUID userId = UUID.fromString(payloadParts[0]);
+            Instant issuedAt = Instant.ofEpochSecond(Long.parseLong(payloadParts[1]));
+            if (isExpired(issuedAt)) {
+                return Optional.empty();
+            }
+            return Optional.of(userId);
+        } catch (DateTimeException | IllegalArgumentException ex) {
             return Optional.empty();
         }
+    }
+
+    private boolean isExpired(Instant issuedAt) {
+        Instant expiresAt = issuedAt.plusSeconds(ACCESS_TOKEN_TTL_SECONDS);
+        return !expiresAt.isAfter(Instant.now(clock));
     }
 
     private byte[] hmacSha256(String data) {
         try {
             Mac mac = Mac.getInstance(HMAC_SHA256);
-            SecretKeySpec secretKeySpec = new SecretKeySpec(TOKEN_SECRET.getBytes(StandardCharsets.UTF_8), HMAC_SHA256);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(tokenSecret.getBytes(StandardCharsets.UTF_8), HMAC_SHA256);
             mac.init(secretKeySpec);
             return mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
         } catch (NoSuchAlgorithmException | InvalidKeyException ex) {

@@ -26,7 +26,7 @@
     <div class="hero-left anim-fade-up anim-delay-1">
       <h1 class="title">Realcode</h1>
       <div class="cta-group">
-        <a href="problems.html" class="btn-primary">Learn More →</a>
+        <a href="problems.html" class="btn-primary">Explore Problems →</a>
         <a href="#" class="btn-secondary">Log Out</a>
       </div>
     </div>
@@ -59,7 +59,7 @@
       if (ctaGroup) {
         if (isAuthenticated) {
           ctaGroup.innerHTML = `
-            <a href="problems.html" class="btn-primary">Learn More →</a>
+            <a href="problems.html" class="btn-primary">Explore Problems →</a>
             <a href="#" class="btn-secondary" onclick="auth.logout(); return false;">Log Out</a>
           `;
         } else {

@@ -25,3 +25,7 @@ spring:
   sql:
     init:
       mode: never
+
+security:
+  access-token:
+    secret: ${ACCESS_TOKEN_SECRET:bspq26e8-dev-access-token-secret}

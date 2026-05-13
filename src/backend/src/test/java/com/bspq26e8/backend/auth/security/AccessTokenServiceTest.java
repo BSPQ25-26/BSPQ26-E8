@@ -1,5 +1,8 @@
 package com.bspq26e8.backend.auth.security;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,7 +14,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AccessTokenServiceTest {
 
-    private final AccessTokenService accessTokenService = new AccessTokenService();
+    private static final String TOKEN_SECRET = "test-access-token-secret";
+    private static final Instant NOW = Instant.parse("2026-05-03T10:00:00Z");
+    private static final Clock FIXED_CLOCK = Clock.fixed(NOW, ZoneOffset.UTC);
+
+    private final AccessTokenService accessTokenService = new AccessTokenService(TOKEN_SECRET, FIXED_CLOCK);
 
     @Test
     void generateAccessTokenAndExtractUserId() {
@@ -81,6 +88,31 @@ class AccessTokenServiceTest {
         Optional<UUID> extracted = accessTokenService.extractUserIdFromToken(tamperedPayload + "." + parts[1]);
 
         assertFalse(extracted.isPresent());
+    }
+
+    @Test
+    void extractUserIdFromTokenReturnsEmptyWhenTokenIsExpired() {
+        UUID userId = UUID.randomUUID();
+        Clock issuedAtClock = Clock.fixed(NOW.minusSeconds(901), ZoneOffset.UTC);
+        AccessTokenService issuingService = new AccessTokenService(TOKEN_SECRET, issuedAtClock);
+        String token = issuingService.generateAccessToken(userId);
+
+        Optional<UUID> extracted = accessTokenService.extractUserIdFromToken(token);
+
+        assertTrue(extracted.isEmpty());
+    }
+
+    @Test
+    void extractUserIdFromTokenAcceptsTokenBeforeExpiration() {
+        UUID userId = UUID.randomUUID();
+        Clock issuedAtClock = Clock.fixed(NOW.minusSeconds(899), ZoneOffset.UTC);
+        AccessTokenService issuingService = new AccessTokenService(TOKEN_SECRET, issuedAtClock);
+        String token = issuingService.generateAccessToken(userId);
+
+        Optional<UUID> extracted = accessTokenService.extractUserIdFromToken(token);
+
+        assertTrue(extracted.isPresent());
+        assertEquals(userId, extracted.get());
     }
 }
 

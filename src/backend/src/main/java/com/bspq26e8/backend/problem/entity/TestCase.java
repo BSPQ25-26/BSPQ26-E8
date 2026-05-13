@@ -12,10 +12,16 @@ public class TestCase {
     @Column(name = "id")
     private UUID id;
 
+    @PrePersist
+    void ensureId() {
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
+    }
+
     @ManyToOne
     @JoinColumn(name="problem_id", nullable = false)
     private Problem problem;
-
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String inputData;

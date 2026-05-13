@@ -226,17 +226,20 @@
     const card = document.createElement('div');
     card.className = `card ${diff.card} problem-card`;
 
+    // Restored to your original vertical layout
     card.innerHTML = `
-      <div class="problem-card-top">
-        <span class="problem-card-slug">${safeSlug}</span>
-        <div style="display:flex;align-items:center;gap:0.6rem">
+      <div class="problem-card-summary">
+        <div class="problem-card-main">
+          <!-- Slug removed here -->
+          <span class="problem-card-title">${safeTitle}</span>
+          <span class="problem-card-language">${formatLanguages(problem.languages)}</span>
+        </div>
+        <div class="problem-card-meta-group">
+          <span class="problem-card-meta">${formatCreatedAt(problem.createdAt)}</span>
           <span class="badge ${diff.badge}">${diff.label}</span>
           <span class="problem-card-toggle">▼</span>
         </div>
       </div>
-      <p class="problem-card-title">${safeTitle}</p>
-      <p class="problem-card-language">${formatLanguages(problem.languages)}</p>
-      <p class="problem-card-meta">${formatCreatedAt(problem.createdAt)}</p>
       <div class="problem-detail"></div>
     `;
 
