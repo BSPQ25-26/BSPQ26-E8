@@ -7,6 +7,6 @@ public record CodeExecutionOptions(
 ) {
 
     public static CodeExecutionOptions standard() {
-        return new CodeExecutionOptions(false, true, false);
+        return new CodeExecutionOptions(true, true, false);
     }
 }

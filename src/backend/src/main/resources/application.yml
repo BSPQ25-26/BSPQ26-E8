@@ -29,3 +29,24 @@ spring:
 security:
   access-token:
     secret: ${ACCESS_TOKEN_SECRET:bspq26e8-dev-access-token-secret}
+
+judge0:
+  enabled: ${JUDGE0_ENABLED:false}
+  base-url: ${JUDGE0_BASE_URL:https://ce.judge0.com}
+  api-key: ${JUDGE0_API_KEY:}
+  api-host: ${JUDGE0_API_HOST:}
+  authorization-token: ${JUDGE0_AUTHORIZATION_TOKEN:}
+  base64-encoded: ${JUDGE0_BASE64_ENCODED:false}
+  poll-interval: ${JUDGE0_POLL_INTERVAL:1s}
+  max-poll-attempts: ${JUDGE0_MAX_POLL_ATTEMPTS:30}
+  language-ids:
+    python: ${JUDGE0_LANGUAGE_PYTHON:71}
+    javascript: ${JUDGE0_LANGUAGE_JAVASCRIPT:63}
+    java: ${JUDGE0_LANGUAGE_JAVA:62}
+    cpp: ${JUDGE0_LANGUAGE_CPP:54}
+
+codeexecution:
+  queue:
+    enabled: ${CODE_EXECUTION_QUEUE_ENABLED:false}
+    batch-size: ${CODE_EXECUTION_QUEUE_BATCH_SIZE:5}
+    poll-delay-ms: ${CODE_EXECUTION_QUEUE_POLL_DELAY_MS:5000}
