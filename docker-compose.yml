@@ -61,5 +61,59 @@ services:
     volumes:
       - ./src/backend/src/test/performance:/scripts #
     command: run /scripts/main.js #
+
+
+
+  judge0-db:
+    image: postgres:16.2
+    container_name: judge-db
+    ports:
+        - "5433:5432"
+    restart: always
+    env_file:
+      - judge0.conf
+    volumes:
+      - judge0_data:/var/lib/postgresql/data
+
+  judge0-server:
+    image:  judge0/judge0:latest
+    depends_on:
+      - judge0-db
+      - judge0-redis
+    container_name: judge0-server
+    restart: always
+    ports:
+        - "2358:2358"
+    privileged: true
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+
+  judge0-redis:
+    image: redis:7.2.4
+    container_name: judge0-redis
+    env_file: judge0.conf
+    restart: always
+    command: [
+      "bash", "-c",
+      'docker-entrypoint.sh --appendonly no --requirepass "$$REDIS_PASSWORD"']
+
+  judge0-worker:
+    image: judge0/judge0:latest
+    container_name: judge0-worker
+    restart: always
+    depends_on:
+      - judge0-db
+      - judge0-redis
+    volumes:
+      - ./judge0.conf:/judge.conf:ro
+    privileged: true
+    command: ["./scripts/workers"]
+
 volumes:
   postgres_data:
+  judge0_data:
+
+
+
+
+
