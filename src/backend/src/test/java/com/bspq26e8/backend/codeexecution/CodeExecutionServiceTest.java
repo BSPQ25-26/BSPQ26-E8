@@ -1,5 +1,8 @@
 package com.bspq26e8.backend.codeexecution;
 
+import com.bspq26e8.backend.evaluator.ExecutionResult;
+import com.bspq26e8.backend.evaluator.RawExecutionResult;
+import com.bspq26e8.backend.evaluator.SubmissionEvaluator;
 import com.bspq26e8.backend.problem.entity.Language;
 import com.bspq26e8.backend.problem.entity.Problem;
 import com.bspq26e8.backend.submission.entity.Submission;
@@ -35,6 +38,9 @@ class CodeExecutionServiceTest {
     @Mock
     private CodeRunner codeRunner;
 
+    @Mock
+    private SubmissionEvaluator submissionEvaluator;
+
     @InjectMocks
     private CodeExecutionService codeExecutionService;
 
@@ -65,11 +71,13 @@ class CodeExecutionServiceTest {
                 1,
                 1
         );
+        RawExecutionResult rawResult = RawExecutionResult.completed(List.of());
 
         when(submissionRepository.findByIdWithExecutionData(submissionId)).thenReturn(Optional.of(submission));
         when(submissionService.markExecutionStarted(submissionId))
                 .thenReturn(SubmissionService.StartExecutionResult.started(null));
-        when(codeRunner.run(any(CodeExecutionRequest.class))).thenReturn(executionResult);
+        when(codeRunner.run(any(CodeExecutionRequest.class))).thenReturn(rawResult);
+        when(submissionEvaluator.evaluate(rawResult)).thenReturn(executionResult);
         when(submissionService.applyExecutionResult(any(SubmissionService.ApplyExecutionResultCommand.class)))
                 .thenReturn(SubmissionService.ApplyExecutionResultResult.updated(null));
 
@@ -83,6 +91,7 @@ class CodeExecutionServiceTest {
         assertEquals(submissionId, requestCaptor.getValue().submissionId());
         assertEquals("print('hello')", requestCaptor.getValue().sourceCode());
         assertEquals("python", requestCaptor.getValue().language().code());
+        verify(submissionEvaluator).evaluate(rawResult);
 
         ArgumentCaptor<SubmissionService.ApplyExecutionResultCommand> resultCaptor =
                 ArgumentCaptor.forClass(SubmissionService.ApplyExecutionResultCommand.class);
@@ -104,7 +113,9 @@ class CodeExecutionServiceTest {
                 .thenReturn(Optional.empty());
         when(submissionService.markExecutionStarted(firstSubmissionId))
                 .thenReturn(SubmissionService.StartExecutionResult.started(null));
-        when(codeRunner.run(any(CodeExecutionRequest.class))).thenReturn(new ExecutionResult(
+        RawExecutionResult rawResult = RawExecutionResult.completed(List.of());
+        when(codeRunner.run(any(CodeExecutionRequest.class))).thenReturn(rawResult);
+        when(submissionEvaluator.evaluate(rawResult)).thenReturn(new ExecutionResult(
                 SubmissionStatus.ACCEPTED,
                 "Accepted",
                 42,

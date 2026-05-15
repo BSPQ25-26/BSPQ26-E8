@@ -1,4 +1,4 @@
-package com.bspq26e8.backend.codeexecution;
+package com.bspq26e8.backend.evaluator;
 
 import com.bspq26e8.backend.submission.entity.SubmissionStatus;
 
@@ -11,4 +11,3 @@ public record ExecutionResult(
         Integer testcasesTotal
 ) {
 }
-

@@ -1,10 +1,12 @@
 package com.bspq26e8.backend.codeexecution;
 
-import com.bspq26e8.backend.submission.entity.SubmissionStatus;
+import com.bspq26e8.backend.evaluator.RawExecutionResult;
+import com.bspq26e8.backend.evaluator.RawTestCaseResult;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
@@ -19,19 +21,22 @@ public class CodeRunner {
         this.judge0Properties = judge0Properties;
     }
 
-    public ExecutionResult run(CodeExecutionRequest request) {
+    public RawExecutionResult run(CodeExecutionRequest request) {
         if (!judge0Properties.isEnabled()) {
-            return internalError("Judge0 execution is disabled", request.testCases().size());
+            return RawExecutionResult.failed("Judge0 execution is disabled", request.testCases().size());
         }
 
         Integer judge0LanguageId = judge0Properties.languageIdFor(request.language().code());
         if (judge0LanguageId == null) {
-            return internalError("Judge0 language is not configured for " + request.language().code(), request.testCases().size());
+            return RawExecutionResult.failed(
+                    "Judge0 language is not configured for " + request.language().code(),
+                    request.testCases().size()
+            );
         }
 
         List<CodeExecutionRequest.TestCaseSpec> selectedTestCases = selectTestCases(request);
         if (selectedTestCases.isEmpty()) {
-            return internalError("No test cases selected for execution", request.testCases().size());
+            return RawExecutionResult.failed("No test cases selected for execution", request.testCases().size());
         }
 
         List<Judge0Client.Judge0SubmissionRequest> submissions = selectedTestCases.stream()
@@ -39,13 +44,16 @@ public class CodeRunner {
                         judge0LanguageId,
                         request.sourceCode(),
                         testCase.inputData(),
-                        testCase.expectedOutput()
+                        null
                 ))
                 .toList();
 
         List<Judge0Client.Judge0SubmissionCreation> creations = judge0Client.createBatch(submissions);
         if (creations.size() != submissions.size()) {
-            return internalError("Judge0 returned an unexpected number of submission tokens", selectedTestCases.size());
+            return RawExecutionResult.failed(
+                    "Judge0 returned an unexpected number of submission tokens",
+                    selectedTestCases.size()
+            );
         }
 
         List<String> tokenCreationErrors = creations.stream()
@@ -54,7 +62,10 @@ public class CodeRunner {
                 .map(message -> isBlank(message) ? "Unknown Judge0 submission creation error" : message)
                 .toList();
         if (!tokenCreationErrors.isEmpty()) {
-            return internalError("Judge0 rejected submission: " + String.join("; ", tokenCreationErrors), selectedTestCases.size());
+            return RawExecutionResult.failed(
+                    "Judge0 rejected submission: " + String.join("; ", tokenCreationErrors),
+                    selectedTestCases.size()
+            );
         }
 
         List<String> tokens = creations.stream()
@@ -62,18 +73,7 @@ public class CodeRunner {
                 .toList();
 
         List<Judge0Client.Judge0SubmissionResult> results = pollUntilFinished(tokens);
-        if (results.stream().anyMatch(result -> !result.finished())) {
-            return new ExecutionResult(
-                    SubmissionStatus.INTERNAL_ERROR,
-                    "Judge0 execution did not finish before polling limit",
-                    null,
-                    null,
-                    countAccepted(results),
-                    selectedTestCases.size()
-            );
-        }
-
-        return aggregateResults(results, selectedTestCases.size());
+        return RawExecutionResult.completed(toRawTestCaseResults(selectedTestCases, tokens, results));
     }
 
     private List<CodeExecutionRequest.TestCaseSpec> selectTestCases(CodeExecutionRequest request) {
@@ -111,6 +111,64 @@ public class CodeRunner {
                 .toList();
     }
 
+    private List<RawTestCaseResult> toRawTestCaseResults(
+            List<CodeExecutionRequest.TestCaseSpec> selectedTestCases,
+            List<String> tokens,
+            List<Judge0Client.Judge0SubmissionResult> judge0Results
+    ) {
+        Map<String, Judge0Client.Judge0SubmissionResult> resultByToken = judge0Results.stream()
+                .filter(result -> !isBlank(result.token()))
+                .collect(Collectors.toMap(
+                        Judge0Client.Judge0SubmissionResult::token,
+                        Function.identity(),
+                        (first, ignored) -> first
+                ));
+
+        return IntStream.range(0, selectedTestCases.size())
+                .mapToObj(index -> toRawTestCaseResult(
+                        index,
+                        selectedTestCases.get(index),
+                        resultByToken.get(tokens.get(index))
+                ))
+                .toList();
+    }
+
+    private RawTestCaseResult toRawTestCaseResult(
+            int index,
+            CodeExecutionRequest.TestCaseSpec testCase,
+            Judge0Client.Judge0SubmissionResult result
+    ) {
+        if (result == null) {
+            return new RawTestCaseResult(
+                    index,
+                    testCase.inputData(),
+                    testCase.expectedOutput(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    "Missing Judge0 result",
+                    null,
+                    null
+            );
+        }
+
+        return new RawTestCaseResult(
+                index,
+                testCase.inputData(),
+                testCase.expectedOutput(),
+                result.stdout(),
+                result.stderr(),
+                result.compileOutput(),
+                result.message(),
+                result.statusId(),
+                result.statusDescription(),
+                result.time(),
+                result.memoryKb()
+        );
+    }
+
     private void sleepBeforeNextPoll() {
         try {
             Thread.sleep(judge0Properties.getPollInterval().toMillis());
@@ -118,104 +176,6 @@ public class CodeRunner {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted while polling Judge0", ex);
         }
-    }
-
-    private ExecutionResult aggregateResults(List<Judge0Client.Judge0SubmissionResult> results, int testcasesTotal) {
-        int testcasesPassed = countAccepted(results);
-        SubmissionStatus status = results.stream()
-                .map(this::toSubmissionStatus)
-                .filter(candidate -> candidate != SubmissionStatus.ACCEPTED)
-                .findFirst()
-                .orElse(SubmissionStatus.ACCEPTED);
-
-        return new ExecutionResult(
-                status,
-                verdictMessage(status, results),
-                runtimeMs(results),
-                memoryMb(results),
-                testcasesPassed,
-                testcasesTotal
-        );
-    }
-
-    private int countAccepted(List<Judge0Client.Judge0SubmissionResult> results) {
-        return (int) results.stream()
-                .filter(result -> toSubmissionStatus(result) == SubmissionStatus.ACCEPTED)
-                .count();
-    }
-
-    private SubmissionStatus toSubmissionStatus(Judge0Client.Judge0SubmissionResult result) {
-        return switch (result.statusId() == null ? -1 : result.statusId()) {
-            case 3 -> SubmissionStatus.ACCEPTED;
-            case 4 -> SubmissionStatus.WRONG_ANSWER;
-            case 5 -> SubmissionStatus.TIME_LIMIT_EXCEEDED;
-            case 6 -> SubmissionStatus.COMPILE_ERROR;
-            case 7, 8, 9, 10, 11, 12, 14 -> SubmissionStatus.RUNTIME_ERROR;
-            case 13 -> SubmissionStatus.INTERNAL_ERROR;
-            default -> SubmissionStatus.INTERNAL_ERROR;
-        };
-    }
-
-    private String verdictMessage(SubmissionStatus status, List<Judge0Client.Judge0SubmissionResult> results) {
-        return results.stream()
-                .filter(result -> toSubmissionStatus(result) == status)
-                .findFirst()
-                .map(this::messageFor)
-                .orElse(status.name());
-    }
-
-    private String messageFor(Judge0Client.Judge0SubmissionResult result) {
-        if (!isBlank(result.compileOutput())) {
-            return result.compileOutput();
-        }
-        if (!isBlank(result.stderr())) {
-            return result.stderr();
-        }
-        if (!isBlank(result.message())) {
-            return result.message();
-        }
-        if (!isBlank(result.statusDescription())) {
-            return result.statusDescription();
-        }
-        return "Execution finished";
-    }
-
-    private Integer runtimeMs(List<Judge0Client.Judge0SubmissionResult> results) {
-        return results.stream()
-                .map(Judge0Client.Judge0SubmissionResult::time)
-                .filter(value -> !isBlank(value))
-                .map(this::toMilliseconds)
-                .filter(value -> value != null && value > 0)
-                .max(Integer::compareTo)
-                .orElse(null);
-    }
-
-    private Integer memoryMb(List<Judge0Client.Judge0SubmissionResult> results) {
-        return results.stream()
-                .map(Judge0Client.Judge0SubmissionResult::memoryKb)
-                .filter(value -> value != null && value > 0)
-                .map(value -> (int) Math.ceil(value / 1024.0))
-                .max(Integer::compareTo)
-                .orElse(null);
-    }
-
-    private Integer toMilliseconds(String seconds) {
-        try {
-            return (int) Math.round(Double.parseDouble(seconds) * 1000);
-        } catch (NumberFormatException ex) {
-            return null;
-        }
-    }
-
-    private ExecutionResult internalError(String message, int testcasesTotal) {
-        return new ExecutionResult(
-                SubmissionStatus.INTERNAL_ERROR,
-                message,
-                null,
-                null,
-                0,
-                testcasesTotal
-        );
     }
 
     private boolean isBlank(String value) {

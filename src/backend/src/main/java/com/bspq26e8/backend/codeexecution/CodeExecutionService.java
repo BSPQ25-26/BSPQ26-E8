@@ -1,6 +1,9 @@
 package com.bspq26e8.backend.codeexecution;
 
 import com.bspq26e8.backend.problem.entity.TestCase;
+import com.bspq26e8.backend.evaluator.ExecutionResult;
+import com.bspq26e8.backend.evaluator.RawExecutionResult;
+import com.bspq26e8.backend.evaluator.SubmissionEvaluator;
 import com.bspq26e8.backend.submission.entity.Submission;
 import com.bspq26e8.backend.submission.entity.SubmissionStatus;
 import com.bspq26e8.backend.submission.repository.SubmissionRepository;
@@ -19,15 +22,18 @@ public class CodeExecutionService {
     private final SubmissionRepository submissionRepository;
     private final SubmissionService submissionService;
     private final CodeRunner codeRunner;
+    private final SubmissionEvaluator submissionEvaluator;
 
     public CodeExecutionService(
             SubmissionRepository submissionRepository,
             SubmissionService submissionService,
-            CodeRunner codeRunner
+            CodeRunner codeRunner,
+            SubmissionEvaluator submissionEvaluator
     ) {
         this.submissionRepository = submissionRepository;
         this.submissionService = submissionService;
         this.codeRunner = codeRunner;
+        this.submissionEvaluator = submissionEvaluator;
     }
 
     public QueueProcessingResult processQueuedSubmissions(int limit) {
@@ -62,7 +68,8 @@ public class CodeExecutionService {
         }
 
         try {
-            ExecutionResult executionResult = codeRunner.run(request);
+            RawExecutionResult rawResult = codeRunner.run(request);
+            ExecutionResult executionResult = submissionEvaluator.evaluate(rawResult);
             applyExecutionResult(submissionId, executionResult);
             return ProcessSubmissionResult.processed(submissionId);
         } catch (RuntimeException ex) {

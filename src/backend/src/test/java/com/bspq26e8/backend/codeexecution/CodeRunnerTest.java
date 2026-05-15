@@ -1,6 +1,7 @@
 package com.bspq26e8.backend.codeexecution;
 
-import com.bspq26e8.backend.submission.entity.SubmissionStatus;
+import com.bspq26e8.backend.evaluator.RawExecutionResult;
+import com.bspq26e8.backend.evaluator.RawTestCaseResult;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,93 +9,82 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CodeRunnerTest {
 
     @Test
-    void runReturnsInternalErrorWhenJudge0IsDisabled() {
+    void runReturnsRawFailureWhenJudge0IsDisabled() {
         Judge0Properties properties = judge0Properties(false);
         FakeJudge0Client judge0Client = new FakeJudge0Client(List.of());
         CodeRunner codeRunner = new CodeRunner(judge0Client, properties);
 
-        ExecutionResult result = codeRunner.run(request());
+        RawExecutionResult result = codeRunner.run(request());
 
-        assertEquals(SubmissionStatus.INTERNAL_ERROR, result.status());
-        assertEquals("Judge0 execution is disabled", result.verdictMessage());
+        assertTrue(result.failed());
+        assertEquals("Judge0 execution is disabled", result.errorMessage());
+        assertEquals(2, result.testcasesTotal());
         assertTrue(judge0Client.createdSubmissions.isEmpty());
     }
 
     @Test
-    void runSubmitsBatchAndAggregatesAcceptedResults() {
+    void runSubmitsBatchAndReturnsRawTestCaseResults() {
         Judge0Properties properties = judge0Properties(true);
         FakeJudge0Client judge0Client = new FakeJudge0Client(List.of(
-                result("token-1", 3, "Accepted", "0.042", 131072),
-                result("token-2", 3, "Accepted", "0.011", 65536)
+                result("token-1", 3, "Accepted", "hello\n", "0.042", 131072),
+                result("token-2", 3, "Accepted", "bye\n", "0.011", 65536)
         ));
         CodeRunner codeRunner = new CodeRunner(judge0Client, properties);
 
-        ExecutionResult result = codeRunner.run(request());
+        RawExecutionResult result = codeRunner.run(request());
 
-        assertEquals(SubmissionStatus.ACCEPTED, result.status());
-        assertEquals("Accepted", result.verdictMessage());
-        assertEquals(42, result.runtimeMs());
-        assertEquals(128, result.memoryMb());
-        assertEquals(2, result.testcasesPassed());
+        assertFalse(result.failed());
         assertEquals(2, result.testcasesTotal());
+        assertEquals(2, result.testCases().size());
         assertEquals(2, judge0Client.createdSubmissions.size());
         assertEquals(71, judge0Client.createdSubmissions.getFirst().languageId());
+        assertNull(judge0Client.createdSubmissions.getFirst().expectedOutput());
+
+        RawTestCaseResult first = result.testCases().getFirst();
+        assertEquals(0, first.index());
+        assertEquals("hello", first.inputData());
+        assertEquals("hello", first.expectedOutput());
+        assertEquals("hello\n", first.stdout());
+        assertEquals(3, first.judge0StatusId());
     }
 
     @Test
-    void runAggregatesWrongAnswerWhenAnyCaseFails() {
-        Judge0Properties properties = judge0Properties(true);
-        FakeJudge0Client judge0Client = new FakeJudge0Client(List.of(
-                result("token-1", 3, "Accepted", "0.010", 1024),
-                result("token-2", 4, "Wrong Answer", "0.020", 2048)
-        ));
-        CodeRunner codeRunner = new CodeRunner(judge0Client, properties);
-
-        ExecutionResult result = codeRunner.run(request());
-
-        assertEquals(SubmissionStatus.WRONG_ANSWER, result.status());
-        assertEquals("Wrong Answer", result.verdictMessage());
-        assertEquals(1, result.testcasesPassed());
-        assertEquals(2, result.testcasesTotal());
-    }
-
-    @Test
-    void runUsesExecutionDiagnosticAsVerdictMessage() {
+    void runReturnsJudge0DiagnosticsAsRawData() {
         Judge0Properties properties = judge0Properties(true);
         FakeJudge0Client judge0Client = new FakeJudge0Client(List.of(
                 resultWithDiagnostics("token-1", 6, "Compilation Error", "SyntaxError", null, null),
-                result("token-2", 3, "Accepted", "0.020", 2048)
+                result("token-2", 3, "Accepted", "bye\n", "0.020", 2048)
         ));
         CodeRunner codeRunner = new CodeRunner(judge0Client, properties);
 
-        ExecutionResult result = codeRunner.run(request());
+        RawExecutionResult result = codeRunner.run(request());
 
-        assertEquals(SubmissionStatus.COMPILE_ERROR, result.status());
-        assertEquals("SyntaxError", result.verdictMessage());
-        assertEquals(1, result.testcasesPassed());
-        assertEquals(2, result.testcasesTotal());
+        RawTestCaseResult first = result.testCases().getFirst();
+        assertEquals(6, first.judge0StatusId());
+        assertEquals("Compilation Error", first.judge0StatusDescription());
+        assertEquals("SyntaxError", first.compileOutput());
     }
 
     @Test
-    void runDoesNotReturnZeroMetricsBecauseSubmissionTableRequiresPositiveValues() {
+    void runReturnsUnfinishedRawResultWhenPollingLimitIsReached() {
         Judge0Properties properties = judge0Properties(true);
         FakeJudge0Client judge0Client = new FakeJudge0Client(List.of(
-                result("token-1", 3, "Accepted", "0.000", 0),
-                result("token-2", 3, "Accepted", "0.000", 0)
+                result("token-1", 2, "Processing", null, null, null),
+                result("token-2", 3, "Accepted", "bye\n", "0.020", 2048)
         ));
         CodeRunner codeRunner = new CodeRunner(judge0Client, properties);
 
-        ExecutionResult result = codeRunner.run(request());
+        RawExecutionResult result = codeRunner.run(request());
 
-        assertEquals(SubmissionStatus.ACCEPTED, result.status());
-        assertNull(result.runtimeMs());
-        assertNull(result.memoryMb());
+        assertFalse(result.testCases().getFirst().finished());
+        assertEquals("Processing", result.testCases().getFirst().judge0StatusDescription());
     }
 
     private CodeExecutionRequest request() {
@@ -123,14 +113,15 @@ class CodeRunnerTest {
             String token,
             int statusId,
             String statusDescription,
+            String stdout,
             String time,
-            int memoryKb
+            Integer memoryKb
     ) {
         return new Judge0Client.Judge0SubmissionResult(
                 token,
                 statusId,
                 statusDescription,
-                null,
+                stdout,
                 null,
                 null,
                 null,
