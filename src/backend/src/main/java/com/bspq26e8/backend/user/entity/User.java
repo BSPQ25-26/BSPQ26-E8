@@ -1,11 +1,17 @@
 package com.bspq26e8.backend.user.entity;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -30,6 +36,17 @@ public class User {
 
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified = false;
+
+    @Column(name = "profile_picture", columnDefinition = "text")
+    private String profilePicture;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+        name = "user_preferred_languages",
+        joinColumns = @JoinColumn(name = "user_id")
+    )
+    @Column(name = "language_id")
+    private Set<Long> preferredLanguageIds = new HashSet<>();
 
     protected User() {
     }
@@ -62,5 +79,21 @@ public class User {
 
     public boolean isEmailVerified() {
         return emailVerified;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
+    public Set<Long> getPreferredLanguageIds() {
+        return preferredLanguageIds;
+    }
+
+    public void setPreferredLanguageIds(Set<Long> preferredLanguageIds) {
+        this.preferredLanguageIds = preferredLanguageIds == null ? new HashSet<>() : preferredLanguageIds;
     }
 }
