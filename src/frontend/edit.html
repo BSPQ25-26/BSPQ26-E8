@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Problem — Realcode</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/create.css" />
+</head>
+<body data-active-nav="profile">
+
+  <main class="page">
+    <div class="form-container anim-fade-up">
+
+      <div style="display:flex; align-items:center; gap:1rem; margin-bottom:2rem;">
+        <a href="profile_page.html" class="btn-secondary btn-sm">← Back</a>
+        <h1 class="page-title" style="margin-bottom:0;">Edit Problem</h1>
+      </div>
+
+      <form class="problem-form" id="create-form">
+
+        <div class="grid-row grid-3-1">
+          <div class="form-group">
+            <label class="form-label">Title</label>
+            <input class="form-input" type="text" id="title" placeholder="e.g. Two Sum" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="statementMd" placeholder="Problem statement here..."></textarea>
+        </div>
+
+        <div class="form-group" style="width: 200px;">
+          <label class="form-label">Difficulty</label>
+          <select class="form-select" id="difficulty">
+            <option value="" disabled selected>Select…</option>
+            <option value="EASY">Easy</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HARD">Hard</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Solutions</label>
+          <textarea class="form-textarea" id="solutionTemplate" placeholder="Explain the optimal approach..."></textarea>
+        </div>
+
+        <div class="card">
+          <div class="section-header">
+            <h3 class="section-title">Examples</h3>
+            <button type="button" class="btn-secondary btn-sm" id="examples-add-btn">+ Add</button>
+          </div>
+          <div id="examples-container">
+            <div class="example-box" data-example>
+              <div class="form-group">
+                <input class="form-input" type="text" data-example-input placeholder="Input (e.g. nums = [2,7,11,15], target = 9)" />
+              </div>
+              <div class="form-group">
+                <input class="form-input" type="text" data-example-output placeholder="Output (e.g. [0,1])" />
+              </div>
+              <div class="form-group">
+                <input class="form-input" type="text" data-example-explanation placeholder="Explanation (optional)" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Constraints</label>
+          <textarea class="form-textarea" id="constraintsMd" style="min-height: 80px;" placeholder="e.g. 2 <= nums.length <= 10^4"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <a href="profile_page.html" class="btn-secondary">Cancel</a>
+          <button type="submit" class="btn-primary" id="submit-btn">Save Changes</button>
+          <span id="status-message"></span>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- Core utilities -->
+  <script src="js/layout.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+
+  <!-- Page script -->
+  <script src="js/edit.js"></script>
+</body>
+</html>
