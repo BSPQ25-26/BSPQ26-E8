@@ -34,6 +34,7 @@ public class ProblemService {
 		this.userRepository = userRepository;
 	}
 
+	@Transactional
 	public CreateProblemResult createProblem(CreateProblemCommand command) {
 		if (problemRepository.existsBySlug(command.slug())) {
 			return CreateProblemResult.conflict("A problem with that slug already exists");
@@ -59,7 +60,20 @@ public class ProblemService {
 				command.languageCompilationConfig()
 		);
 
+		if (command.examples() != null && !command.examples().isEmpty()) {
+			List<TestCase> sampleCases = command.examples().stream()
+					.filter(ex -> ex.inputData() != null && !ex.inputData().isBlank())
+					.map(ex -> new TestCase(
+							problem,
+							ex.inputData().trim(),
+							ex.expectedOutput() == null ? "" : ex.expectedOutput().trim(),
+							true))
+					.toList();
+			problem.setTestCases(sampleCases);
+		}
+
 		Problem saved = problemRepository.save(problem);
+
 		List<String> languages = resolveLanguagesByProblemIds(List.of(saved.getId()))
 				.getOrDefault(saved.getId(), List.of());
 		return CreateProblemResult.created(toSummary(saved, languages));
@@ -239,6 +253,8 @@ public class ProblemService {
 		);
 	}
 
+	public record ExampleInput(String inputData, String expectedOutput) {}
+
 	public record CreateProblemCommand(
 			String slug,
 			String title,
@@ -250,7 +266,8 @@ public class ProblemService {
 			ProblemDifficulty difficulty,
 			UUID authorId,
 			String solutionTemplate,
-			String languageCompilationConfig
+			String languageCompilationConfig,
+			List<ExampleInput> examples
 	) {
 	}
 
