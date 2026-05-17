@@ -182,6 +182,7 @@
 
     detailEl.querySelector('.problem-detail-start-btn').addEventListener('click', (e) => {
       e.stopPropagation();
+      window.location.href = `solve.html?id=${data.id}`;
     });
   }
 
