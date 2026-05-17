@@ -277,6 +277,90 @@ test.describe('Problem creation flow', () => {
     await expect(badges.nth(2)).toHaveClass(/badge--hard/);
   });
 
+  test('sends the exact field values typed into the form to the API', async ({ page }) => {
+    await setupAuth(page);
+
+    /** @type {any} */
+    let capturedBody = null;
+    await page.route('http://localhost:10000/api/problems**', async (route) => {
+      const request = route.request();
+      if (request.method() === 'POST') {
+        capturedBody = JSON.parse(request.postData() || '{}');
+        await route.fulfill({
+          status: 201,
+          contentType: 'application/json',
+          body: JSON.stringify({ ...capturedBody, id: 'id-1', createdAt: '2026-01-01T00:00:00Z' }),
+        });
+        return;
+      }
+      await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+    });
+
+    await page.goto(pages.create);
+    await page.fill('#title',            'Two Sum');
+    await page.fill('#statementMd',      'Given an array of integers, return indices of the two numbers that add up to a target.');
+    await page.fill('#constraintsMd',    '2 <= nums.length <= 10^4');
+    await page.fill('#solutionTemplate', 'def two_sum(nums, target):\n    pass');
+    await page.selectOption('#difficulty', 'EASY');
+    await page.click('#submit-btn');
+
+    await expect(page.locator('#status-message')).toHaveAttribute('data-status', 'success');
+
+    expect(capturedBody).not.toBeNull();
+    expect(capturedBody.title).toBe('Two Sum');
+    expect(capturedBody.statementMd).toBe('Given an array of integers, return indices of the two numbers that add up to a target.');
+    expect(capturedBody.constraintsMd).toBe('2 <= nums.length <= 10^4');
+    expect(capturedBody.solutionTemplate).toBe('def two_sum(nums, target):\n    pass');
+    expect(capturedBody.difficulty).toBe('EASY');
+
+    // Fields that have no input element in create.html are submitted as null
+    expect(capturedBody.slug).toBeNull();
+    expect(capturedBody.inputSpecMd).toBeNull();
+    expect(capturedBody.outputSpecMd).toBeNull();
+    expect(capturedBody.hintsMd).toBeNull();
+    expect(capturedBody.languageCompilationConfig).toBeNull();
+  });
+
+  test('card and detail panel display the same values the user submitted', async ({ page }) => {
+    await setupAuth(page);
+    await mockBackend(page);
+
+    const submitted = {
+      title:         'Longest Common Subsequence',
+      statementMd:   'Given two strings text1 and text2, return the length of their longest common subsequence.',
+      constraintsMd: '1 <= text1.length, text2.length <= 1000',
+      /** @type {'MEDIUM'} */
+      difficulty:    'MEDIUM',
+    };
+
+    await page.goto(pages.create);
+    await createProblem(page, submitted);
+
+    await page.goto(pages.problems);
+
+    // ── Card surface reflects title, language, and difficulty styling ─────
+    const card = page.locator('.problem-card');
+    await expect(card).toHaveCount(1);
+    await expect(card.locator('.problem-card-title')).toHaveText(submitted.title);
+    await expect(card.locator('.problem-card-language')).toHaveText('Language: Python 3');
+    await expect(card.locator('.badge')).toHaveClass(/badge--medium/);
+    await expect(card).toHaveClass(/card--orange/);
+
+    // ── Detail surface reflects the markdown body fields ──────────────────
+    await card.click();
+    const detail = card.locator('.problem-detail');
+    await expect(detail).toHaveClass(/is-open/);
+    await expect(detail).toContainText(submitted.statementMd);
+    await expect(detail).toContainText(submitted.constraintsMd);
+
+    // Sections that were left blank on the form are not rendered
+    const sections = detail.locator('.problem-detail-section-title');
+    const sectionTitles = await sections.allTextContents();
+    expect(sectionTitles.some((t) => /input/i.test(t))).toBe(false);
+    expect(sectionTitles.some((t) => /output/i.test(t))).toBe(false);
+    expect(sectionTitles.some((t) => /hint/i.test(t))).toBe(false);
+  });
+
   test('difficulty filter isolates problems created with that difficulty', async ({ page }) => {
     await setupAuth(page);
     await mockBackend(page);
