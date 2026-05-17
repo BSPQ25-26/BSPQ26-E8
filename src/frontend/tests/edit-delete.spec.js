@@ -272,4 +272,204 @@ test.describe('Problem edit flow', () => {
     await page.waitForURL(/profile_page\.html$/);
     expect(page.url()).toMatch(/profile_page\.html$/);
   });
+
+  test('shows a load error when the problem cannot be fetched', async ({ page }) => {
+    await setupAuth(page);
+    await mockBackend(page, [SAMPLE_PROBLEM]);
+
+    // Override the detail GET to fail. Most-recent route runs first, so this
+    // intercepts before the mockBackend closure ever sees the request.
+    await page.route(`http://localhost:10000/api/problems/${SAMPLE_PROBLEM.id}`, async (route) => {
+      if (route.request().method() === 'GET') {
+        await route.fulfill({
+          status: 500,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: 'Internal server error' }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    await page.goto(`${pages.edit}?id=${SAMPLE_PROBLEM.id}`);
+
+    const status = page.locator('#status-message');
+    await expect(status).toHaveText('Could not load the problem. Please go back and try again.');
+    await expect(status).toHaveAttribute('data-status', 'error');
+
+    // Form stayed empty — nothing was pre-filled.
+    await expect(page.locator('#title')).toHaveValue('');
+    await expect(page.locator('#statementMd')).toHaveValue('');
+  });
+
+  test('shows a forbidden error when the user is not allowed to edit the problem', async ({ page }) => {
+    await setupAuth(page);
+    await mockBackend(page, [SAMPLE_PROBLEM]);
+
+    // GET still serves the form; only the PUT is blocked.
+    await page.route(`http://localhost:10000/api/problems/${SAMPLE_PROBLEM.id}`, async (route) => {
+      if (route.request().method() === 'PUT') {
+        await route.fulfill({
+          status: 403,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: 'Forbidden' }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    await page.goto(`${pages.edit}?id=${SAMPLE_PROBLEM.id}`);
+    await expect(page.locator('#title')).toHaveValue(SAMPLE_PROBLEM.title);
+
+    await page.fill('#title', 'Two Sum (Revised)');
+    await page.click('#submit-btn');
+
+    const status = page.locator('#status-message');
+    await expect(status).toHaveText('You are not allowed to edit this problem.');
+    await expect(status).toHaveAttribute('data-status', 'error');
+
+    // The submit button must recover after the failed request — the finally
+    // block in submitEditProblem() re-enables it and restores the label.
+    const submit = page.locator('#submit-btn');
+    await expect(submit).toBeEnabled();
+    await expect(submit).toHaveText('Save Changes');
+  });
+
+  test('shows a network error when the server cannot be reached', async ({ page }) => {
+    await setupAuth(page);
+    await mockBackend(page, [SAMPLE_PROBLEM]);
+
+    // GET pre-fills the form; PUT is aborted to simulate a dropped connection.
+    await page.route(`http://localhost:10000/api/problems/${SAMPLE_PROBLEM.id}`, async (route) => {
+      if (route.request().method() === 'PUT') {
+        await route.abort('failed');
+        return;
+      }
+      await route.fallback();
+    });
+
+    await page.goto(`${pages.edit}?id=${SAMPLE_PROBLEM.id}`);
+    await expect(page.locator('#title')).toHaveValue(SAMPLE_PROBLEM.title);
+
+    await page.fill('#title', 'Two Sum (Revised)');
+    await page.click('#submit-btn');
+
+    const status = page.locator('#status-message');
+    await expect(status).toHaveText('Could not reach the server. Is the backend running?');
+    await expect(status).toHaveAttribute('data-status', 'error');
+  });
+});
+
+const TWO_PROBLEMS = [
+  { ...SAMPLE_PROBLEM, id: 'id-1', title: 'Two Sum',            difficulty: 'EASY'   },
+  { ...SAMPLE_PROBLEM, id: 'id-2', title: 'Reverse Linked List', difficulty: 'MEDIUM' },
+];
+
+test.describe('Problem delete flow', () => {
+  test.beforeEach(async ({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'Functional test runs on desktop only');
+  });
+
+  test('removes the row and decrements the count when the user confirms', async ({ page }) => {
+    await setupAuth(page);
+    await mockBackend(page, TWO_PROBLEMS);
+
+    // Accept every dialog (one confirm() in this scenario).
+    page.on('dialog', (dialog) => dialog.accept());
+
+    await page.goto(pages.profile);
+
+    // Wait for the My Problems table and the created-count to render.
+    await expect(page.locator('[data-delete]')).toHaveCount(2);
+    await expect(page.locator('#profile-created-count')).toHaveText('2');
+
+    // Capture the DELETE so we can wait for it deterministically.
+    const deleteResponse = page.waitForResponse(
+      (resp) =>
+        resp.url() === 'http://localhost:10000/api/problems/id-1' &&
+        resp.request().method() === 'DELETE',
+    );
+
+    await page.click('[data-delete="id-1"]');
+    const response = await deleteResponse;
+    expect(response.status()).toBe(204);
+
+    // The deleted row is gone, the surviving row stays, the count is decremented.
+    await expect(page.locator('[data-delete]')).toHaveCount(1);
+    await expect(page.locator('[data-delete="id-1"]')).toHaveCount(0);
+    await expect(page.locator('[data-delete="id-2"]')).toHaveCount(1);
+    await expect(page.locator('#profile-created-count')).toHaveText('1');
+  });
+
+  test('does not delete when the user cancels the confirmation dialog', async ({ page }) => {
+    await setupAuth(page);
+    await mockBackend(page, TWO_PROBLEMS);
+
+    // Dismiss the confirm() → returns false → deleteProblem() bails out early.
+    page.on('dialog', (dialog) => dialog.dismiss());
+
+    // Spy on DELETEs to prove none fire.
+    let deleteCount = 0;
+    await page.route('http://localhost:10000/api/problems/**', async (route) => {
+      if (route.request().method() === 'DELETE') deleteCount += 1;
+      await route.fallback();
+    });
+
+    await page.goto(pages.profile);
+    await expect(page.locator('[data-delete]')).toHaveCount(2);
+    await expect(page.locator('#profile-created-count')).toHaveText('2');
+
+    await page.click('[data-delete="id-1"]');
+
+    // Give the click a moment to flush — if a DELETE were going to fire, it would
+    // have done so synchronously after confirm() returned. State stays untouched.
+    await page.waitForTimeout(100);
+    expect(deleteCount).toBe(0);
+    await expect(page.locator('[data-delete]')).toHaveCount(2);
+    await expect(page.locator('#profile-created-count')).toHaveText('2');
+  });
+
+  test('shows an alert and keeps the row when the delete request fails', async ({ page }) => {
+    await setupAuth(page);
+    await mockBackend(page, TWO_PROBLEMS);
+
+    // The confirm() fires first, then on 403 the catch block fires alert().
+    // Accept both, capturing their messages so we can assert on the alert.
+    /** @type {{type: string, message: string}[]} */
+    const dialogs = [];
+    page.on('dialog', async (dialog) => {
+      dialogs.push({ type: dialog.type(), message: dialog.message() });
+      await dialog.accept();
+    });
+
+    // Override DELETE for id-1 only — leave id-2 alone.
+    await page.route('http://localhost:10000/api/problems/id-1', async (route) => {
+      if (route.request().method() === 'DELETE') {
+        await route.fulfill({
+          status: 403,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: 'Forbidden' }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    await page.goto(pages.profile);
+    await expect(page.locator('[data-delete]')).toHaveCount(2);
+
+    await page.click('[data-delete="id-1"]');
+
+    // Wait until both dialogs (confirm + alert) have been observed.
+    await expect.poll(() => dialogs.length).toBe(2);
+    expect(dialogs[0].type).toBe('confirm');
+    expect(dialogs[1].type).toBe('alert');
+    expect(dialogs[1].message).toBe('Could not delete the problem. You may not have permission.');
+
+    // Row was not removed and the count was not changed.
+    await expect(page.locator('[data-delete]')).toHaveCount(2);
+    await expect(page.locator('[data-delete="id-1"]')).toHaveCount(1);
+    await expect(page.locator('#profile-created-count')).toHaveText('2');
+  });
 });
