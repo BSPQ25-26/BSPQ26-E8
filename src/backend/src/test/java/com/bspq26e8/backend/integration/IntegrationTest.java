@@ -1,4 +1,160 @@
 package com.bspq26e8.backend.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@Testcontainers
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
+@Tag("integration")
 public class IntegrationTest {
+
+    @Container
+    static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine")
+            .withDatabaseName("app_db_test")
+            .withUsername("test")
+            .withPassword("test");
+
+    @DynamicPropertySource
+    static void registerDataSourceProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
+        registry.add("spring.datasource.username", POSTGRES::getUsername);
+        registry.add("spring.datasource.password", POSTGRES::getPassword);
+    }
+
+    @LocalServerPort
+    private int port;
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+
+    @Test
+    void fullAuthAndProblemFlow() {
+        String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        String email = "integration_" + suffix + "@example.com";
+        String username = "user_" + suffix;
+        String password = "password123";
+
+        registerUser(email, username, password);
+        String accessToken = loginUser(email, password);
+        String problemId = createProblem(accessToken, suffix);
+        assertProblemListed(problemId);
+        deleteProblem(accessToken, problemId);
+    }
+
+    private void registerUser(String email, String username, String password) {
+        ResponseEntity<Map> response = restTemplate.postForEntity(
+                url("/api/auth/register"),
+                Map.of("email", email, "username", username, "password", password),
+                Map.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    private String loginUser(String email, String password) {
+        ResponseEntity<Map> response = restTemplate.postForEntity(
+                url("/api/auth/login"),
+                Map.of("email", email, "password", password),
+                Map.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+
+        String accessToken = (String) response.getBody().get("accessToken");
+        assertThat(accessToken).isNotBlank();
+        return accessToken;
+    }
+
+    private String createProblem(String accessToken, String suffix) {
+        HttpHeaders authHeaders = new HttpHeaders();
+        authHeaders.setBearerAuth(accessToken);
+
+        Map<String, Object> problemRequest = Map.of(
+                "slug", "test-problem-" + suffix,
+                "title", "Integration Test Problem",
+                "statementMd", "Solve the task.",
+                "inputSpecMd", "Input details.",
+                "outputSpecMd", "Output details.",
+                "constraintsMd", "Constraints.",
+                "hintsMd", "Hints.",
+                "difficulty", "EASY",
+                "solutionTemplate", "",
+                "languageCompilationConfig", "{}"
+        );
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                url("/api/problems"),
+                HttpMethod.POST,
+                new HttpEntity<>(problemRequest, authHeaders),
+                Map.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody()).isNotNull();
+
+        String problemId = (String) response.getBody().get("id");
+        assertThat(problemId).isNotBlank();
+        return problemId;
+    }
+
+    private void assertProblemListed(String problemId) {
+        ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+                url("/api/problems"),
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody())
+                .anySatisfy(problem -> assertThat(problem.get("id")).isEqualTo(problemId));
+    }
+
+    private void deleteProblem(String accessToken, String problemId) {
+        HttpHeaders authHeaders = new HttpHeaders();
+        authHeaders.setBearerAuth(accessToken);
+
+        ResponseEntity<Void> response = restTemplate.exchange(
+                url("/api/problems/" + problemId),
+                HttpMethod.DELETE,
+                new HttpEntity<>(authHeaders),
+                Void.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    }
+
+    private String url(String path) {
+        return "http://localhost:" + port + path;
+    }
 }
