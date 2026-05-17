@@ -5,6 +5,7 @@ import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
 import com.bspq26e8.backend.problem.service.ProblemService;
 import com.bspq26e8.backend.problem.service.ProblemService.CreateProblemCommand;
 import com.bspq26e8.backend.problem.service.ProblemService.CreateProblemResult;
+import com.bspq26e8.backend.problem.service.ProblemService.ExampleInput;
 import com.bspq26e8.backend.problem.service.ProblemService.ProblemDetail;
 import com.bspq26e8.backend.problem.service.ProblemService.ProblemSummary;
 import com.bspq26e8.backend.problem.service.ProblemService.UpdateProblemCommand;
@@ -67,6 +68,14 @@ public class ProblemController {
 			return ResponseEntity.badRequest().body(error("Invalid slug format"));
 		}
 
+		List<ExampleInput> examples = request.examples() == null ? List.of() :
+				request.examples().stream()
+						.filter(ex -> ex != null && ex.inputData() != null && !ex.inputData().isBlank())
+						.map(ex -> new ExampleInput(
+								ex.inputData().trim(),
+								ex.expectedOutput() == null ? "" : ex.expectedOutput().trim()))
+						.toList();
+
 		CreateProblemCommand command = new CreateProblemCommand(
 				slug,
 				title,
@@ -78,7 +87,8 @@ public class ProblemController {
 				difficulty.get(),
 				authenticatedUserId.get(),
 				normalizeOptionalText(request.solutionTemplate()),
-				normalizeJsonConfig(request.languageCompilationConfig())
+				normalizeJsonConfig(request.languageCompilationConfig()),
+				examples
 		);
 
 		CreateProblemResult result = problemService.createProblem(command);
@@ -248,7 +258,8 @@ public class ProblemController {
 			String hintsMd,
 			String difficulty,
 			String solutionTemplate,
-			String languageCompilationConfig
+			String languageCompilationConfig,
+			List<ExampleInput> examples
 	) {
 	}
 

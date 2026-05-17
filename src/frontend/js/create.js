@@ -43,6 +43,45 @@
     return val === '' ? null : val;
   }
 
+  /** Builds a new example block element */
+  function buildExampleBlock() {
+    const block = document.createElement('div');
+    block.className = 'example-box';
+    block.dataset.example = '';
+    block.innerHTML = `
+      <div class="form-group">
+        <input class="form-input" type="text" data-example-input placeholder="Input (e.g. nums = [2,7,11,15], target = 9)" />
+      </div>
+      <div class="form-group">
+        <input class="form-input" type="text" data-example-output placeholder="Output (e.g. [0,1])" />
+      </div>
+      <div class="form-group">
+        <input class="form-input" type="text" data-example-explanation placeholder="Explanation (optional)" />
+      </div>
+    `;
+    return block;
+  }
+
+  /** Collects all filled-in examples from the examples container */
+  function collectExamples() {
+    const container = document.getElementById('examples-container');
+    if (!container) return [];
+    return Array.from(container.querySelectorAll('[data-example]'))
+      .map((block) => ({
+        inputData: (block.querySelector('[data-example-input]')?.value || '').trim(),
+        expectedOutput: (block.querySelector('[data-example-output]')?.value || '').trim(),
+      }))
+      .filter((ex) => ex.inputData.length > 0);
+  }
+
+  /** Wires up the "+ Add" button for the examples section */
+  function initExamples() {
+    const container = document.getElementById('examples-container');
+    const addBtn = document.getElementById('examples-add-btn');
+    if (!container || !addBtn) return;
+    addBtn.addEventListener('click', () => container.appendChild(buildExampleBlock()));
+  }
+
   function showStatus(element, message, type) {
     element.textContent = message;
     element.dataset.status = type; // 'success' | 'error'
@@ -90,6 +129,7 @@
       hintsMd:                  field('hintsMd'),
       solutionTemplate:         field('solutionTemplate'),
       languageCompilationConfig: field('languageCompilationConfig'),
+      examples:                 collectExamples(),
     };
 
     submitBtn.disabled = true;
@@ -118,6 +158,7 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     auth.requireAuth(); // redirects to login.html if no token
+    initExamples();
     const form = document.getElementById('create-form');
     if (form) {
       form.addEventListener('submit', submitCreateProblem);
