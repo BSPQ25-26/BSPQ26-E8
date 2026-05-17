@@ -1,4 +1,4 @@
-package com.bspq26e8.backend.auth.security;
+package com.bspq26e8.backend.unit.auth.security;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -6,6 +6,8 @@ import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.bspq26e8.backend.auth.security.AccessTokenService;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AccessTokenServiceTest {
 
     private static final String TOKEN_SECRET = "test-access-token-secret";
+
     private static final Instant NOW = Instant.parse("2026-05-03T10:00:00Z");
     private static final Clock FIXED_CLOCK = Clock.fixed(NOW, ZoneOffset.UTC);
 

@@ -1,4 +1,4 @@
-package com.bspq26e8.backend.user;
+package com.bspq26e8.backend.unit.user;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

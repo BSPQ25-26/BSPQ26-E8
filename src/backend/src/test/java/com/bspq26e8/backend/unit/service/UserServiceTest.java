@@ -1,9 +1,11 @@
-package com.bspq26e8.backend.user.service;
+package com.bspq26e8.backend.unit.service;
 
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.bspq26e8.backend.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

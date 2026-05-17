@@ -1,4 +1,4 @@
-package com.bspq26e8.backend.common;
+package com.bspq26e8.backend.unit.common;
 
 import com.bspq26e8.backend.problem.repository.LanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
