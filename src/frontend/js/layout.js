@@ -5,38 +5,59 @@
 (function () {
   'use strict';
 
-  function navLink(href, label, activeKey, currentKey) {
+  function navLink(href, labelKey, activeKey, currentKey) {
     const isActive = activeKey === currentKey ? ' class="active"' : '';
-    return `<li><a href="${href}"${isActive}>${label}</a></li>`;
+    return `<li><a href="${href}"${isActive} data-i18n="${labelKey}">${getText(labelKey)}</a></li>`;
+  }
+
+  function getText(key) {
+    return typeof i18n !== 'undefined' ? i18n.t(key) : key;
+  }
+
+  function buildLanguageSwitcher() {
+    const locale = typeof i18n !== 'undefined' ? i18n.getLocale() : 'en';
+    return `
+      <li class="nav-language-item">
+        <select class="nav-language-select" data-language-switcher data-i18n-aria-label="nav.languageLabel" aria-label="${getText('nav.languageLabel')}">
+          <option value="en" data-i18n="languages.english" ${locale === 'en' ? 'selected' : ''}>${getText('languages.english')}</option>
+          <option value="es" data-i18n="languages.spanish" ${locale === 'es' ? 'selected' : ''}>${getText('languages.spanish')}</option>
+          <option value="ja" data-i18n="languages.japanese" ${locale === 'ja' ? 'selected' : ''}>${getText('languages.japanese')}</option>
+        </select>
+      </li>
+    `;
   }
 
   function buildNavbar(activeKey) {
     const links = [
-      navLink('problems.html', 'Problems', activeKey, 'problems'),
-      navLink('create.html', 'Create', activeKey, 'create'),
+      navLink('index.html', 'nav.home', activeKey, 'home'),
+      navLink('problems.html', 'nav.problems', activeKey, 'problems'),
+      navLink('create.html', 'nav.create', activeKey, 'create'),
     ];
 
     const isAuthenticated = typeof auth !== 'undefined' ? auth.isAuthenticated() : localStorage.getItem('session_token') !== null;
 
     if (isAuthenticated) {
+      const avatarActive = activeKey === 'profile' ? ' active' : '';
       links.push(
-        '<li><a class="nav-avatar-link" href="profile_page.html" aria-label="Open profile">' +
-          '<img class="nav-avatar" src="https://i.pravatar.cc/96?img=12" alt="Profile avatar" />' +
+        `<li><a class="nav-avatar-link${avatarActive}" href="profile_page.html" data-i18n-aria-label="nav.profile" aria-label="${getText('nav.profile')}">` +
+          `<img class="nav-avatar" src="https://i.pravatar.cc/96?img=12" data-i18n-alt="nav.profile" alt="${getText('nav.profile')}">` +
         '</a></li>'
       );
     } else {
       links.push(
-        '<li><a class="nav-login-link" href="login.html" aria-label="Log in">' +
-          'Log In' +
+        '<li><a class="nav-login-link" href="login.html" data-i18n="nav.login" aria-label="' + getText('nav.login') + '">' +
+          getText('nav.login') +
         '</a></li>'
       );
     }
+
+    links.push(buildLanguageSwitcher());
 
     return `
       <nav class="navbar">
         <a href="index.html" class="nav-logo">Realcode</a>
         <ul class="nav-links">${links.join('')}</ul>
-        <button class="nav-hamburger" aria-label="Toggle navigation" aria-expanded="false">
+        <button class="nav-hamburger" aria-label="${getText('nav.toggleNavigation')}" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
       </nav>
@@ -68,6 +89,23 @@
         navbar.classList.remove('nav-open');
         btn.setAttribute('aria-expanded', 'false');
       }
+    });
+  }
+
+  function setupLanguageSwitcher() {
+    const select = document.querySelector('[data-language-switcher]');
+    if (!select || typeof i18n === 'undefined') {
+      return;
+    }
+
+    select.value = i18n.getLocale();
+    select.addEventListener('change', function () {
+      i18n.setLocale(select.value);
+      select.value = i18n.getLocale();
+    });
+
+    document.addEventListener('realcode:localechange', function () {
+      select.value = i18n.getLocale();
     });
   }
 
@@ -106,5 +144,10 @@
   document.addEventListener('DOMContentLoaded', function () {
     injectLayout();
     setupHamburger();
+    setupLanguageSwitcher();
+
+    if (typeof i18n !== 'undefined') {
+      i18n.applyPage();
+    }
   });
 })();

@@ -169,7 +169,7 @@
     }
   </style>
 </head>
-<body data-active-nav="profile">
+<body data-active-nav="profile" data-page-title-key="page.title.profile">
 
   <main class="page">
     <div class="profile-page">
@@ -187,13 +187,13 @@
             />
           </div>
           <p class="profile-name" id="profile-username">username</p>
-          <span class="badge badge--blue">is_active</span>
+          <span class="badge badge--blue" data-i18n="profile.activeStatus">is_active</span>
           <p class="profile-role">Software Quality · Deusto</p>
         </div>
 
         <!-- Favourite tags -->
         <div class="card" style="padding: 1rem 0 0.25rem;">
-          <p class="sidebar-section-title">Used Lenguajes</p>
+          <p class="sidebar-section-title" data-i18n="profile.usedLanguages">Used Languages</p>
           <div class="tag-list" id="profile-used-languages">
             <span class="badge badge--blue">-</span>
           </div>
@@ -208,21 +208,21 @@
         <div class="stats-row">
           <div class="stat-box">
             <div class="stat-number" id="profile-in-progress-count">0</div>
-            <div class="stat-label">In Progress</div>
+            <div class="stat-label" data-i18n="profile.inProgress">In Progress</div>
           </div>
           <div class="stat-box">
             <div class="stat-number" id="profile-created-count">0</div>
-            <div class="stat-label">Created</div>
+            <div class="stat-label" data-i18n="profile.created">Created</div>
           </div>
           <div class="stat-box">
             <div class="stat-number" id="profile-submissions-count">0</div>
-            <div class="stat-label">Submissions</div>
+            <div class="stat-label" data-i18n="profile.submissions">Submissions</div>
           </div>
         </div>
 
         <!-- Difficulty breakdown -->
         <div class="card">
-          <p class="section-header">Difficulty Breakdown (Submissions)</p>
+          <p class="section-header" data-i18n="profile.difficultyBreakdown">Difficulty Breakdown (Submissions)</p>
           <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border-radius: 4px; overflow: hidden;">
             <div class="stat-box">
               <div class="stat-number green" id="profile-easy-submissions-count">0</div>
@@ -243,6 +243,7 @@
   </main>
 
   <!-- Core utilities -->
+  <script src="js/i18n.js"></script>
   <script src="js/layout.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
@@ -251,6 +252,26 @@
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       const ERROR_COUNT = '-1';
+      let lastLanguageLabels = [];
+
+      const translateLanguageLabel = (label) => {
+        const normalized = String(label || '').trim().toLowerCase();
+
+        if (normalized === 'python 3' || normalized === 'python') {
+          return i18n.t('problems.languagePython');
+        }
+        if (normalized === 'node.js' || normalized === 'javascript' || normalized === 'js') {
+          return i18n.t('problems.languageJavaScript');
+        }
+        if (normalized === 'java') {
+          return i18n.t('problems.languageJava');
+        }
+        if (normalized === 'c++' || normalized === 'cpp') {
+          return i18n.t('problems.languageCpp');
+        }
+
+        return String(label);
+      };
 
       if (typeof auth !== 'undefined' && !auth.isAuthenticated() && !localStorage.getItem('session_token')) {
         window.location.href = 'login.html';
@@ -284,12 +305,14 @@
           return;
         }
 
+        lastLanguageLabels = Array.isArray(languageLabels) ? languageLabels.slice() : [];
+
         usedLanguagesContainer.innerHTML = '';
 
         if (!Array.isArray(languageLabels) || languageLabels.length === 0) {
           const emptyBadge = document.createElement('span');
           emptyBadge.className = 'badge badge--blue';
-          emptyBadge.textContent = 'None';
+          emptyBadge.textContent = i18n.t('profile.none');
           usedLanguagesContainer.appendChild(emptyBadge);
           return;
         }
@@ -297,10 +320,16 @@
         languageLabels.forEach((label) => {
           const badge = document.createElement('span');
           badge.className = 'badge badge--blue';
-          badge.textContent = label;
+          badge.textContent = translateLanguageLabel(label);
           usedLanguagesContainer.appendChild(badge);
         });
       };
+
+      document.addEventListener('realcode:localechange', () => {
+        if (lastLanguageLabels.length > 0) {
+          setUsedLanguages(lastLanguageLabels);
+        }
+      });
 
       if (typeof api === 'undefined') {
         if (submissionsCountElement) {
@@ -313,7 +342,7 @@
           createdCountElement.textContent = ERROR_COUNT;
         }
         setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
-        setUsedLanguages(['Error']);
+        setUsedLanguages([i18n.t('common.error')]);
         return;
       }
 
@@ -370,7 +399,7 @@
               }
 
               if (submission.languageId !== null && submission.languageId !== undefined) {
-                languageSet.add(`Lang ${submission.languageId}`);
+                languageSet.add(i18n.t('profile.languageFallback', { id: submission.languageId }));
               }
             });
             setUsedLanguages(Array.from(languageSet));
@@ -417,7 +446,7 @@
               inProgressCountElement.textContent = ERROR_COUNT;
             }
             setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
-            setUsedLanguages(['Error']);
+            setUsedLanguages([i18n.t('common.error')]);
           }
         } catch (_error) {
           submissionsCountElement.textContent = ERROR_COUNT;
@@ -425,7 +454,7 @@
             inProgressCountElement.textContent = ERROR_COUNT;
           }
           setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
-          setUsedLanguages(['Error']);
+          setUsedLanguages([i18n.t('common.error')]);
         }
       }
 

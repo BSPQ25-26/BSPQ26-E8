@@ -11,126 +11,125 @@
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/create.css" />
 </head>
-<body data-active-nav="create">
+<body data-active-nav="create" data-page-title-key="page.title.create">
 
   <main class="page">
     <div class="form-container anim-fade-up">
-      <h1 class="page-title">Create Problem</h1>
+      <h1 class="page-title" data-i18n="page.title.create">Create Problem</h1>
 
       <form class="problem-form" id="create-form">
         
         <div class="grid-row grid-3-1">
           <div class="form-group">
-            <label class="form-label">Title</label>
-            <input class="form-input" type="text" id="title" placeholder="e.g. Two Sum" />
+            <label class="form-label" data-i18n="create.title">Title</label>
+            <input class="form-input" type="text" id="title" placeholder="e.g. Two Sum" data-i18n-placeholder="create.titlePlaceholder" />
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea class="form-textarea" id="statementMd" placeholder="Problem statement here..."></textarea>
+          <label class="form-label" data-i18n="create.description">Description</label>
+          <textarea class="form-textarea" id="statementMd" placeholder="Problem statement here..." data-i18n-placeholder="create.descriptionPlaceholder"></textarea>
         </div>
 
         <div class="form-group" style="width: 200px;">
-          <label class="form-label">Difficulty</label>
+          <label class="form-label" data-i18n="create.difficulty">Difficulty</label>
           <select class="form-select" id="difficulty">
-            <option value="" disabled selected>Select…</option>
-            <option value="EASY">Easy</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="HARD">Hard</option>
+            <option value="" disabled selected data-i18n="create.selectDifficulty">Select…</option>
+            <option value="EASY" data-i18n="problems.difficultyEasy">Easy</option>
+            <option value="MEDIUM" data-i18n="problems.difficultyMedium">Medium</option>
+            <option value="HARD" data-i18n="problems.difficultyHard">Hard</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Solutions</label>
-          <textarea class="form-textarea" id="solutionTemplate" placeholder="Explain the optimal approach..."></textarea>
+          <label class="form-label" data-i18n="create.solutions">Solutions</label>
+          <textarea class="form-textarea" id="solutionTemplate" placeholder="Explain the optimal approach..." data-i18n-placeholder="create.solutionsPlaceholder"></textarea>
         </div>
 
         <div class="card">
           <div class="section-header">
-            <h3 class="section-title">Examples</h3>
-            <button type="button" class="btn-secondary btn-sm" id="examples-add-btn">+ Add</button>
+            <h3 class="section-title" data-i18n="create.examples">Examples</h3>
+            <button type="button" class="btn-secondary btn-sm">+ Add</button>
           </div>
-          <div id="examples-container">
-            <div class="example-box" data-example>
-              <div class="form-group">
-                <input class="form-input" type="text" data-example-input placeholder="Input (e.g. nums = [2,7,11,15], target = 9)" />
-              </div>
-              <div class="form-group">
-                <input class="form-input" type="text" data-example-output placeholder="Output (e.g. [0,1])" />
-              </div>
-              <div class="form-group">
-                <input class="form-input" type="text" data-example-explanation placeholder="Explanation (optional)" />
-              </div>
+          <div class="example-box">
+            <div class="form-group">
+              <input class="form-input" type="text" placeholder="Input (e.g. nums = [2,7,11,15], target = 9)" data-i18n-placeholder="create.inputPlaceholder" />
+            </div>
+            <div class="form-group">
+              <input class="form-input" type="text" placeholder="Output (e.g. [0,1])" data-i18n-placeholder="create.outputPlaceholder" />
+            </div>
+            <div class="form-group">
+              <input class="form-input" type="text" placeholder="Explanation (optional)" data-i18n-placeholder="create.explanationPlaceholder" />
+
             </div>
           </div>
         </div>
 
         <div class="card card--blue">
           <div class="section-header">
-            <h3 class="section-title">Test cases</h3>
+            <h3 class="section-title" data-i18n="create.testCases">Test cases</h3>
             <button type="button" class="btn-secondary btn-sm">+ Add</button>
           </div>
           <div class="grid-row grid-1-1">
             <div class="form-group">
-              <input class="form-input" type="text" placeholder="Input" />
+              <input class="form-input" type="text" placeholder="Input" data-i18n-placeholder="create.testInputPlaceholder" />
             </div>
             <div class="form-group">
-              <input class="form-input" type="text" placeholder="Expected Output" />
+              <input class="form-input" type="text" placeholder="Expected Output" data-i18n-placeholder="create.testOutputPlaceholder" />
             </div>
           </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Constraints</label>
-          <textarea class="form-textarea" id="constraintsMd" style="min-height: 80px;" placeholder="e.g. 2 <= nums.length <= 10^4"></textarea>
+          <label class="form-label" data-i18n="create.constraints">Constraints</label>
+          <textarea class="form-textarea" id="constraintsMd" style="min-height: 80px;" placeholder="e.g. 2 <= nums.length <= 10^4" data-i18n-placeholder="create.constraintsPlaceholder"></textarea>
         </div>
 
         <div class="grid-row grid-1-1">
           <div class="card">
-            <h3 class="section-title" style="margin-bottom: 1rem;">Setup script (optional)</h3>
+            <h3 class="section-title" style="margin-bottom: 1rem;" data-i18n="create.setupScriptOptional">Setup script (optional)</h3>
             <div class="form-group">
-              <textarea class="form-textarea" placeholder="Setup code..."></textarea>
+              <textarea class="form-textarea" placeholder="Setup code..." data-i18n-placeholder="create.setupCodePlaceholder"></textarea>
             </div>
             <div class="form-group" style="margin-top: 1rem;">
-              <input class="form-input" type="text" placeholder="Setup output..." />
+              <input class="form-input" type="text" placeholder="Setup output..." data-i18n-placeholder="create.setupOutputPlaceholder" />
             </div>
           </div>
 
           <div class="card">
-            <h3 class="section-title" style="margin-bottom: 1rem;">Solution Runner</h3>
+            <h3 class="section-title" style="margin-bottom: 1rem;" data-i18n="create.solutionRunner">Solution Runner</h3>
             <div class="form-group">
-              <textarea class="form-textarea" placeholder="Python runner code..." style="margin-bottom: 1rem;"></textarea>
+              <textarea class="form-textarea" placeholder="Python runner code..." style="margin-bottom: 1rem;" data-i18n-placeholder="create.pythonRunnerPlaceholder"></textarea>
             </div>
             <div class="form-group">
-              <textarea class="form-textarea" placeholder="Java runner code..."></textarea>
+              <textarea class="form-textarea" placeholder="Java runner code..." data-i18n-placeholder="create.javaRunnerPlaceholder"></textarea>
             </div>
           </div>
         </div>
 
         <div class="grid-row grid-1-1-1">
           <div class="form-group">
-            <label class="form-label">Memory limit</label>
+            <label class="form-label" data-i18n="create.memoryLimit">Memory limit</label>
             <select class="form-select">
               <option>256 MB</option>
               <option>512 MB</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Time limit</label>
+            <label class="form-label" data-i18n="create.timeLimit">Time limit</label>
             <select class="form-select">
               <option>1 s</option>
               <option>2 s</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Points</label>
-            <input class="form-input" type="number" placeholder="100" />
+            <label class="form-label" data-i18n="create.points">Points</label>
+            <input class="form-input" type="number" placeholder="100" data-i18n-placeholder="create.pointsPlaceholder" />
           </div>
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn-secondary">Save as Draft</button>
-          <button type="submit" class="btn-primary" id="submit-btn">Publish</button>
+          <button type="button" class="btn-secondary" data-i18n="create.saveDraft">Save as Draft</button>
+          <button type="submit" class="btn-primary" id="submit-btn" data-i18n="create.publish">Publish</button>
           <span id="status-message"></span>
         </div>
 
@@ -139,6 +138,7 @@
   </main>
 
   <!-- Core utilities -->
+  <script src="js/i18n.js"></script>
   <script src="js/layout.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>

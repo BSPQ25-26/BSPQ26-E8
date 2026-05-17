@@ -31,6 +31,10 @@
 (function () {
   'use strict';
 
+  function getText(key, params) {
+    return typeof i18n !== 'undefined' ? i18n.t(key, params) : key;
+  }
+
   /** Returns trimmed string or null if blank */
   function field(id) {
     const el = document.getElementById(id);
@@ -100,7 +104,7 @@
 
     // Auth check - auth.js stores the access and refresh tokens.
     if (!auth.isAuthenticated()) {
-      showStatus(statusEl, 'You must be logged in to create a problem.', 'error');
+      showStatus(statusEl, getText('create.mustBeLoggedIn'), 'error');
       return;
     }
 
@@ -110,7 +114,7 @@
     const difficulty  = field('difficulty');
 
     if (!title || !statementMd || !difficulty) {
-      showStatus(statusEl, 'Title, statement and difficulty are required.', 'error');
+      showStatus(statusEl, getText('create.requiredFields'), 'error');
       return;
     }
 
@@ -130,21 +134,21 @@
 
     submitBtn.disabled = true;
     const originalLabel = submitBtn.textContent;
-    submitBtn.textContent = 'Publishing…';
+    submitBtn.textContent = getText('create.publishing');
 
     try {
       const data = await api.post('/problems', body);
-      showStatus(statusEl, `Problem "${data.title}" created successfully!`, 'success');
+      showStatus(statusEl, getText('create.problemCreated', { title: data.title }), 'success');
       form.reset();
     } catch (err) {
       if (err && err.status === 401) {
-        showStatus(statusEl, 'Session expired. Please log in again.', 'error');
+        showStatus(statusEl, getText('create.sessionExpired'), 'error');
       } else if (err && err.status === 409) {
-        showStatus(statusEl, `Conflict: ${err.message || 'A problem with that slug already exists.'}`, 'error');
+        showStatus(statusEl, getText('create.conflict', { message: err.message || getText('create.problemAlreadyExists') }), 'error');
       } else if (!err || !err.status) {
-        showStatus(statusEl, 'Could not reach the server. Is the backend running?', 'error');
+        showStatus(statusEl, getText('create.couldNotReachServer'), 'error');
       } else {
-        showStatus(statusEl, `Error: ${(err && err.message) || 'An unexpected error occurred.'}`, 'error');
+        showStatus(statusEl, `${getText('common.error')}: ${(err && err.message) || getText('create.unexpectedError')}`, 'error');
       }
     } finally {
       submitBtn.disabled = false;

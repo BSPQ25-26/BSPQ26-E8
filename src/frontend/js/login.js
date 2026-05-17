@@ -3,6 +3,12 @@
 
   const API_BASE = 'http://localhost:10000';
 
+  let currentPanel = 'login';
+
+  function getText(key, params) {
+    return typeof i18n !== 'undefined' ? i18n.t(key, params) : key;
+  }
+
   function showError(message) {
     const el = document.getElementById('error-message');
     el.textContent = message;
@@ -16,10 +22,26 @@
   }
 
   function showPanel(panel) {
+    currentPanel = panel;
     document.getElementById('login-panel').style.display = panel === 'login' ? 'block' : 'none';
     document.getElementById('register-panel').style.display = panel === 'register' ? 'block' : 'none';
-    document.getElementById('form-title').textContent = panel === 'login' ? 'Sign In' : 'Create Account';
+    document.getElementById('form-title').textContent = panel === 'login' ? getText('login.signIn') : getText('login.createAccount');
     clearError();
+  }
+
+  function syncLocaleText() {
+    document.getElementById('form-title').textContent = currentPanel === 'login' ? getText('login.signIn') : getText('login.createAccount');
+
+    const loginBtn = document.getElementById('login-btn');
+    const registerBtn = document.getElementById('register-btn');
+
+    if (loginBtn && !loginBtn.disabled) {
+      loginBtn.textContent = getText('login.signIn');
+    }
+
+    if (registerBtn && !registerBtn.disabled) {
+      registerBtn.textContent = getText('login.createAccount');
+    }
   }
 
   async function handleLogin(e) {
@@ -30,22 +52,22 @@
     const password = document.getElementById('login-password').value;
 
     if (!email || !password) {
-      showError('Email and password are required.');
+      showError(getText('login.emailPasswordRequired'));
       return;
     }
 
     const btn = document.getElementById('login-btn');
     btn.disabled = true;
-    btn.textContent = 'Signing in…';
+    btn.textContent = getText('login.signingIn');
 
     try {
       await auth.login(email, password);
       window.location.href = 'create.html';
     } catch (_err) {
-      showError('Invalid email or password.');
+      showError(getText('login.invalidEmailPassword'));
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Sign In';
+      btn.textContent = getText('login.signIn');
     }
   }
 
@@ -58,13 +80,13 @@
     const password = document.getElementById('register-password').value;
 
     if (!email || !username || !password) {
-      showError('All fields are required.');
+      showError(getText('login.allFieldsRequired'));
       return;
     }
 
     const btn = document.getElementById('register-btn');
     btn.disabled = true;
-    btn.textContent = 'Creating account…';
+    btn.textContent = getText('login.creatingAccount');
 
     try {
       const response = await fetch(`${API_BASE}/api/auth/register`, {
@@ -74,13 +96,13 @@
       });
 
       if (response.status === 409) {
-        showError('Username or email is already taken.');
+        showError(getText('login.usernameOrEmailTaken'));
         return;
       }
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        showError(data.error || 'Registration failed. Please try again.');
+        showError(data.error || getText('login.registrationFailed'));
         return;
       }
 
@@ -88,10 +110,10 @@
       await auth.login(email, password);
       window.location.href = 'create.html';
     } catch (_err) {
-      showError('Could not reach the server. Is the backend running?');
+      showError(getText('login.couldNotReachServer'));
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Create Account';
+      btn.textContent = getText('login.createAccount');
     }
   }
 
@@ -112,5 +134,8 @@
       e.preventDefault();
       showPanel('login');
     });
+
+    syncLocaleText();
+    document.addEventListener('realcode:localechange', syncLocaleText);
   });
 })();
