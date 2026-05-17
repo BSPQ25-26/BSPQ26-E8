@@ -44,6 +44,8 @@ public class TestCase {
         return isSample;
     }
 
+    protected TestCase() {}
+
     public TestCase(Problem problem, String inputData, String expectedOutput, boolean isSample) {
         this.problem = problem;
         this.inputData = inputData;
