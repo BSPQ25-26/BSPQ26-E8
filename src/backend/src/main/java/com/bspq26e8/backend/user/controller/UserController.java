@@ -1,6 +1,6 @@
 package com.bspq26e8.backend.user.controller;
 
-import com.bspq26e8.backend.auth.security.AccessTokenService;
+import com.bspq26e8.backend.common.AccessTokenService;
 import com.bspq26e8.backend.user.service.UserService;
 import com.bspq26e8.backend.user.service.UserService.UpdateProfileResult;
 import com.bspq26e8.backend.user.service.UserService.UserView;

@@ -1,5 +1,6 @@
 package com.bspq26e8.backend.user.repository;
 
+import com.bspq26e8.backend.user.LanguageProjection;
 import com.bspq26e8.backend.user.entity.User;
 import java.util.List;
 import java.util.Optional;
@@ -24,10 +25,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
         nativeQuery = true
     )
     List<LanguageProjection> findPreferredLanguagesByUserId(@Param("userId") UUID userId);
-
-    interface LanguageProjection {
-        Long getId();
-        String getName();
-        String getCode();
-    }
 }

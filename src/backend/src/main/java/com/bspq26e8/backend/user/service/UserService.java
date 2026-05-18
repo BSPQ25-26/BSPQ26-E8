@@ -1,8 +1,8 @@
 package com.bspq26e8.backend.user.service;
 
+import com.bspq26e8.backend.user.LanguageProjection;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
-import com.bspq26e8.backend.user.repository.UserRepository.LanguageProjection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
