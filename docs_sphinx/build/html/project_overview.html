@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Project Overview &#8212; BSPQ26-E8 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Architecture" href="architecture.html" />
+    <link rel="prev" title="BSPQ26-E8 Documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="project-overview">
+<h1>Project Overview<a class="headerlink" href="#project-overview" title="Link to this heading">¶</a></h1>
+<section id="goal">
+<h2>Goal<a class="headerlink" href="#goal" title="Link to this heading">¶</a></h2>
+<p>BSPQ26-E8 is a platform where users can:</p>
+<ul class="simple">
+<li><p>Register and authenticate</p></li>
+<li><p>Create and browse programming problems</p></li>
+<li><p>Submit source code in supported languages</p></li>
+<li><p>Track submission status and results</p></li>
+</ul>
+</section>
+<section id="scope-for-sprint-3">
+<h2>Scope for Sprint 3<a class="headerlink" href="#scope-for-sprint-3" title="Link to this heading">¶</a></h2>
+<p>The documented scope covers:</p>
+<ul class="simple">
+<li><p>Authentication and user management endpoints</p></li>
+<li><p>Problem creation, update, listing, and deletion</p></li>
+<li><p>Submission creation, tracking, and resubmission flow</p></li>
+<li><p>CI and quality gates for backend and frontend</p></li>
+</ul>
+</section>
+<section id="technology-stack">
+<h2>Technology Stack<a class="headerlink" href="#technology-stack" title="Link to this heading">¶</a></h2>
+<section id="backend">
+<h3>Backend<a class="headerlink" href="#backend" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Java 21</p></li>
+<li><p>Spring Boot 3.3.x</p></li>
+<li><p>Spring Data JPA</p></li>
+<li><p>Flyway migrations</p></li>
+<li><p>PostgreSQL</p></li>
+<li><p>Springdoc OpenAPI</p></li>
+</ul>
+</section>
+<section id="frontend">
+<h3>Frontend<a class="headerlink" href="#frontend" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>HTML/CSS/JavaScript</p></li>
+<li><p>Nginx container for static hosting</p></li>
+<li><p>Playwright tests</p></li>
+</ul>
+</section>
+<section id="infrastructure">
+<h3>Infrastructure<a class="headerlink" href="#infrastructure" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Docker and Docker Compose</p></li>
+<li><p>Judge0 services for code execution</p></li>
+<li><p>GitHub Actions CI workflows</p></li>
+</ul>
+</section>
+</section>
+<section id="quality-and-engineering-practices">
+<h2>Quality and Engineering Practices<a class="headerlink" href="#quality-and-engineering-practices" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Unit and integration tests are executed in CI</p></li>
+<li><p>JaCoCo coverage verification is enforced in backend checks</p></li>
+<li><p>Flyway migrations provide controlled database evolution</p></li>
+<li><p>API contracts are discoverable through Swagger/OpenAPI</p></li>
+</ul>
+</section>
+<section id="repository-structure">
+<h2>Repository Structure<a class="headerlink" href="#repository-structure" title="Link to this heading">¶</a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>BSPQ26-E8/
+├─ src/
+│  ├─ backend/
+│  │  ├─ src/main/java/com/bspq26e8/backend/
+│  │  └─ src/main/resources/
+│  └─ frontend/
+├─ docs/               (existing Jekyll docs)
+└─ docs_sphinx/        (this Sphinx documentation)
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">BSPQ26-E8</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Project Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#goal">Goal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scope-for-sprint-3">Scope for Sprint 3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#technology-stack">Technology Stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quality-and-engineering-practices">Quality and Engineering Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#repository-structure">Repository Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="local_setup.html">Local Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference (High Level)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing_ci.html">Testing and CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sprint3_review.html">Sprint 3 Review Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">BSPQ26-E8 Documentation</a></li>
+      <li>Next: <a href="architecture.html" title="next chapter">Architecture</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, BSPQ26-E8 Team.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/project_overview.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
