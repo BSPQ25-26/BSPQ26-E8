@@ -4,10 +4,8 @@ import com.bspq26e8.backend.auth.security.AccessTokenService;
 import com.bspq26e8.backend.submission.service.SubmissionService;
 import com.bspq26e8.backend.submission.service.SubmissionService.CreateSubmissionCommand;
 import com.bspq26e8.backend.submission.service.SubmissionService.CreateSubmissionResult;
-import com.bspq26e8.backend.submission.service.SubmissionService.SubmissionView;
-import com.bspq26e8.backend.submission.service.SubmissionService.UpdateSubmissionCommand;
-import com.bspq26e8.backend.submission.service.SubmissionService.UpdateSubmissionResult;
 import com.bspq26e8.backend.submission.service.SubmissionService.ResubmitCommand;
+import com.bspq26e8.backend.submission.service.SubmissionService.SubmissionView;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,11 +13,9 @@ import java.util.UUID;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -138,40 +134,6 @@ public class SubmissionController {
 		return ResponseEntity.ok(best.get());
 	}
 
-	@PutMapping("/{submissionId}")
-	public ResponseEntity<?> updateSubmission(
-			@PathVariable UUID submissionId,
-			@RequestBody(required = false) UpdateSubmissionRequest request,
-			HttpServletRequest httpRequest
-	) {
-		if (request == null) {
-			return ResponseEntity.badRequest().body(error("Request body is required"));
-		}
-
-		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
-		if (authenticatedUserId.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
-		}
-
-		if (isBlank(request.sourceCode()) && request.languageId() == null) {
-			return ResponseEntity.badRequest().body(error("At least one of sourceCode or languageId is required"));
-		}
-
-		UpdateSubmissionCommand command = new UpdateSubmissionCommand(
-				submissionId,
-				authenticatedUserId.get(),
-				request.languageId(),
-				normalizeOptional(request.sourceCode())
-		);
-
-		UpdateSubmissionResult result = submissionService.updateSubmission(command);
-		if (result.notFound()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(result.errorMessage()));
-		}
-
-		return ResponseEntity.ok(result.submission());
-	}
-
 	@PostMapping("/{submissionId}/resubmit")
 	public ResponseEntity<?> resubmit(
 			@PathVariable UUID submissionId,
@@ -202,24 +164,6 @@ public class SubmissionController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(result.submission());
 	}
 
-	@DeleteMapping("/{submissionId}")
-	public ResponseEntity<?> deleteSubmission(
-			@PathVariable UUID submissionId,
-			HttpServletRequest httpRequest
-	) {
-		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
-		if (authenticatedUserId.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
-		}
-
-		Optional<String> error = submissionService.deleteSubmission(submissionId, authenticatedUserId.get());
-		if (error.isPresent()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", error.get()));
-		}
-
-		return ResponseEntity.noContent().build();
-	}
-
 	private boolean isBlank(String value) {
 		return value == null || value.isBlank();
 	}
@@ -242,9 +186,6 @@ public class SubmissionController {
 	}
 
 	public record CreateSubmissionRequest(UUID problemId, Long languageId, String sourceCode) {
-	}
-
-	public record UpdateSubmissionRequest(Long languageId, String sourceCode) {
 	}
 
 	public record ResubmitRequest(Long languageId, String sourceCode) {

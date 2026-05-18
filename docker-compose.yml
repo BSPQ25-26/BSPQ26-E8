@@ -31,10 +31,17 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      judge0-server:
+        condition: service_started
+      judge0-worker:
+        condition: service_started
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JUDGE0_ENABLED: "true"
+      JUDGE0_BASE_URL: http://judge0-server:2358
+      CODE_EXECUTION_QUEUE_ENABLED: "true"
     ports:
       - "10000:10000"
 
@@ -76,7 +83,7 @@ services:
       - judge0_data:/var/lib/postgresql/data
 
   judge0-server:
-    image:  judge0/judge0:latest
+    image: judge0/judge0:latest
     depends_on:
       - judge0-db
       - judge0-redis
@@ -105,7 +112,7 @@ services:
       - judge0-db
       - judge0-redis
     volumes:
-      - ./judge0.conf:/judge.conf:ro
+      - ./judge0.conf:/judge0.conf:ro
     privileged: true
     command: ["./scripts/workers"]
 

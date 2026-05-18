@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -27,19 +28,22 @@ import static org.mockito.Mockito.*;
 public class ProblemServiceTest {
 
     @Mock
-    private ProblemLanguageRepository problemLanguageRepository;
-    @Mock
     private ProblemRepository problemRepository;
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private ProblemLanguageRepository problemLanguageRepository;
 
     @InjectMocks
     private ProblemService problemService;
 
     @BeforeEach
     void setUp() {
-        lenient().when(problemLanguageRepository.findLanguageRowsByProblemIds(any())).thenReturn(List.of());
+        lenient()
+                .when(problemLanguageRepository.findLanguageRowsByProblemIds(anyCollection()))
+                .thenReturn(List.of());
     }
 
     @Test
