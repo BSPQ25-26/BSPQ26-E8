@@ -8,6 +8,7 @@ import com.bspq26e8.backend.problem.service.ProblemService.CreateProblemResult;
 import com.bspq26e8.backend.problem.service.ProblemService.ExampleInput;
 import com.bspq26e8.backend.problem.service.ProblemService.ProblemDetail;
 import com.bspq26e8.backend.problem.service.ProblemService.ProblemSummary;
+import com.bspq26e8.backend.problem.service.ProblemService.UpdateExamplesResult;
 import com.bspq26e8.backend.problem.service.ProblemService.UpdateProblemCommand;
 import com.bspq26e8.backend.problem.service.ProblemService.UpdateProblemResult;
 import java.util.List;
@@ -207,6 +208,30 @@ public class ProblemController {
 		}
 
 		return ResponseEntity.ok(result.problem());
+	}
+
+	@PutMapping("/{problemId}/examples")
+	public ResponseEntity<?> updateProblemExamples(
+			@PathVariable UUID problemId,
+			@RequestBody(required = false) List<ExampleInput> examples,
+			HttpServletRequest httpRequest
+	) {
+		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
+		if (authenticatedUserId.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
+		}
+
+		List<ExampleInput> normalized = examples == null ? List.of() :
+				examples.stream()
+						.filter(ex -> ex != null && ex.inputData() != null && !ex.inputData().isBlank())
+						.map(ex -> new ExampleInput(ex.inputData().trim(),
+								ex.expectedOutput() == null ? "" : ex.expectedOutput().trim()))
+						.toList();
+
+		UpdateExamplesResult result = problemService.updateExamplesByAuthor(problemId, authenticatedUserId.get(), normalized);
+		if (result.notFound())  return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(result.errorMessage()));
+		if (result.forbidden()) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error(result.errorMessage()));
+		return ResponseEntity.ok().build();
 	}
 
 	private String slugify(String input) {

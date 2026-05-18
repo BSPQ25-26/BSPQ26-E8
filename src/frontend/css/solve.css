@@ -1,0 +1,365 @@
+/* ══════════════════════════════════════════════
+   solve.css — Split-screen problem solver page
+   ══════════════════════════════════════════════ */
+
+/* ── Layout ── */
+.solve-layout {
+  display: flex;
+  height: calc(100vh - 52px);
+  margin-top: 52px;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ── Panels ── */
+.solve-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 280px;
+}
+
+.solve-panel--desc {
+  width: 42%;
+  border-right: 1px solid var(--border);
+  background: var(--card);
+}
+
+.solve-panel--editor {
+  flex: 1;
+  background: var(--bg);
+}
+
+/* ── Draggable divider ── */
+.solve-divider {
+  width: 4px;
+  background: var(--border);
+  cursor: col-resize;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.solve-divider:hover,
+.solve-divider.is-dragging {
+  background: var(--accent);
+}
+
+/* ══ LEFT PANEL ══════════════════════════════ */
+
+/* Tabs */
+.solve-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--sidebar);
+  flex-shrink: 0;
+}
+
+.solve-tab {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.75rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.solve-tab:hover { color: var(--text); }
+.solve-tab.is-active {
+  color: var(--accent-light);
+  border-bottom-color: var(--accent);
+}
+
+/* Tab content area */
+.solve-tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 1.5rem 2rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.solve-tab-content::-webkit-scrollbar { width: 5px; }
+.solve-tab-content::-webkit-scrollbar-track { background: transparent; }
+.solve-tab-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Problem header */
+.solve-problem-header {
+  margin-bottom: 1.5rem;
+}
+
+.solve-problem-title {
+  font-family: var(--font-body);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.6rem;
+  line-height: 1.3;
+}
+
+.solve-problem-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Sections */
+.solve-section {
+  margin-bottom: 1.5rem;
+}
+
+.solve-section-title {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent-light);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.solve-section-title::before {
+  content: '//';
+  color: var(--accent);
+}
+
+.solve-section-body {
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* Examples */
+.solve-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.solve-example {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.solve-example-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--sidebar);
+}
+
+.solve-example-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.solve-example-block {
+  padding: 0.6rem 0.75rem;
+}
+
+.solve-example-block + .solve-example-block {
+  border-left: 1px solid var(--border);
+}
+
+.solve-example-block-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.3rem;
+}
+
+.solve-example-code {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text);
+  background: none;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Loading / error */
+.solve-loading,
+.solve-error {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  padding: 2rem 0;
+  text-align: center;
+}
+.solve-loading { color: var(--text-dim); }
+.solve-error   { color: var(--red); }
+
+/* Hints tab */
+.solve-hints-empty {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+/* ══ RIGHT PANEL ═════════════════════════════ */
+
+/* Toolbar */
+.solve-editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  background: var(--sidebar);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  gap: 0.75rem;
+}
+
+.solve-lang-select {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.solve-lang-select:focus { border-color: var(--accent); }
+
+.solve-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Code editor area */
+.solve-editor-wrap {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.solve-editor {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  padding: 1.25rem 1.5rem;
+  border: none;
+  outline: none;
+  resize: none;
+  caret-color: var(--accent);
+  tab-size: 4;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.solve-editor::-webkit-scrollbar { width: 5px; }
+.solve-editor::-webkit-scrollbar-track { background: transparent; }
+.solve-editor::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.solve-editor::selection { background: rgba(108, 99, 255, 0.3); }
+
+/* Output panel */
+.solve-output {
+  flex-shrink: 0;
+  max-height: 40%;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.solve-output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--sidebar);
+  flex-shrink: 0;
+}
+
+.solve-output-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.solve-output-status {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+}
+.solve-output-status.accepted  { color: var(--green);  background: rgba(34,197,94,.12); }
+.solve-output-status.error     { color: var(--red);    background: rgba(239,68,68,.12); }
+.solve-output-status.running   { color: var(--orange); background: rgba(245,158,11,.12); }
+
+.solve-output-close {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  transition: color var(--transition);
+}
+.solve-output-close:hover { color: var(--text); }
+
+.solve-output-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .solve-layout {
+    flex-direction: column;
+    height: auto;
+    overflow: auto;
+  }
+  .solve-panel--desc {
+    width: 100%;
+    height: 50vh;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .solve-divider { display: none; }
+  .solve-panel--editor {
+    height: 50vh;
+  }
+}

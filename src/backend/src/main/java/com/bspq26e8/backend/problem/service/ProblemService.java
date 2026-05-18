@@ -7,6 +7,7 @@ import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -168,6 +169,41 @@ public class ProblemService {
 				problem.getHintsMd(),
 				examples
 		));
+	}
+
+	@Transactional
+	public UpdateExamplesResult updateExamplesByAuthor(UUID problemId, UUID authorId, List<ExampleInput> examples) {
+		Optional<Problem> maybeProblem = problemRepository.findById(problemId);
+		if (maybeProblem.isEmpty()) {
+			return UpdateExamplesResult.notFound("Problem not found");
+		}
+
+		Problem problem = maybeProblem.get();
+		if (problem.getAuthor() == null || !problem.getAuthor().getId().equals(authorId)) {
+			return UpdateExamplesResult.forbidden("Only the author can edit this problem");
+		}
+
+		// Modify the Hibernate-managed collection in-place to avoid
+		// "collection no longer referenced" error with cascade=all-delete-orphan
+		if (problem.getTestCases() == null) {
+			problem.setTestCases(new ArrayList<>());
+		}
+
+		// Remove existing sample test cases in-place
+		problem.getTestCases().removeIf(TestCase::isSample);
+
+		// Add new sample test cases into the existing managed collection
+		if (examples != null) {
+			examples.stream()
+					.filter(ex -> ex.inputData() != null && !ex.inputData().isBlank())
+					.map(ex -> new TestCase(problem, ex.inputData().trim(),
+							ex.expectedOutput() == null ? "" : ex.expectedOutput().trim(), true))
+					.forEach(tc -> problem.getTestCases().add(tc));
+		}
+
+		problemRepository.save(problem);
+
+		return UpdateExamplesResult.success();
 	}
 
 	public Optional<DeleteProblemError> deleteProblemByAuthor(UUID problemId, UUID authorId) {
@@ -343,6 +379,18 @@ public class ProblemService {
 
 		public static UpdateProblemResult conflict(String message) {
 			return new UpdateProblemResult(false, false, false, message, null);
+		}
+	}
+
+	public record UpdateExamplesResult(boolean updated, boolean notFound, boolean forbidden, String errorMessage) {
+		public static UpdateExamplesResult success() {
+			return new UpdateExamplesResult(true, false, false, null);
+		}
+		public static UpdateExamplesResult notFound(String message) {
+			return new UpdateExamplesResult(false, true, false, message);
+		}
+		public static UpdateExamplesResult forbidden(String message) {
+			return new UpdateExamplesResult(false, false, true, message);
 		}
 	}
 

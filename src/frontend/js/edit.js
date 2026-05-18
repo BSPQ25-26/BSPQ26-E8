@@ -48,10 +48,7 @@
   }
 
   function initExamples() {
-    const container = document.getElementById('examples-container');
-    const addBtn = document.getElementById('examples-add-btn');
-    if (!container || !addBtn) return;
-    addBtn.addEventListener('click', () => container.appendChild(buildExampleBlock()));
+    // single example only — no add button
   }
 
   /* ── Load problem data and pre-fill form ── */
@@ -87,6 +84,17 @@
       const statusEl = document.getElementById('status-message');
       if (statusEl) showStatus(statusEl, 'Could not load the problem. Please go back and try again.', 'error');
     }
+  }
+
+  /* ── Collect examples from the form ── */
+  function collectExamples() {
+    const container = document.getElementById('examples-container');
+    if (!container) return [];
+    const block = container.querySelector('[data-example]');
+    if (!block) return [];
+    const inputData      = (block.querySelector('[data-example-input]')?.value  || '').trim();
+    const expectedOutput = (block.querySelector('[data-example-output]')?.value || '').trim();
+    return inputData.length > 0 ? [{ inputData, expectedOutput }] : [];
   }
 
   /* ── Submit edit ── */
@@ -126,6 +134,7 @@
 
     try {
       await api.put(`/problems/${problemId}`, body);
+      await api.put(`/problems/${problemId}/examples`, collectExamples());
       showStatus(statusEl, 'Problem updated successfully!', 'success');
     } catch (err) {
       if (err && err.status === 401) {
