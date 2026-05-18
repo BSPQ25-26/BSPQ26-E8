@@ -172,9 +172,22 @@ class ApiClient {
      * Submit solution
      */
     async submitSolution(problemId, code, language) {
-        return this.post(`/workspace/${problemId}/submit`, {
-            code,
-            language
+        const languageIdByCode = {
+            python: 1,
+            javascript: 2,
+            java: 3,
+            cpp: 4
+        };
+        const languageId = languageIdByCode[String(language || '').toLowerCase()];
+
+        if (!languageId) {
+            throw new Error(`Unsupported language: ${language}`);
+        }
+
+        return this.post('/submissions', {
+            problemId,
+            languageId,
+            sourceCode: code
         });
     }
 

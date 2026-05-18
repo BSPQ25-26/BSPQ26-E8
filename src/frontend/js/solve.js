@@ -232,9 +232,18 @@
 
     try {
       const result = await api.submitSolution(problemId, code, language);
-      const accepted = result.status === 'ACCEPTED' || result.accepted === true;
-      const output = result.output || result.message || JSON.stringify(result, null, 2);
-      showOutput(output, accepted ? 'Accepted' : 'Wrong Answer', accepted ? 'accepted' : 'error');
+      const status = String(result.status || '').toUpperCase();
+      const output = result.verdictMessage || result.output || result.message || JSON.stringify(result, null, 2);
+
+      if (status === 'ACCEPTED' || result.accepted === true) {
+        showOutput(output, 'Accepted', 'accepted');
+      } else if (status === 'WRONG_ANSWER') {
+        showOutput(output, 'Wrong Answer', 'error');
+      } else if (status === 'QUEUED' || status === 'RUNNING') {
+        showOutput(output, 'Submitted', 'running');
+      } else {
+        showOutput(output, status || 'Submitted', 'running');
+      }
     } catch (err) {
       showOutput(
         err && err.message ? err.message : 'Could not reach the server.',
