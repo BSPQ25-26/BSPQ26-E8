@@ -59,7 +59,12 @@ jacoco {
 
 def jacocoCoverageExclusions = [
         'com/bspq26e8/backend/BackendApplication.class',
-        'com/bspq26e8/backend/codeexecution/*',
+        'com/bspq26e8/backend/codeexecution/AsyncConfig',
+        'com/bspq26e8/backend/codeexecution/CodeExecutionOptions.class',
+        'com/bspq26e8/backend/codeexecution/CodeExecutionRequest.class',
+        'com/bspq26e8/backend/codeexecution/CodeExecutionQueueWorker.class',
+        'com/bspq26e8/backend/codeexecution/Judge0HttpClient*.class',
+        'com/bspq26e8/backend/codeexecution/Judge0Properties.class',
         'com/bspq26e8/backend/**/controller/*',
         'com/bspq26e8/backend/**/entity/*',
         'com/bspq26e8/backend/**/repository/*'
