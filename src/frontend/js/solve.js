@@ -392,31 +392,180 @@
 
     showOutput('Submitting…', 'Running', 'running');
     btnSubmit.disabled = true;
+    blockUIWhileEvaluating(true);
 
     try {
       const result = await api.submitSolution(problemId, code, language);
-      const status = String(result.status || '').toUpperCase();
-      const output = result.verdictMessage || result.output || result.message || JSON.stringify(result, null, 2);
+      const submissionId = result.id;
+      const initialStatus = String(result.status || '').toUpperCase();
 
-      if (status === 'ACCEPTED' || result.accepted === true) {
-        showOutput(output, 'Accepted', 'accepted');
-      } else if (status === 'WRONG_ANSWER') {
-        showOutput(output, 'Wrong Answer', 'error');
-      } else if (status === 'QUEUED' || status === 'RUNNING') {
-        showOutput(output, 'Submitted', 'running');
-      } else {
-        showOutput(output, status || 'Submitted', 'running');
-      }
+      showSubmissionCreatedMessage(initialStatus);
+
+      await pollForEvaluation(submissionId, language);
     } catch (err) {
+      blockUIWhileEvaluating(false);
       showOutput(
         err && err.message ? err.message : 'Could not reach the server.',
         'Error',
         'error'
       );
-    } finally {
       btnSubmit.disabled = false;
     }
   });
+
+  /* ── Block UI while evaluating ── */
+  function blockUIWhileEvaluating(block) {
+    if (block) {
+      document.body.style.pointerEvents = 'none';
+      document.body.style.opacity = '0.6';
+    } else {
+      document.body.style.pointerEvents = 'auto';
+      document.body.style.opacity = '1';
+    }
+  }
+
+  /* ── Show submission created message ── */
+  function showSubmissionCreatedMessage(status) {
+    setRunMode(false);
+    outputPlain.innerHTML = `
+      <div style="margin: 0.5rem 0;">
+        Submission created successfully. Status: <strong>${esc(status)}</strong>
+      </div>
+      <div style="margin: 1rem 0;"></div>
+    `;
+    outputStatus.textContent = 'Created';
+    outputStatus.className = 'solve-output-status running';
+    outputPanel.style.display = 'flex';
+  }
+
+  /* ── Poll for evaluation result ── */
+  async function pollForEvaluation(submissionId, language) {
+    const maxPolls = 300; // ~5 minutes with 1s intervals
+
+    showEvaluatingMessage();
+
+    let pollCount = 0;
+    while (pollCount < maxPolls) {
+      try {
+        const submission = await api.get(`/submissions/${submissionId}`);
+        const status = String(submission.status || '').toUpperCase();
+
+        if (status === 'QUEUED' || status === 'RUNNING') {
+          pollCount++;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          continue;
+        }
+
+        blockUIWhileEvaluating(false);
+
+        if (status === 'ACCEPTED') {
+          showAcceptedMessage();
+        } else if (status === 'WRONG_ANSWER') {
+          showWrongAnswerMessage();
+        } else {
+          showFailedMessage(status, submission.verdictMessage);
+        }
+
+        return;
+      } catch (err) {
+        pollCount++;
+        if (pollCount < maxPolls) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+    }
+
+    blockUIWhileEvaluating(false);
+    showOutput('Evaluation timeout. Please refresh the page to check status.', 'Timeout', 'limit');
+    btnSubmit.disabled = false;
+  }
+
+  /* ── Show evaluating message ── */
+  function showEvaluatingMessage() {
+    setRunMode(false);
+    outputPlain.innerHTML = `
+      <div style="white-space: normal; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem;">
+        <div style="font-size: 1.2rem; text-align: center;">
+          Evaluating solution... This may take a while
+        </div>
+        <div style="font-size: 0.8rem; color: #888; text-align: center;">
+          Please wait...
+        </div>
+      </div>
+    `;
+    outputStatus.textContent = 'Evaluating';
+    outputStatus.className = 'solve-output-status running';
+    outputPanel.style.display = 'flex';
+  }
+
+  /* ── Show accepted message ── */
+  function showAcceptedMessage() {
+    setRunMode(false);
+    codeEditor.readOnly = true;
+    codeEditor.style.opacity = '0.6';
+    codeEditor.style.cursor = 'not-allowed';
+    btnSubmit.disabled = true;
+    outputPlain.innerHTML = `
+      <div style="white-space: normal; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem;">
+        <div style="font-size: 1.1rem; text-align: center;">
+          <strong style="color: #22c55e;">Congratulations! Your solution is correct!</strong>
+        </div>
+        <p style="margin: 0.1rem 0; font-size: 0.8rem;">
+          You successfully solved this problem!
+        </p>
+        <a href="problems.html" style="display: inline-block; padding: 0.4rem 0.8rem; background: #22c55e; color: white; text-decoration: none; border-radius: 3px; font-weight: bold; font-size: 0.78rem;">
+          Back to Problems
+        </a>
+      </div>
+    `;
+    outputStatus.textContent = 'Accepted';
+    outputStatus.className = 'solve-output-status accepted';
+    outputPanel.style.display = 'flex';
+    btnSubmit.disabled = false;
+  }
+
+  /* ── Show wrong answer message ── */
+  function showWrongAnswerMessage() {
+    setRunMode(false);
+    codeEditor.readOnly = false;
+    codeEditor.style.opacity = '1';
+    codeEditor.style.cursor = 'text';
+    btnSubmit.disabled = false;
+    outputPlain.innerHTML = `
+      <div style="white-space: normal; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem;">
+        <div style="font-size: 1rem; text-align: center;">
+          <strong style="color: #ef4444;">We are sorry. Your solution is incorrect.</strong>
+        </div>
+        <p style="margin: 0.1rem 0; font-size: 0.8rem; color: #666;">
+          Clicking try again will reset the code. You can still edit it and submit again
+        </p>
+        <button class="btn-primary btn-sm" onclick="location.reload();" style="cursor: pointer; padding: 0.6rem 1.2rem; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; height: auto;">
+          Try Again
+        </button>
+      </div>
+    `;
+    outputStatus.textContent = 'Wrong Answer';
+    outputStatus.className = 'solve-output-status wrong';
+    outputPanel.style.display = 'flex';
+  }
+
+  /* ── Show failed message ── */
+  function showFailedMessage(status, verdictMessage) {
+    setRunMode(false);
+    const statusLabel = status.replace(/_/g, ' ');
+    outputPlain.innerHTML = `
+      <div style="margin: 1rem 0; color: #ef4444;">
+        <strong>${esc(statusLabel)}</strong>
+      </div>
+      <div style="margin: 1rem 0; padding: 1rem; background: #fef2f2; border-radius: 6px;">
+        ${esc(verdictMessage || 'Evaluation failed. Please try again.')}
+      </div>
+    `;
+    outputStatus.textContent = statusLabel;
+    outputStatus.className = 'solve-output-status error';
+    outputPanel.style.display = 'flex';
+    btnSubmit.disabled = false;
+  }
 
   /* ── Draggable divider ── */
   if (divider && leftPanel) {

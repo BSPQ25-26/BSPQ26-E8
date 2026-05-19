@@ -66,6 +66,17 @@ public class SubmissionController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(result.submission());
 	}
 
+	@GetMapping("/{submissionId}")
+	public ResponseEntity<?> getSubmission(
+			@PathVariable UUID submissionId
+	) {
+		Optional<SubmissionView> submission = submissionService.findById(submissionId);
+		if (submission.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error("Submission not found"));
+		}
+		return ResponseEntity.ok(submission.get());
+	}
+
 	@GetMapping("/mine")
 	public ResponseEntity<?> listMine(
 			@RequestParam(required = false) UUID problemId,

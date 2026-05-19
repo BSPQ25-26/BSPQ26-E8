@@ -79,6 +79,10 @@ public class SubmissionService {
 		return submissionRepository.findLatestMine(userId, problemId).map(this::toView);
 	}
 
+	public Optional<SubmissionView> findById(UUID submissionId) {
+		return submissionRepository.findById(submissionId).map(this::toView);
+	}
+
 	public Optional<SubmissionView> findBestMineByProblem(UUID userId, UUID problemId) {
 		return submissionRepository.findBestMineByProblem(userId, problemId).map(this::toView);
 	}
