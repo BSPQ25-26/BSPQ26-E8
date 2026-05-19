@@ -31,12 +31,55 @@
 (function () {
   'use strict';
 
+  function getText(key, params) {
+    return typeof i18n !== 'undefined' ? i18n.t(key, params) : key;
+  }
+
   /** Returns trimmed string or null if blank */
   function field(id) {
     const el = document.getElementById(id);
     if (!el) return null;
     const val = el.value.trim();
     return val === '' ? null : val;
+  }
+
+  /** Builds a new example block element */
+  function buildExampleBlock() {
+    const block = document.createElement('div');
+    block.className = 'example-box';
+    block.dataset.example = '';
+    block.innerHTML = `
+      <div class="form-group">
+        <input class="form-input" type="text" data-example-input placeholder="Input (e.g. nums = [2,7,11,15], target = 9)" />
+      </div>
+      <div class="form-group">
+        <input class="form-input" type="text" data-example-output placeholder="Output (e.g. [0,1])" />
+      </div>
+      <div class="form-group">
+        <input class="form-input" type="text" data-example-explanation placeholder="Explanation (optional)" />
+      </div>
+    `;
+    return block;
+  }
+
+  /** Collects all filled-in examples from the examples container */
+  function collectExamples() {
+    const container = document.getElementById('examples-container');
+    if (!container) return [];
+    return Array.from(container.querySelectorAll('[data-example]'))
+      .map((block) => ({
+        inputData: (block.querySelector('[data-example-input]')?.value || '').trim(),
+        expectedOutput: (block.querySelector('[data-example-output]')?.value || '').trim(),
+      }))
+      .filter((ex) => ex.inputData.length > 0);
+  }
+
+  /** Wires up the "+ Add" button for the examples section */
+  function initExamples() {
+    const container = document.getElementById('examples-container');
+    const addBtn = document.getElementById('examples-add-btn');
+    if (!container || !addBtn) return;
+    addBtn.addEventListener('click', () => container.appendChild(buildExampleBlock()));
   }
 
   function showStatus(element, message, type) {
@@ -61,7 +104,7 @@
 
     // Auth check - auth.js stores the access and refresh tokens.
     if (!auth.isAuthenticated()) {
-      showStatus(statusEl, 'You must be logged in to create a problem.', 'error');
+      showStatus(statusEl, getText('create.mustBeLoggedIn'), 'error');
       return;
     }
 
@@ -71,7 +114,7 @@
     const difficulty  = field('difficulty');
 
     if (!title || !statementMd || !difficulty) {
-      showStatus(statusEl, 'Title, statement and difficulty are required.', 'error');
+      showStatus(statusEl, getText('create.requiredFields'), 'error');
       return;
     }
 
@@ -86,25 +129,26 @@
       hintsMd:                  field('hintsMd'),
       solutionTemplate:         field('solutionTemplate'),
       languageCompilationConfig: field('languageCompilationConfig'),
+      examples:                 collectExamples(),
     };
 
     submitBtn.disabled = true;
     const originalLabel = submitBtn.textContent;
-    submitBtn.textContent = 'Publishing…';
+    submitBtn.textContent = getText('create.publishing');
 
     try {
       const data = await api.post('/problems', body);
-      showStatus(statusEl, `Problem "${data.title}" created successfully!`, 'success');
+      showStatus(statusEl, getText('create.problemCreated', { title: data.title }), 'success');
       form.reset();
     } catch (err) {
       if (err && err.status === 401) {
-        showStatus(statusEl, 'Session expired. Please log in again.', 'error');
+        showStatus(statusEl, getText('create.sessionExpired'), 'error');
       } else if (err && err.status === 409) {
-        showStatus(statusEl, `Conflict: ${err.message || 'A problem with that slug already exists.'}`, 'error');
+        showStatus(statusEl, getText('create.conflict', { message: err.message || getText('create.problemAlreadyExists') }), 'error');
       } else if (!err || !err.status) {
-        showStatus(statusEl, 'Could not reach the server. Is the backend running?', 'error');
+        showStatus(statusEl, getText('create.couldNotReachServer'), 'error');
       } else {
-        showStatus(statusEl, `Error: ${(err && err.message) || 'An unexpected error occurred.'}`, 'error');
+        showStatus(statusEl, `${getText('common.error')}: ${(err && err.message) || getText('create.unexpectedError')}`, 'error');
       }
     } finally {
       submitBtn.disabled = false;
@@ -114,6 +158,7 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     auth.requireAuth(); // redirects to login.html if no token
+    initExamples();
     const form = document.getElementById('create-form');
     if (form) {
       form.addEventListener('submit', submitCreateProblem);

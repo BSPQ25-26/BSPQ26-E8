@@ -160,6 +160,10 @@ public class Problem {
         return testCases;
     }
 
+    public void setTestCases(List<TestCase> testCases) {
+        this.testCases = testCases;
+    }
+
     public void updateEditableFields(
             String slug,
             String title,

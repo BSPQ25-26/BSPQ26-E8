@@ -26,7 +26,7 @@ class ArchitectureTest {
     static final Architectures.LayeredArchitecture layers = Architectures.layeredArchitecture()
             .consideringAllDependencies()
             .layer("Controllers").definedBy("..controller..")
-            .layer("Services").definedBy("..service..", "..codeexecution..")
+            .layer("Services").definedBy("..service..", "..codeexecution..", "..evaluator..")
             .layer("Repositories").definedBy("..repository..")
             .layer("Entities").definedBy("..entity..")
             .whereLayer("Controllers").mayNotBeAccessedByAnyLayer()
@@ -54,7 +54,7 @@ class ArchitectureTest {
     @ArchTest
     static final ArchRule serviceAnnotationsStayInServicePackages = classes()
             .that().areAnnotatedWith(Service.class)
-            .should().resideInAnyPackage("..service..", "..codeexecution..");
+            .should().resideInAnyPackage("..service..", "..codeexecution..", "..evaluator..");
 
     @ArchTest
     static final ArchRule repositoriesExtendSpringData = classes()
