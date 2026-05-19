@@ -33,7 +33,10 @@ dependencies {
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'com.tngtech.archunit:archunit-junit5:1.3.0'
     testImplementation 'org.mockito:mockito-core:5.+'
+    testImplementation 'io.rest-assured:rest-assured'
+
 }
+
 
 tasks.named('test') {
     useJUnitPlatform {
@@ -56,7 +59,12 @@ jacoco {
 
 def jacocoCoverageExclusions = [
         'com/bspq26e8/backend/BackendApplication.class',
-        'com/bspq26e8/backend/codeexecution/*',
+        'com/bspq26e8/backend/codeexecution/AsyncConfig',
+        'com/bspq26e8/backend/codeexecution/CodeExecutionOptions.class',
+        'com/bspq26e8/backend/codeexecution/CodeExecutionRequest.class',
+        'com/bspq26e8/backend/codeexecution/CodeExecutionQueueWorker.class',
+        'com/bspq26e8/backend/codeexecution/Judge0HttpClient*.class',
+        'com/bspq26e8/backend/codeexecution/Judge0Properties.class',
         'com/bspq26e8/backend/**/controller/*',
         'com/bspq26e8/backend/**/entity/*',
         'com/bspq26e8/backend/**/repository/*'
@@ -86,7 +94,7 @@ tasks.named('jacocoTestCoverageVerification') {
             limit {
                     counter = 'LINE'
                 value = 'COVEREDRATIO'
-                minimum = 0.60
+                minimum = 0.80
             }
         }
     }

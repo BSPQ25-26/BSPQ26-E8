@@ -1,5 +1,6 @@
-package com.bspq26e8.backend.codeexecution;
+package com.bspq26e8.backend.unit.codeexecution;
 
+import com.bspq26e8.backend.codeexecution.*;
 import com.bspq26e8.backend.evaluator.RawExecutionResult;
 import com.bspq26e8.backend.evaluator.RawTestCaseResult;
 import java.time.Duration;
@@ -156,7 +157,7 @@ class CodeRunnerTest {
         private final List<Judge0SubmissionResult> results;
         private final List<Judge0SubmissionRequest> createdSubmissions = new ArrayList<>();
 
-        private FakeJudge0Client(List<Judge0SubmissionResult> results) {
+        private FakeJudge0Client(List<Judge0Client.Judge0SubmissionResult> results) {
             this.results = results;
         }
 
