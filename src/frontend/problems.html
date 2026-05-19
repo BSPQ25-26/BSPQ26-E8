@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/problems.css" />
 </head>
-<body data-active-nav="problems">
+<body data-active-nav="problems" data-page-title-key="page.title.problems">
 
   <!-- Moving Shapes Background -->
   <ul class="bg-shapes">
@@ -31,31 +31,32 @@
             id="search-name"
             type="search"
             placeholder="Search by name"
+            data-i18n-placeholder="problems.searchPlaceholder"
             autocomplete="off"
           />
 
           <select class="form-select" id="filter-difficulty">
-            <option value="">All difficulties</option>
-            <option value="EASY">Easy</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="HARD">Hard</option>
+            <option value="" data-i18n="problems.allDifficulties">All difficulties</option>
+            <option value="EASY" data-i18n="problems.difficultyEasy">Easy</option>
+            <option value="MEDIUM" data-i18n="problems.difficultyMedium">Medium</option>
+            <option value="HARD" data-i18n="problems.difficultyHard">Hard</option>
           </select>
 
           <select class="form-select" id="filter-language">
-            <option value="">All languages</option>
-            <option value="python">Python</option>
-            <option value="javascript">JavaScript</option>
-            <option value="java">Java</option>
-            <option value="cpp">C++</option>
+            <option value="" data-i18n="problems.allLanguages">All languages</option>
+            <option value="python" data-i18n="problems.languagePython">Python</option>
+            <option value="javascript" data-i18n="problems.languageJavaScript">JavaScript</option>
+            <option value="java" data-i18n="problems.languageJava">Java</option>
+            <option value="cpp" data-i18n="problems.languageCpp">C++</option>
           </select>
 
           <div class="problems-sort-clear">
             <select class="form-select" id="filter-sort">
-              <option value="difficulty_name">Difficulty</option>
-              <option value="alphabetical">Alphabetical</option>
-              <option value="created_at">Creation date</option>
+              <option value="difficulty_name" data-i18n="problems.sortDifficulty">Difficulty</option>
+              <option value="alphabetical" data-i18n="problems.sortAlphabetical">Alphabetical</option>
+              <option value="created_at" data-i18n="problems.sortCreationDate">Creation date</option>
             </select>
-            <button type="button" class="problems-clear" id="clear-filters" aria-label="Clear filters">X</button>
+            <button type="button" class="problems-clear" id="clear-filters" aria-label="Clear filters" data-i18n-aria-label="problems.clearFilters">X</button>
           </div>
         </div>
         <p id="problems-count" class="problems-count">0 problems found</p>
@@ -71,6 +72,7 @@
   </main>
 
   <!-- Core utilities -->
+  <script src="js/i18n.js"></script>
   <script src="js/layout.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>

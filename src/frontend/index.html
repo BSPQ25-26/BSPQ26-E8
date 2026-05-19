@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Realcode — Problem Practive Platform</title>
+  <title>Realcode — Practice Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -11,7 +11,7 @@
   <!-- Estilos específicos de la página -->
   <link rel="stylesheet" href="css/index.css" />
 </head>
-<body data-active-nav="home">
+<body data-active-nav="home" data-page-title-key="page.title.home">
 
   <!-- Background Geometry -->
   <div class="background-geometry">
@@ -26,20 +26,20 @@
     <div class="hero-left anim-fade-up anim-delay-1">
       <h1 class="title">Realcode</h1>
       <div class="cta-group">
-        <a href="problems.html" class="btn-primary">Explore Problems →</a>
-        <a href="#" class="btn-secondary">Log Out</a>
+        <a href="problems.html" class="btn-primary" data-i18n="home.exploreProblems">Explore Problems →</a>
+        <a href="#" class="btn-secondary" data-i18n="home.logOut">Log Out</a>
       </div>
     </div>
 
     <div class="hero-right anim-fade-left anim-delay-3">
       <a href="problems.html" class="card card--blue screen-card">
         <span class="badge badge--blue">01</span>
-        <span class="screen-label">Home / Search</span>
+        <span class="screen-label" data-i18n="home.searchLabel">Home / Search</span>
         <span class="screen-arrow">→</span>
       </a>
       <a href="create.html" class="card card--green screen-card">
         <span class="badge badge--easy">02</span>
-        <span class="screen-label">Problem Creation</span>
+        <span class="screen-label" data-i18n="home.creationLabel">Problem Creation</span>
         <span class="screen-arrow">→</span>
       </a>
     </div>
@@ -47,6 +47,7 @@
   </main>
 
   <!-- Core utilities -->
+  <script src="js/i18n.js"></script>
   <script src="js/layout.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
@@ -56,22 +57,30 @@
       const isAuthenticated = typeof auth !== 'undefined' ? auth.isAuthenticated() : localStorage.getItem('session_token');
       
       const ctaGroup = document.querySelector('.cta-group');
-      if (ctaGroup) {
+      const renderCta = () => {
+        if (!ctaGroup) {
+          return;
+        }
+
         if (isAuthenticated) {
           ctaGroup.innerHTML = `
-            <a href="problems.html" class="btn-primary">Explore Problems →</a>
-            <a href="#" class="btn-secondary" onclick="auth.logout(); return false;">Log Out</a>
+            <a href="problems.html" class="btn-primary">${i18n.t('home.exploreProblems')}</a>
+            <a href="#" class="btn-secondary" onclick="auth.logout(); return false;">${i18n.t('home.logOut')}</a>
           `;
         } else {
           ctaGroup.innerHTML = `
-            <a href="login.html" class="btn-primary">Log In to Continue</a>
+            <a href="login.html" class="btn-primary">${i18n.t('home.logInToContinue')}</a>
           `;
-          
-          // Disable proceeding to other core pages via right-side cards
+
           document.querySelectorAll('.screen-card').forEach(card => {
             card.href = 'login.html';
           });
         }
+      };
+
+      if (ctaGroup) {
+        renderCta();
+        document.addEventListener('realcode:localechange', renderCta);
       }
     });
   </script>

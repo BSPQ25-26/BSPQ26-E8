@@ -83,27 +83,40 @@ public class SubmissionService {
 		return submissionRepository.findBestMineByProblem(userId, problemId).map(this::toView);
 	}
 
-	public UpdateSubmissionResult updateSubmission(UpdateSubmissionCommand command) {
-		Optional<Submission> mine = submissionRepository.findByIdAndUserId(command.submissionId(), command.userId());
-		if (mine.isEmpty()) {
-			return UpdateSubmissionResult.notFound("Submission not found for this user");
+	public StartExecutionResult markExecutionStarted(UUID submissionId) {
+		Optional<Submission> maybeSubmission = submissionRepository.findById(submissionId);
+		if (maybeSubmission.isEmpty()) {
+			return StartExecutionResult.notFound("Submission not found");
 		}
 
-		Submission submission = mine.get();
-
-		Language newLanguage = null;
-		if (command.languageId() != null) {
-			Optional<Language> language = languageRepository.findById(command.languageId());
-			if (language.isEmpty()) {
-				return UpdateSubmissionResult.notFound("Language not found");
-			}
-			newLanguage = language.get();
+		Submission submission = maybeSubmission.get();
+		if (submission.getStatus() != SubmissionStatus.QUEUED) {
+			return StartExecutionResult.skipped("Submission is not queued", toView(submission));
 		}
 
-		submission.updateEditableFields(newLanguage, command.sourceCode());
+		submission.markRunning();
 		Submission saved = submissionRepository.save(submission);
+		return StartExecutionResult.started(toView(saved));
+	}
 
-		return UpdateSubmissionResult.updated(toView(saved));
+	public ApplyExecutionResultResult applyExecutionResult(ApplyExecutionResultCommand command) {
+		Optional<Submission> maybeSubmission = submissionRepository.findById(command.submissionId());
+		if (maybeSubmission.isEmpty()) {
+			return ApplyExecutionResultResult.notFound("Submission not found");
+		}
+
+		Submission submission = maybeSubmission.get();
+		submission.applyExecutionResult(
+				command.status(),
+				command.verdictMessage(),
+				command.runtimeMs(),
+				command.memoryMb(),
+				command.testcasesPassed(),
+				command.testcasesTotal()
+		);
+
+		Submission saved = submissionRepository.save(submission);
+		return ApplyExecutionResultResult.updated(toView(saved));
 	}
 
 	public CreateSubmissionResult resubmit(ResubmitCommand command) {
@@ -128,16 +141,6 @@ public class SubmissionService {
 		Submission saved = submissionRepository.save(newSubmission);
 
 		return CreateSubmissionResult.created(toView(saved));
-	}
-
-	public Optional<String> deleteSubmission(UUID submissionId, UUID userId) {
-		Optional<Submission> mine = submissionRepository.findByIdAndUserId(submissionId, userId);
-		if (mine.isEmpty()) {
-			return Optional.of("Submission not found for this user");
-		}
-
-		submissionRepository.delete(mine.get());
-		return Optional.empty();
 	}
 
 	public Optional<SubmissionStatus> parseStatus(String rawStatus) {
@@ -192,10 +195,39 @@ public class SubmissionService {
 	public record CreateSubmissionCommand(UUID userId, UUID problemId, Long languageId, String sourceCode) {
 	}
 
-	public record UpdateSubmissionCommand(UUID submissionId, UUID userId, Long languageId, String sourceCode) {
+	public record ApplyExecutionResultCommand(
+			UUID submissionId,
+			SubmissionStatus status,
+			String verdictMessage,
+			Integer runtimeMs,
+			Integer memoryMb,
+			int testcasesPassed,
+			Integer testcasesTotal
+	) {
 	}
 
 	public record ResubmitCommand(UUID baseSubmissionId, UUID userId, Long languageId, String sourceCode) {
+	}
+
+	public record StartExecutionResult(
+			boolean started,
+			boolean notFound,
+			boolean skipped,
+			String errorMessage,
+			SubmissionView submission
+	) {
+
+		public static StartExecutionResult started(SubmissionView submission) {
+			return new StartExecutionResult(true, false, false, null, submission);
+		}
+
+		public static StartExecutionResult notFound(String message) {
+			return new StartExecutionResult(false, true, false, message, null);
+		}
+
+		public static StartExecutionResult skipped(String message, SubmissionView submission) {
+			return new StartExecutionResult(false, false, true, message, submission);
+		}
 	}
 
 	public record CreateSubmissionResult(boolean created, boolean notFound, String errorMessage, SubmissionView submission) {
@@ -209,14 +241,19 @@ public class SubmissionService {
 		}
 	}
 
-	public record UpdateSubmissionResult(boolean updated, boolean notFound, String errorMessage, SubmissionView submission) {
+	public record ApplyExecutionResultResult(
+			boolean updated,
+			boolean notFound,
+			String errorMessage,
+			SubmissionView submission
+	) {
 
-		public static UpdateSubmissionResult updated(SubmissionView submission) {
-			return new UpdateSubmissionResult(true, false, null, submission);
+		public static ApplyExecutionResultResult updated(SubmissionView submission) {
+			return new ApplyExecutionResultResult(true, false, null, submission);
 		}
 
-		public static UpdateSubmissionResult notFound(String message) {
-			return new UpdateSubmissionResult(false, true, message, null);
+		public static ApplyExecutionResultResult notFound(String message) {
+			return new ApplyExecutionResultResult(false, true, message, null);
 		}
 	}
 }
