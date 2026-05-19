@@ -742,6 +742,62 @@
         : getText('profile.problemFallback', { id: String(problemId || '').slice(0, 8) });
     }
 
+    function normalizeApiList(value) {
+      if (Array.isArray(value)) return value;
+      if (value && Array.isArray(value.content)) return value.content;
+      if (value && Array.isArray(value.items)) return value.items;
+      if (value && Array.isArray(value.data)) return value.data;
+      return [];
+    }
+
+    function buildProblemLookup(problems) {
+      const lookup = new Map();
+      normalizeApiList(problems).forEach((problem) => {
+        if (problem && problem.id) {
+          lookup.set(String(problem.id), problem);
+        }
+      });
+      return lookup;
+    }
+
+    function setDisplayedSubmissionCount(count) {
+      const submissionsCountElement = document.getElementById('profile-submissions-count');
+      if (submissionsCountElement) {
+        submissionsCountElement.textContent = String(count);
+      }
+    }
+
+    async function loadProblemLookupForSubmissions(submissions) {
+      let lookup = new Map();
+      try {
+        lookup = buildProblemLookup(await api.get('/problems'));
+      } catch (_error) {
+        lookup = new Map();
+      }
+      const missingProblemIds = [];
+      const seen = new Set();
+
+      normalizeApiList(submissions).forEach((submission) => {
+        if (!submission || !submission.problemId) return;
+        const problemId = String(submission.problemId);
+        if (lookup.has(problemId) || seen.has(problemId)) return;
+        seen.add(problemId);
+        missingProblemIds.push(problemId);
+      });
+
+      const missingProblems = await Promise.all(
+        missingProblemIds.map((problemId) => api.get(`/problems/${encodeURIComponent(problemId)}`).catch(() => null))
+      );
+
+      missingProblems.forEach((problem) => {
+        if (problem && problem.id) {
+          lookup.set(String(problem.id), problem);
+        }
+      });
+
+      return lookup;
+    }
+
     async function deleteProblem(id, row) {
       if (!confirm(getText('profile.confirmDeleteProblem'))) return;
       try {
@@ -827,15 +883,13 @@
       const problemIds = [];
       const seen = new Set();
 
-      (Array.isArray(submissions) ? submissions : [])
-        .filter((submission) => String(submission && submission.status || '').toUpperCase() === 'ACCEPTED')
-        .forEach((submission) => {
-          if (!submission || !submission.problemId) return;
-          const problemId = String(submission.problemId);
-          if (seen.has(problemId)) return;
-          seen.add(problemId);
-          problemIds.push(problemId);
-        });
+      (Array.isArray(submissions) ? submissions : []).forEach((submission) => {
+        if (!submission || !submission.problemId) return;
+        const problemId = String(submission.problemId);
+        if (seen.has(problemId)) return;
+        seen.add(problemId);
+        problemIds.push(problemId);
+      });
 
       select.innerHTML = '';
       const allOption = document.createElement('option');
@@ -866,6 +920,7 @@
         : renderOptions.bestSubmissionId;
       setSubmissionViewButtons(currentSubmissionView, false);
       populateSubmissionProblemFilter(allMineSubmissions);
+      setDisplayedSubmissionCount(lastSubmissions.length);
 
       if (!submissions || submissions.length === 0) {
         const emptyKey = currentSubmissionView === 'all'
@@ -975,7 +1030,7 @@
           api.get(`/submissions/problem/${encodeURIComponent(selectedSubmissionProblemId)}/best`).catch(() => null),
         ]);
         renderMySubmissions(
-          Array.isArray(submissions) ? submissions : [],
+          normalizeApiList(submissions),
           lastProblemLookup,
           {
             view: 'problem',
@@ -1067,8 +1122,33 @@
         });
       };
 
+      const renderPreferredLanguages = (languages) => {
+        if (!preferredLanguagesContainer) {
+          return;
+        }
+
+        preferredLanguagesContainer.innerHTML = '';
+        if (!Array.isArray(languages) || languages.length === 0) {
+          const emptyBadge = document.createElement('span');
+          emptyBadge.className = 'badge badge--blue';
+          emptyBadge.textContent = i18n.t('profile.none');
+          preferredLanguagesContainer.appendChild(emptyBadge);
+          return;
+        }
+
+        languages.forEach((lang) => {
+          const badge = document.createElement('span');
+          badge.className = 'badge badge--blue';
+          badge.textContent = lang && (lang.name || lang.code || lang.id)
+            ? String(lang.name || lang.code || lang.id)
+            : i18n.t('profile.none');
+          preferredLanguagesContainer.appendChild(badge);
+        });
+      };
+
       document.addEventListener('realcode:localechange', () => {
         setUsedLanguages(lastLanguageLabels);
+        renderPreferredLanguages(currentUser && currentUser.preferredLanguages ? currentUser.preferredLanguages : []);
         renderMyProblems(lastProblems);
         renderMySubmissions(lastSubmissions, lastProblemLookup, { view: currentSubmissionView });
       });
@@ -1095,12 +1175,6 @@
         if (createdCountElement) {
           createdCountElement.textContent = ERROR_COUNT;
         }
-        languages.forEach((lang) => {
-          const badge = document.createElement('span');
-          badge.className = 'badge badge--blue';
-          badge.textContent = lang.name || lang.code || String(lang.id);
-          preferredLanguagesContainer.appendChild(badge);
-        });
       };
 
       if (typeof api === 'undefined') {
@@ -1229,6 +1303,7 @@
       }
 
       const populateLangCheckboxes = () => {
+        if (!langCheckboxList) return;
         langCheckboxList.innerHTML = '';
         const selectedIds = new Set(
           (currentUser && currentUser.preferredLanguages || []).map(l => String(l.id))
@@ -1248,13 +1323,13 @@
         });
       };
 
-      if (langEditBtn) {
+      if (langEditBtn && langEditPanel) {
         langEditBtn.addEventListener('click', () => {
           const isOpen = langEditPanel.classList.contains('open');
           if (isOpen) {
             langEditPanel.classList.remove('open');
             langEditBtn.textContent = 'Edit';
-            langSaveStatus.textContent = '';
+            if (langSaveStatus) langSaveStatus.textContent = '';
           } else {
             populateLangCheckboxes();
             langEditPanel.classList.add('open');
@@ -1263,13 +1338,13 @@
         });
       }
 
-      if (langSaveBtn) {
+      if (langSaveBtn && langCheckboxList) {
         langSaveBtn.addEventListener('click', async () => {
           const checkboxes = langCheckboxList.querySelectorAll('input[type="checkbox"]:checked');
           const selectedIds = Array.from(checkboxes).map(cb => Number(cb.value));
 
           langSaveBtn.disabled = true;
-          langSaveStatus.textContent = 'Saving…';
+          if (langSaveStatus) langSaveStatus.textContent = 'Saving…';
 
           try {
             const updated = await api.put(`/users/${currentUser.id}/profile`, { preferredLanguageIds: selectedIds });
@@ -1278,14 +1353,14 @@
               if (typeof auth !== 'undefined') auth.setUser(currentUser);
             }
             renderPreferredLanguages(currentUser.preferredLanguages || []);
-            langSaveStatus.textContent = 'Saved!';
+            if (langSaveStatus) langSaveStatus.textContent = 'Saved!';
             setTimeout(() => {
-              langEditPanel.classList.remove('open');
+              if (langEditPanel) langEditPanel.classList.remove('open');
               langEditBtn.textContent = 'Edit';
-              langSaveStatus.textContent = '';
+              if (langSaveStatus) langSaveStatus.textContent = '';
             }, 1200);
           } catch (_err) {
-            langSaveStatus.textContent = 'Error saving';
+            if (langSaveStatus) langSaveStatus.textContent = 'Error saving';
           } finally {
             langSaveBtn.disabled = false;
           }
@@ -1295,7 +1370,7 @@
       // ── Submissions & stats ───────────────────────────────────────────────
       if (submissionsCountElement) {
         try {
-          const submissions = await api.get('/submissions/mine');
+          const submissions = normalizeApiList(await api.get('/submissions/mine'));
           if (Array.isArray(submissions)) {
             allMineSubmissions = submissions.slice();
             const inProgressStatuses = new Set(['QUEUED', 'RUNNING']);
@@ -1317,48 +1392,43 @@
               }
             });
             setUsedLanguages(Array.from(languageSet));
-            if (currentSubmissionView === 'all') {
-              renderMySubmissions(submissions, lastProblemLookup, { view: 'all', bestSubmissionId: null });
-            }
 
             if (submissions.length === 0) {
               setDifficultyCounts(0, 0, 0);
+              renderMySubmissions([], lastProblemLookup, { view: 'all', bestSubmissionId: null });
             } else {
+              let problemLookupById = new Map();
               try {
-                const problems = await api.get('/problems');
-                if (!Array.isArray(problems)) {
-                  setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
-                } else {
-                  const problemDifficultyById = new Map();
-                  const problemLookupById = new Map();
-                  problems.forEach(problem => {
-                    if (problem && problem.id) {
-                      problemLookupById.set(String(problem.id), problem);
-                    }
-                    if (problem && problem.id && problem.difficulty) {
-                      problemDifficultyById.set(String(problem.id), String(problem.difficulty).toUpperCase());
-                    }
-                  });
-                  if (currentSubmissionView === 'all') {
-                    renderMySubmissions(submissions, problemLookupById, { view: 'all', bestSubmissionId: null });
-                  } else {
-                    renderMySubmissions(lastSubmissions, problemLookupById, {
-                      view: currentSubmissionView,
-                      bestSubmissionId,
-                    });
-                  }
-
-                  let easyCount = 0, mediumCount = 0, hardCount = 0;
-                  submissions.forEach(submission => {
-                    const difficulty = problemDifficultyById.get(String(submission.problemId));
-                    if (difficulty === 'EASY') easyCount += 1;
-                    else if (difficulty === 'MEDIUM') mediumCount += 1;
-                    else if (difficulty === 'HARD') hardCount += 1;
-                  });
-                  setDifficultyCounts(easyCount, mediumCount, hardCount);
-                }
+                problemLookupById = await loadProblemLookupForSubmissions(submissions);
               } catch (_error) {
                 setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
+              }
+
+              const problemDifficultyById = new Map();
+              problemLookupById.forEach((problem, problemId) => {
+                if (problem && problem.difficulty) {
+                  problemDifficultyById.set(problemId, String(problem.difficulty).toUpperCase());
+                }
+              });
+
+              if (currentSubmissionView === 'all') {
+                renderMySubmissions(submissions, problemLookupById, { view: 'all', bestSubmissionId: null });
+              } else {
+                renderMySubmissions(lastSubmissions, problemLookupById, {
+                  view: currentSubmissionView,
+                  bestSubmissionId,
+                });
+              }
+
+              if (problemDifficultyById.size > 0) {
+                let easyCount = 0, mediumCount = 0, hardCount = 0;
+                submissions.forEach(submission => {
+                  const difficulty = problemDifficultyById.get(String(submission.problemId));
+                  if (difficulty === 'EASY') easyCount += 1;
+                  else if (difficulty === 'MEDIUM') mediumCount += 1;
+                  else if (difficulty === 'HARD') hardCount += 1;
+                });
+                setDifficultyCounts(easyCount, mediumCount, hardCount);
               }
             }
           } else {
@@ -1381,7 +1451,7 @@
 
       if (currentUser && currentUser.id && typeof api !== 'undefined') {
         try {
-          const createdProblems = await api.get(`/problems/by-author/${currentUser.id}`);
+          const createdProblems = normalizeApiList(await api.get(`/problems/by-author/${currentUser.id}`));
           if (Array.isArray(createdProblems)) {
             if (createdCountElement) createdCountElement.textContent = String(createdProblems.length);
             renderMyProblems(createdProblems);
