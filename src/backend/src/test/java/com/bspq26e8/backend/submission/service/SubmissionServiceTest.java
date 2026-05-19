@@ -258,23 +258,6 @@ class SubmissionServiceTest {
     }
 
     @Test
-    void resubmitReturnsNotFoundWhenBaseSubmissionMissing() {
-        UUID userId = UUID.randomUUID();
-        UUID baseSubmissionId = UUID.randomUUID();
-
-        SubmissionService.ResubmitCommand command =
-                new SubmissionService.ResubmitCommand(baseSubmissionId, userId, null, null);
-
-        when(submissionRepository.findByIdAndUserId(baseSubmissionId, userId)).thenReturn(Optional.empty());
-
-        SubmissionService.CreateSubmissionResult result = submissionService.resubmit(command);
-
-        assertFalse(result.created());
-        assertTrue(result.notFound());
-        assertEquals("Base submission not found for this user", result.errorMessage());
-    }
-
-    @Test
     void parseStatusHandlesValidAndInvalidValues() {
         assertTrue(submissionService.parseStatus("accepted").isPresent());
         assertEquals(SubmissionStatus.ACCEPTED, submissionService.parseStatus("accepted").get());

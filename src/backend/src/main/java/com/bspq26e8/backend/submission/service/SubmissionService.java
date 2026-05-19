@@ -119,30 +119,6 @@ public class SubmissionService {
 		return ApplyExecutionResultResult.updated(toView(saved));
 	}
 
-	public CreateSubmissionResult resubmit(ResubmitCommand command) {
-		Optional<Submission> mine = submissionRepository.findByIdAndUserId(command.baseSubmissionId(), command.userId());
-		if (mine.isEmpty()) {
-			return CreateSubmissionResult.notFound("Base submission not found for this user");
-		}
-
-		Submission base = mine.get();
-
-		Language language = base.getLanguage();
-		if (command.languageId() != null) {
-			Optional<Language> maybeLanguage = languageRepository.findById(command.languageId());
-			if (maybeLanguage.isEmpty()) {
-				return CreateSubmissionResult.notFound("Language not found");
-			}
-			language = maybeLanguage.get();
-		}
-
-		String sourceCode = command.sourceCode() == null ? base.getSourceCode() : command.sourceCode();
-		Submission newSubmission = new Submission(base.getUser(), base.getProblem(), language, sourceCode);
-		Submission saved = submissionRepository.save(newSubmission);
-
-		return CreateSubmissionResult.created(toView(saved));
-	}
-
 	public Optional<SubmissionStatus> parseStatus(String rawStatus) {
 		if (rawStatus == null || rawStatus.isBlank()) {
 			return Optional.empty();
@@ -204,9 +180,6 @@ public class SubmissionService {
 			int testcasesPassed,
 			Integer testcasesTotal
 	) {
-	}
-
-	public record ResubmitCommand(UUID baseSubmissionId, UUID userId, Long languageId, String sourceCode) {
 	}
 
 	public record StartExecutionResult(
