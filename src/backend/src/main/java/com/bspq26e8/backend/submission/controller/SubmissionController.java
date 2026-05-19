@@ -4,7 +4,6 @@ import com.bspq26e8.backend.common.AccessTokenService;
 import com.bspq26e8.backend.submission.service.SubmissionService;
 import com.bspq26e8.backend.submission.service.SubmissionService.CreateSubmissionCommand;
 import com.bspq26e8.backend.submission.service.SubmissionService.CreateSubmissionResult;
-import com.bspq26e8.backend.submission.service.SubmissionService.ResubmitCommand;
 import com.bspq26e8.backend.submission.service.SubmissionService.SubmissionView;
 import java.util.List;
 import java.util.Map;
@@ -134,46 +133,8 @@ public class SubmissionController {
 		return ResponseEntity.ok(best.get());
 	}
 
-	@PostMapping("/{submissionId}/resubmit")
-	public ResponseEntity<?> resubmit(
-			@PathVariable UUID submissionId,
-			@RequestBody(required = false) ResubmitRequest request,
-			HttpServletRequest httpRequest
-	) {
-		if (request == null) {
-			return ResponseEntity.badRequest().body(error("Request body is required"));
-		}
-
-		Optional<UUID> authenticatedUserId = authenticatedUserId(httpRequest);
-		if (authenticatedUserId.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Missing or invalid access token"));
-		}
-
-		ResubmitCommand command = new ResubmitCommand(
-				submissionId,
-				authenticatedUserId.get(),
-				request.languageId(),
-				normalizeOptional(request.sourceCode())
-		);
-
-		CreateSubmissionResult result = submissionService.resubmit(command);
-		if (result.notFound()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(result.errorMessage()));
-		}
-
-		return ResponseEntity.status(HttpStatus.CREATED).body(result.submission());
-	}
-
 	private boolean isBlank(String value) {
 		return value == null || value.isBlank();
-	}
-
-	private String normalizeOptional(String value) {
-		if (value == null) {
-			return null;
-		}
-		String trimmed = value.trim();
-		return trimmed.isBlank() ? null : trimmed;
 	}
 
 	private Map<String, String> error(String message) {
@@ -186,8 +147,5 @@ public class SubmissionController {
 	}
 
 	public record CreateSubmissionRequest(UUID problemId, Long languageId, String sourceCode) {
-	}
-
-	public record ResubmitRequest(Long languageId, String sourceCode) {
 	}
 }

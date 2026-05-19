@@ -10,8 +10,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface SubmissionRepository extends JpaRepository<Submission, UUID> {
 
-    Optional<Submission> findByIdAndUserId(UUID id, UUID userId);
-
     @Query(value = """
 	    SELECT s.id
 	    FROM submissions s
