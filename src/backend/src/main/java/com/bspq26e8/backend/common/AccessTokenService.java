@@ -31,7 +31,7 @@ public class AccessTokenService {
         this(tokenSecret, Clock.systemUTC());
     }
 
-    AccessTokenService(String tokenSecret, Clock clock) {
+    public AccessTokenService(String tokenSecret, Clock clock) {
         this.tokenSecret = tokenSecret;
         this.clock = clock;
     }
