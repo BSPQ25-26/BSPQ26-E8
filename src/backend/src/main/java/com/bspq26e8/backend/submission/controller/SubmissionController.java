@@ -1,6 +1,6 @@
 package com.bspq26e8.backend.submission.controller;
 
-import com.bspq26e8.backend.auth.security.AccessTokenService;
+import com.bspq26e8.backend.common.AccessTokenService;
 import com.bspq26e8.backend.submission.service.SubmissionService;
 import com.bspq26e8.backend.submission.service.SubmissionService.CreateSubmissionCommand;
 import com.bspq26e8.backend.submission.service.SubmissionService.CreateSubmissionResult;

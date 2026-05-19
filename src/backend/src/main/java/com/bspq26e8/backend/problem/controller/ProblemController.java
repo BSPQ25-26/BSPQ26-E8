@@ -1,6 +1,6 @@
 package com.bspq26e8.backend.problem.controller;
 
-import com.bspq26e8.backend.auth.security.AccessTokenService;
+import com.bspq26e8.backend.common.AccessTokenService;
 import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
 import com.bspq26e8.backend.problem.service.ProblemService;
 import com.bspq26e8.backend.problem.service.ProblemService.CreateProblemCommand;
