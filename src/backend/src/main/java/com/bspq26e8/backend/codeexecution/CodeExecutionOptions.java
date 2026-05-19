@@ -8,4 +8,8 @@ public record CodeExecutionOptions(
     public static CodeExecutionOptions standard() {
         return new CodeExecutionOptions(true, true);
     }
+
+    public static CodeExecutionOptions sampleOnly() {
+        return new CodeExecutionOptions(true, false);
+    }
 }
