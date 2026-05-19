@@ -35,7 +35,14 @@
   const btnSubmit     = document.getElementById('btn-submit');
   const outputPanel   = document.getElementById('solve-output');
   const outputStatus  = document.getElementById('output-status');
-  const outputBody    = document.getElementById('output-body');
+  const outputPlain   = document.getElementById('output-plain');
+  const runOutput     = document.getElementById('run-output');
+  const runMeta       = document.getElementById('run-meta');
+  const runTime       = document.getElementById('run-time');
+  const runMem        = document.getElementById('run-mem');
+  const runPass       = document.getElementById('run-pass');
+  const runCases      = document.getElementById('run-cases');
+  const runError      = document.getElementById('run-error');
   const btnClose      = document.getElementById('btn-close-output');
   const divider       = document.getElementById('solve-divider');
   const leftPanel     = document.querySelector('.solve-panel--desc');
@@ -179,8 +186,14 @@
   });
 
   /* ── Output panel helpers ── */
+  function setRunMode(on) {
+    runOutput.hidden = !on;
+    outputPlain.hidden = on;
+  }
+
   function showOutput(text, statusText, statusClass) {
-    outputBody.textContent = text;
+    setRunMode(false);
+    outputPlain.textContent = text;
     outputStatus.textContent = statusText;
     outputStatus.className = `solve-output-status ${statusClass}`;
     outputPanel.style.display = 'flex';
@@ -192,24 +205,174 @@
 
   btnClose.addEventListener('click', hideOutput);
 
+  /* ── Run output renderer ── */
+  const STATUS_META = {
+    ACCEPTED:              { pill: 'accepted', label: 'Accepted' },
+    WRONG_ANSWER:          { pill: 'wrong',    label: 'Wrong Answer' },
+    RUNTIME_ERROR:         { pill: 'error',    label: 'Runtime Error' },
+    COMPILE_ERROR:         { pill: 'error',    label: 'Compile Error' },
+    TIME_LIMIT_EXCEEDED:   { pill: 'limit',    label: 'Time Limit Exceeded' },
+    MEMORY_LIMIT_EXCEEDED: { pill: 'limit',    label: 'Memory Limit Exceeded' },
+    INTERNAL_ERROR:        { pill: 'internal', label: 'Internal Error' },
+    QUEUED:                { pill: 'running',  label: 'Queued' },
+    RUNNING:               { pill: 'running',  label: 'Running' },
+  };
+
+  function normalizeOutput(s) {
+    return String(s == null ? '' : s)
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .replace(/\s+$/g, '');
+  }
+
+  // Mirrors SubmissionEvaluator's per-case mapping; needed because PreviewExecutionView
+  // exposes judge0StatusId + stdout/expected, not a pre-computed per-case status.
+  function caseVerdict(tc) {
+    if (tc.compileOutput && tc.compileOutput.trim()) return 'COMPILE_ERROR';
+    const id = tc.judge0StatusId;
+    if (id === 5)  return 'TIME_LIMIT_EXCEEDED';
+    if (id === 6)  return 'COMPILE_ERROR';
+    if (id === 13) return 'INTERNAL_ERROR';
+    if (id != null && id >= 7 && id <= 12) return 'RUNTIME_ERROR';
+    if (id === 14) return 'RUNTIME_ERROR';
+    if (id === 4)  return 'WRONG_ANSWER';
+    if (id === 3) {
+      return normalizeOutput(tc.stdout) === normalizeOutput(tc.expectedOutput)
+        ? 'ACCEPTED'
+        : 'WRONG_ANSWER';
+    }
+    return 'INTERNAL_ERROR';
+  }
+
+  function formatCaseTime(tc) {
+    if (tc.time) {
+      const ms = Math.round(parseFloat(tc.time) * 1000);
+      if (!Number.isNaN(ms)) return ms + ' ms';
+    }
+    return '—';
+  }
+
+  function formatCaseMem(tc) {
+    if (tc.memoryKb != null && tc.memoryKb > 0) {
+      return Math.ceil(tc.memoryKb / 1024) + ' MB';
+    }
+    return '—';
+  }
+
+  function renderRunSkeleton(language) {
+    setRunMode(true);
+    outputStatus.textContent = 'Running';
+    outputStatus.className = 'solve-output-status running';
+    outputPanel.style.display = 'flex';
+    runMeta.textContent = `— ${language} · running…`;
+    runTime.textContent = '—';
+    runMem.textContent  = '—';
+    runPass.textContent = '—';
+    runError.hidden = true;
+    runError.textContent = '';
+    runCases.innerHTML = '<div class="run-output-empty">awaiting Judge0…</div>';
+  }
+
+  function renderRunOutput(view, language) {
+    setRunMode(true);
+    const meta = STATUS_META[view.status] || { pill: 'internal', label: view.status || 'Unknown' };
+    outputStatus.textContent = meta.label;
+    outputStatus.className = `solve-output-status ${meta.pill}`;
+    outputPanel.style.display = 'flex';
+
+    if (view.failed) {
+      runMeta.textContent = `— ${language}`;
+      runTime.textContent = '—';
+      runMem.textContent  = '—';
+      runPass.textContent = '—';
+      runCases.innerHTML = '';
+      runError.textContent = view.errorMessage || 'Execution failed';
+      runError.hidden = false;
+      return;
+    }
+
+    runError.hidden = true;
+    runError.textContent = '';
+
+    const cases = Array.isArray(view.testCases) ? view.testCases : [];
+    runMeta.textContent = `— ${language} · ${cases.length} case${cases.length === 1 ? '' : 's'}`;
+    runTime.textContent = view.runtimeMs != null ? `${view.runtimeMs} ms` : '—';
+    runMem.textContent  = view.memoryMb  != null ? `${view.memoryMb} MB`  : '—';
+    runPass.textContent = `${view.testcasesPassed} / ${view.testcasesTotal}`;
+
+    if (!cases.length) {
+      runCases.innerHTML = '<div class="run-output-empty">No sample test cases.</div>';
+      return;
+    }
+
+    const caseBlocks = cases.map((tc, i) => {
+      const verdict     = caseVerdict(tc);
+      const verdictMeta = STATUS_META[verdict] || { label: verdict };
+      const pass        = verdict === 'ACCEPTED';
+      const cls         = `run-case run-case--${pass ? 'pass' : 'fail'}`;
+      const openAttr    = pass ? '' : 'open';
+      const num         = (tc.index != null ? tc.index : i) + 1;
+
+      const rows = [];
+      if (tc.inputData != null && tc.inputData !== '') {
+        rows.push(`
+          <div class="run-case-row">
+            <span class="run-case-label">stdin  &gt;</span>
+            <pre>${esc(tc.inputData)}</pre>
+          </div>`);
+      }
+      rows.push(`
+        <div class="run-case-row">
+          <span class="run-case-label">expect &gt;</span>
+          <pre>${esc(tc.expectedOutput || '')}</pre>
+        </div>`);
+      rows.push(`
+        <div class="run-case-row">
+          <span class="run-case-label">stdout &gt;</span>
+          <pre>${esc(tc.stdout || '')}</pre>
+        </div>`);
+      if (tc.stderr && tc.stderr.trim()) {
+        rows.push(`
+          <div class="run-case-row">
+            <span class="run-case-label">stderr &gt;</span>
+            <pre class="run-case-stderr">${esc(tc.stderr)}</pre>
+          </div>`);
+      }
+      if (tc.compileOutput && tc.compileOutput.trim()) {
+        rows.push(`
+          <div class="run-case-row">
+            <span class="run-case-label">compile&gt;</span>
+            <pre class="run-case-stderr">${esc(tc.compileOutput)}</pre>
+          </div>`);
+      }
+
+      return `
+        <details class="${cls}" ${openAttr}>
+          <summary>
+            <span class="run-case-name">case ${num}</span>
+            <span class="run-case-badge">${pass ? 'PASS' : 'FAIL'}</span>
+            <span class="run-case-verdict">${esc(verdictMeta.label)}</span>
+            <span class="run-case-time">${formatCaseTime(tc)} · ${formatCaseMem(tc)}</span>
+          </summary>
+          <div class="run-case-detail">${rows.join('')}</div>
+        </details>`;
+    }).join('');
+
+    runCases.innerHTML = caseBlocks;
+  }
+
   /* ── Run ── */
   btnRun.addEventListener('click', async () => {
     if (!problemId) return;
     const code = codeEditor.value;
     const language = langSelect.value;
 
-    showOutput('Running…', 'Running', 'running');
+    renderRunSkeleton(language);
     btnRun.disabled = true;
 
     try {
       const result = await api.runCode(problemId, code, language);
-      const output = result.output || result.stdout || JSON.stringify(result, null, 2);
-      const isError = result.status === 'ERROR' || result.stderr;
-      showOutput(
-        isError ? (result.stderr || output) : output,
-        isError ? 'Error' : 'Finished',
-        isError ? 'error' : 'accepted'
-      );
+      renderRunOutput(result, language);
     } catch (err) {
       showOutput(
         err && err.message ? err.message : 'Could not reach the server.',
@@ -232,9 +395,18 @@
 
     try {
       const result = await api.submitSolution(problemId, code, language);
-      const accepted = result.status === 'ACCEPTED' || result.accepted === true;
-      const output = result.output || result.message || JSON.stringify(result, null, 2);
-      showOutput(output, accepted ? 'Accepted' : 'Wrong Answer', accepted ? 'accepted' : 'error');
+      const status = String(result.status || '').toUpperCase();
+      const output = result.verdictMessage || result.output || result.message || JSON.stringify(result, null, 2);
+
+      if (status === 'ACCEPTED' || result.accepted === true) {
+        showOutput(output, 'Accepted', 'accepted');
+      } else if (status === 'WRONG_ANSWER') {
+        showOutput(output, 'Wrong Answer', 'error');
+      } else if (status === 'QUEUED' || status === 'RUNNING') {
+        showOutput(output, 'Submitted', 'running');
+      } else {
+        showOutput(output, status || 'Submitted', 'running');
+      }
     } catch (err) {
       showOutput(
         err && err.message ? err.message : 'Could not reach the server.',

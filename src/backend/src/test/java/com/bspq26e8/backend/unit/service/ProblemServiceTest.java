@@ -1,9 +1,11 @@
-package com.bspq26e8.backend.problem.service;
+package com.bspq26e8.backend.unit.service;
 
 import com.bspq26e8.backend.problem.entity.Problem;
 import com.bspq26e8.backend.problem.entity.ProblemDifficulty;
+import com.bspq26e8.backend.problem.entity.TestCase;
 import com.bspq26e8.backend.problem.repository.ProblemLanguageRepository;
 import com.bspq26e8.backend.problem.repository.ProblemRepository;
+import com.bspq26e8.backend.problem.service.ProblemService;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -127,6 +130,22 @@ public class ProblemServiceTest {
     }
 
     @Test
+    void createProblem_ConflictWhenSlugExists() {
+        ProblemService.CreateProblemCommand command = new ProblemService.CreateProblemCommand(
+                "test-slug", "Test Title", "statement", "input", "output", "constraints", "hints",
+                ProblemDifficulty.EASY, UUID.randomUUID(), "template", "config", List.of()
+        );
+        when(problemRepository.existsBySlug(command.slug())).thenReturn(true);
+
+        ProblemService.CreateProblemResult result = problemService.createProblem(command);
+
+        assertFalse(result.created());
+        assertFalse(result.notFound());
+        assertEquals("A problem with that slug already exists", result.errorMessage());
+        verify(problemRepository, never()).save(any(Problem.class));
+    }
+
+    @Test
     void listPublicProblems() {
         String language = "java";
         String difficultyStr = "easy";
@@ -222,6 +241,58 @@ public class ProblemServiceTest {
     }
 
     @Test
+    void updateProblemByAuthor_ForbiddenWhenAuthorMismatch() {
+        UUID problemId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+        UUID anotherAuthorId = UUID.randomUUID();
+        ProblemService.UpdateProblemCommand command = new ProblemService.UpdateProblemCommand(
+                anotherAuthorId, "new-slug", "New Title", "statement", "input", "output", "constraints", "hints",
+                ProblemDifficulty.MEDIUM, "template", "config"
+        );
+
+        Problem mockProblem = mock(Problem.class);
+        User mockAuthor = mock(User.class);
+
+        when(mockProblem.getAuthor()).thenReturn(mockAuthor);
+        when(mockAuthor.getId()).thenReturn(authorId);
+        when(problemRepository.findById(problemId)).thenReturn(Optional.of(mockProblem));
+
+        ProblemService.UpdateProblemResult result = problemService.updateProblemByAuthor(problemId, command);
+
+        assertFalse(result.updated());
+        assertFalse(result.notFound());
+        assertTrue(result.forbidden());
+        assertEquals("Only the author can edit this problem", result.errorMessage());
+        verify(problemRepository, never()).save(any(Problem.class));
+    }
+
+    @Test
+    void updateProblemByAuthor_ConflictWhenSlugExists() {
+        UUID problemId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+        ProblemService.UpdateProblemCommand command = new ProblemService.UpdateProblemCommand(
+                authorId, "new-slug", "New Title", "statement", "input", "output", "constraints", "hints",
+                ProblemDifficulty.MEDIUM, "template", "config"
+        );
+
+        Problem mockProblem = mock(Problem.class);
+        User mockAuthor = mock(User.class);
+
+        when(mockProblem.getAuthor()).thenReturn(mockAuthor);
+        when(mockAuthor.getId()).thenReturn(authorId);
+        when(problemRepository.findById(problemId)).thenReturn(Optional.of(mockProblem));
+        when(problemRepository.existsBySlugAndIdNot(command.slug(), problemId)).thenReturn(true);
+
+        ProblemService.UpdateProblemResult result = problemService.updateProblemByAuthor(problemId, command);
+
+        assertFalse(result.updated());
+        assertFalse(result.notFound());
+        assertFalse(result.forbidden());
+        assertEquals("A problem with that slug already exists", result.errorMessage());
+        verify(problemRepository, never()).save(any(Problem.class));
+    }
+
+    @Test
     void deleteProblemByAuthor_Success() {
         UUID problemId = UUID.randomUUID();
         UUID authorId = UUID.randomUUID();
@@ -296,5 +367,171 @@ public class ProblemServiceTest {
     @Test
     void parseDifficulty_Invalid() {
         assertTrue(problemService.parseDifficulty("IMPOSSIBLE").isEmpty());
+    }
+
+    @Test
+    void updateExamplesByAuthor_NotFound() {
+        UUID problemId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+
+        when(problemRepository.findById(problemId)).thenReturn(Optional.empty());
+
+        ProblemService.UpdateExamplesResult result = problemService.updateExamplesByAuthor(
+                problemId,
+                authorId,
+                List.of(new ProblemService.ExampleInput("input", "output"))
+        );
+
+        assertFalse(result.updated());
+        assertTrue(result.notFound());
+        assertFalse(result.forbidden());
+        assertEquals("Problem not found", result.errorMessage());
+    }
+
+    @Test
+    void updateExamplesByAuthor_ForbiddenWhenNotAuthor() {
+        UUID problemId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+        UUID anotherAuthorId = UUID.randomUUID();
+
+        Problem mockProblem = mock(Problem.class);
+        User mockAuthor = mock(User.class);
+
+        when(mockProblem.getAuthor()).thenReturn(mockAuthor);
+        when(mockAuthor.getId()).thenReturn(authorId);
+        when(problemRepository.findById(problemId)).thenReturn(Optional.of(mockProblem));
+
+        ProblemService.UpdateExamplesResult result = problemService.updateExamplesByAuthor(
+                problemId,
+                anotherAuthorId,
+                List.of(new ProblemService.ExampleInput("input", "output"))
+        );
+
+        assertFalse(result.updated());
+        assertFalse(result.notFound());
+        assertTrue(result.forbidden());
+        assertEquals("Only the author can edit this problem", result.errorMessage());
+        verify(problemRepository, never()).save(any(Problem.class));
+    }
+
+    @Test
+    void updateExamplesByAuthor_ReplacesSampleCasesAndTrimsInputs() {
+        UUID problemId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+
+        Problem mockProblem = mock(Problem.class);
+        User mockAuthor = mock(User.class);
+        when(mockProblem.getAuthor()).thenReturn(mockAuthor);
+        when(mockAuthor.getId()).thenReturn(authorId);
+        when(problemRepository.findById(problemId)).thenReturn(Optional.of(mockProblem));
+
+        List<TestCase> testCases = new ArrayList<>();
+        testCases.add(new TestCase(mockProblem, "sample-in", "sample-out", true));
+        testCases.add(new TestCase(mockProblem, "real-in", "real-out", false));
+        when(mockProblem.getTestCases()).thenReturn(testCases);
+
+        ProblemService.UpdateExamplesResult result = problemService.updateExamplesByAuthor(
+                problemId,
+                authorId,
+                List.of(
+                        new ProblemService.ExampleInput("  new-in ", "  new-out "),
+                        new ProblemService.ExampleInput("   ", "ignored"),
+                        new ProblemService.ExampleInput(null, "ignored")
+                )
+        );
+
+        assertTrue(result.updated());
+        assertFalse(result.notFound());
+        assertFalse(result.forbidden());
+
+        assertEquals(2, testCases.size());
+        assertEquals(1, testCases.stream().filter(TestCase::isSample).count());
+        TestCase sample = testCases.stream().filter(TestCase::isSample).findFirst().orElseThrow();
+        assertEquals("new-in", sample.getInputData());
+        assertEquals("new-out", sample.getExpectedOutput());
+        verify(problemRepository).save(mockProblem);
+    }
+
+    @Test
+    void getProblemDetail_ReturnsEmptyWhenMissing() {
+        UUID problemId = UUID.randomUUID();
+        when(problemRepository.findById(problemId)).thenReturn(Optional.empty());
+
+        Optional<ProblemService.ProblemDetail> result = problemService.getProblemDetail(problemId);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getProblemDetail_MapsSamplesAndLanguages() {
+        UUID problemId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+        Problem mockProblem = mock(Problem.class);
+        User mockAuthor = mock(User.class);
+
+        when(problemRepository.findById(problemId)).thenReturn(Optional.of(mockProblem));
+        when(mockProblem.getId()).thenReturn(problemId);
+        when(mockProblem.getSlug()).thenReturn("two-sum");
+        when(mockProblem.getTitle()).thenReturn("Two Sum");
+        when(mockProblem.getDifficulty()).thenReturn(ProblemDifficulty.EASY);
+        when(mockProblem.getCreatedAt()).thenReturn(OffsetDateTime.now());
+        when(mockProblem.getStatementMd()).thenReturn("statement");
+        when(mockProblem.getInputSpecMd()).thenReturn("input");
+        when(mockProblem.getOutputSpecMd()).thenReturn("output");
+        when(mockProblem.getConstraintsMd()).thenReturn("constraints");
+        when(mockProblem.getHintsMd()).thenReturn("hints");
+        when(mockProblem.getAuthor()).thenReturn(mockAuthor);
+        when(mockAuthor.getId()).thenReturn(authorId);
+
+        List<TestCase> testCases = new ArrayList<>();
+        testCases.add(new TestCase(mockProblem, "sample-in", "sample-out", true));
+        testCases.add(new TestCase(mockProblem, "hidden-in", "hidden-out", false));
+        when(mockProblem.getTestCases()).thenReturn(testCases);
+
+        when(problemLanguageRepository.findLanguageRowsByProblemIds(anyCollection()))
+                .thenReturn(List.of(
+                        new Object[]{problemId, "Java"},
+                        new Object[]{problemId, "Python"},
+                        new Object[]{problemId, "Java"}
+                ));
+
+        Optional<ProblemService.ProblemDetail> result = problemService.getProblemDetail(problemId);
+
+        assertTrue(result.isPresent());
+        ProblemService.ProblemDetail detail = result.get();
+        assertEquals(problemId, detail.id());
+        assertEquals("two-sum", detail.slug());
+        assertEquals(authorId, detail.authorId());
+        assertEquals(2, detail.languages().size());
+        assertEquals(1, detail.examples().size());
+        assertEquals("sample-in", detail.examples().getFirst().inputData());
+        assertEquals("sample-out", detail.examples().getFirst().expectedOutput());
+    }
+
+    @Test
+    void getProblemDetail_HandlesNullAuthorAndNoSamples() {
+        UUID problemId = UUID.randomUUID();
+        Problem mockProblem = mock(Problem.class);
+
+        when(problemRepository.findById(problemId)).thenReturn(Optional.of(mockProblem));
+        when(mockProblem.getId()).thenReturn(problemId);
+        when(mockProblem.getSlug()).thenReturn("no-author");
+        when(mockProblem.getTitle()).thenReturn("No Author");
+        when(mockProblem.getDifficulty()).thenReturn(ProblemDifficulty.MEDIUM);
+        when(mockProblem.getCreatedAt()).thenReturn(OffsetDateTime.now());
+        when(mockProblem.getStatementMd()).thenReturn("statement");
+        when(mockProblem.getInputSpecMd()).thenReturn("input");
+        when(mockProblem.getOutputSpecMd()).thenReturn("output");
+        when(mockProblem.getConstraintsMd()).thenReturn("constraints");
+        when(mockProblem.getHintsMd()).thenReturn("hints");
+        when(mockProblem.getAuthor()).thenReturn(null);
+        when(mockProblem.getTestCases()).thenReturn(null);
+
+        Optional<ProblemService.ProblemDetail> result = problemService.getProblemDetail(problemId);
+
+        assertTrue(result.isPresent());
+        ProblemService.ProblemDetail detail = result.get();
+        assertNull(detail.authorId());
+        assertTrue(detail.examples().isEmpty());
     }
 }

@@ -20,7 +20,6 @@
       align-items: start;
     }
 
-
     .avatar-card {
       display: flex;
       flex-direction: column;
@@ -46,6 +45,106 @@
       display: block;
     }
 
+    /* URL edit form for profile picture */
+    .avatar-url-form {
+      display: none;
+      flex-direction: column;
+      gap: 0.4rem;
+      width: 100%;
+    }
+
+    .avatar-url-form.open {
+      display: flex;
+    }
+
+    .avatar-url-input {
+      background: var(--input-bg, var(--panel));
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--white);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.4rem 0.6rem;
+      width: 100%;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .avatar-url-input:focus {
+      border-color: var(--accent);
+    }
+
+    .avatar-url-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .avatar-url-actions {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .avatar-url-save {
+      flex: 1;
+      background: var(--accent);
+      border: none;
+      border-radius: 4px;
+      color: #000;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.35rem 0;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .avatar-url-save:hover { opacity: 0.85; }
+    .avatar-url-save:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .avatar-url-cancel {
+      flex: 1;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.35rem 0;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .avatar-url-cancel:hover { color: var(--white); border-color: var(--white); }
+
+    .avatar-url-status {
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      min-height: 1rem;
+      text-align: center;
+    }
+
+    .avatar-url-status.error { color: var(--red, #f87171); }
+
+    .avatar-change-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.3rem 0.7rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .avatar-change-btn:hover { color: var(--accent); border-color: var(--accent); }
+
     .profile-name {
       font-family: var(--font-mono);
       font-size: 1.1rem;
@@ -67,6 +166,28 @@
       padding: 0 1.25rem 0.5rem;
       border-bottom: 1px solid var(--border);
       margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-edit-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.15rem 0.45rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .sidebar-edit-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
     }
 
     .tag-list {
@@ -74,6 +195,71 @@
       flex-wrap: wrap;
       gap: 0.4rem;
       padding: 0.75rem 1.25rem 1.25rem;
+    }
+
+    /* Preferred languages edit panel */
+    .lang-edit-panel {
+      display: none;
+      padding: 0.5rem 1.25rem 1rem;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .lang-edit-panel.open {
+      display: flex;
+    }
+
+    .lang-checkbox-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .lang-checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .lang-checkbox-item input[type="checkbox"] {
+      accent-color: var(--accent);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+
+    .lang-checkbox-item span {
+      font-size: 0.8rem;
+      color: var(--text-mid);
+      font-family: var(--font-mono);
+    }
+
+    .lang-save-btn {
+      margin-top: 0.5rem;
+      background: var(--accent);
+      border: none;
+      border-radius: 4px;
+      color: #000;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      align-self: flex-start;
+    }
+
+    .lang-save-btn:hover { opacity: 0.85; }
+    .lang-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .lang-save-status {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      min-height: 1rem;
     }
 
     /* ── Right column ── */
@@ -358,20 +544,51 @@
           <div class="avatar" aria-hidden="true">
             <img
               class="avatar-img"
+              id="avatar-img"
               src="https://i.pravatar.cc/320?img=12"
               alt="Profile avatar"
             />
+          </div>
+          <button class="avatar-change-btn" id="avatar-change-btn">Change photo</button>
+          <div class="avatar-url-form" id="avatar-url-form">
+            <input
+              class="avatar-url-input"
+              id="avatar-url-input"
+              type="url"
+              placeholder="https://lh3.googleusercontent.com/..."
+            />
+            <div class="avatar-url-actions">
+              <button class="avatar-url-save" id="avatar-url-save">Save</button>
+              <button class="avatar-url-cancel" id="avatar-url-cancel">Cancel</button>
+            </div>
+            <p class="avatar-url-status" id="avatar-url-status"></p>
           </div>
           <p class="profile-name" id="profile-username">username</p>
           <span class="badge badge--blue" data-i18n="profile.activeStatus">is_active</span>
           <p class="profile-role">Software Quality · Deusto</p>
         </div>
 
-        <!-- Favourite tags -->
+        <!-- Used languages (from submissions) -->
         <div class="card" style="padding: 1rem 0 0.25rem;">
           <p class="sidebar-section-title" data-i18n="profile.usedLanguages">Used Languages</p>
           <div class="tag-list" id="profile-used-languages">
             <span class="badge badge--blue">-</span>
+          </div>
+        </div>
+
+        <!-- Preferred languages (user-configurable) -->
+        <div class="card" style="padding: 1rem 0 0.25rem;">
+          <p class="sidebar-section-title">
+            Preferred Languages
+            <button class="sidebar-edit-btn" id="lang-edit-btn">Edit</button>
+          </p>
+          <div class="tag-list" id="profile-preferred-languages">
+            <span class="badge badge--blue">None</span>
+          </div>
+          <div class="lang-edit-panel" id="lang-edit-panel">
+            <div class="lang-checkbox-list" id="lang-checkbox-list"></div>
+            <button class="lang-save-btn" id="lang-save-btn">Save</button>
+            <p class="lang-save-status" id="lang-save-status"></p>
           </div>
         </div>
 
@@ -807,17 +1024,24 @@
       const mediumSubmissionsCountElement = document.getElementById('profile-medium-submissions-count');
       const hardSubmissionsCountElement = document.getElementById('profile-hard-submissions-count');
       const usedLanguagesContainer = document.getElementById('profile-used-languages');
+      const preferredLanguagesContainer = document.getElementById('profile-preferred-languages');
+      const avatarImg = document.getElementById('avatar-img');
+      const avatarChangeBtn = document.getElementById('avatar-change-btn');
+      const avatarUrlForm = document.getElementById('avatar-url-form');
+      const avatarUrlInput = document.getElementById('avatar-url-input');
+      const avatarUrlSave = document.getElementById('avatar-url-save');
+      const avatarUrlCancel = document.getElementById('avatar-url-cancel');
+      const avatarUrlStatus = document.getElementById('avatar-url-status');
+      const langEditBtn = document.getElementById('lang-edit-btn');
+      const langEditPanel = document.getElementById('lang-edit-panel');
+      const langCheckboxList = document.getElementById('lang-checkbox-list');
+      const langSaveBtn = document.getElementById('lang-save-btn');
+      const langSaveStatus = document.getElementById('lang-save-status');
 
       const setDifficultyCounts = (easyCount, mediumCount, hardCount) => {
-        if (easySubmissionsCountElement) {
-          easySubmissionsCountElement.textContent = String(easyCount);
-        }
-        if (mediumSubmissionsCountElement) {
-          mediumSubmissionsCountElement.textContent = String(mediumCount);
-        }
-        if (hardSubmissionsCountElement) {
-          hardSubmissionsCountElement.textContent = String(hardCount);
-        }
+        if (easySubmissionsCountElement) easySubmissionsCountElement.textContent = String(easyCount);
+        if (mediumSubmissionsCountElement) mediumSubmissionsCountElement.textContent = String(mediumCount);
+        if (hardSubmissionsCountElement) hardSubmissionsCountElement.textContent = String(hardCount);
       };
 
       const setUsedLanguages = (languageLabels) => {
@@ -828,7 +1052,6 @@
         lastLanguageLabels = Array.isArray(languageLabels) ? languageLabels.slice() : [];
 
         usedLanguagesContainer.innerHTML = '';
-
         if (!Array.isArray(languageLabels) || languageLabels.length === 0) {
           const emptyBadge = document.createElement('span');
           emptyBadge.className = 'badge badge--blue';
@@ -836,7 +1059,6 @@
           usedLanguagesContainer.appendChild(emptyBadge);
           return;
         }
-
         languageLabels.forEach((label) => {
           const badge = document.createElement('span');
           badge.className = 'badge badge--blue';
@@ -873,26 +1095,45 @@
         if (createdCountElement) {
           createdCountElement.textContent = ERROR_COUNT;
         }
+        languages.forEach((lang) => {
+          const badge = document.createElement('span');
+          badge.className = 'badge badge--blue';
+          badge.textContent = lang.name || lang.code || String(lang.id);
+          preferredLanguagesContainer.appendChild(badge);
+        });
+      };
+
+      if (typeof api === 'undefined') {
+        if (submissionsCountElement) submissionsCountElement.textContent = ERROR_COUNT;
+        if (inProgressCountElement) inProgressCountElement.textContent = ERROR_COUNT;
+        if (createdCountElement) createdCountElement.textContent = ERROR_COUNT;
         setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
         setUsedLanguages([i18n.t('common.error')]);
         renderMySubmissions([], undefined, { view: 'all' });
         return;
       }
 
-      if ((!currentUser || !currentUser.username || !currentUser.id) && typeof api !== 'undefined') {
+      // Always fetch fresh user data to get profilePicture and preferredLanguages
+      if (currentUser && currentUser.id) {
         try {
-          if (currentUser && currentUser.id) {
-            currentUser = await api.get(`/users/${currentUser.id}`);
-          } else if (currentUser && currentUser.email) {
-            const encodedEmail = encodeURIComponent(currentUser.email);
-            currentUser = await api.get(`/users/by-email?email=${encodedEmail}`);
-          }
-
-          if (currentUser && typeof auth !== 'undefined') {
-            auth.setUser(currentUser);
+          const freshUser = await api.get(`/users/${currentUser.id}`);
+          if (freshUser) {
+            currentUser = freshUser;
+            if (typeof auth !== 'undefined') auth.setUser(currentUser);
           }
         } catch (_error) {
-          // Keep default value if user data cannot be refreshed.
+          // Keep cached user data on error
+        }
+      } else if (currentUser && currentUser.email) {
+        try {
+          const encodedEmail = encodeURIComponent(currentUser.email);
+          const freshUser = await api.get(`/users/by-email?email=${encodedEmail}`);
+          if (freshUser) {
+            currentUser = freshUser;
+            if (typeof auth !== 'undefined') auth.setUser(currentUser);
+          }
+        } catch (_error) {
+          // Keep cached user data on error
         }
       }
 
@@ -900,7 +1141,159 @@
         usernameElement.textContent = currentUser.username;
       }
 
-      if (submissionsCountElement && typeof api !== 'undefined') {
+      // Apply profile picture if present
+      if (avatarImg && currentUser && currentUser.profilePicture) {
+        avatarImg.src = currentUser.profilePicture;
+      }
+
+      // Render preferred languages
+      renderPreferredLanguages(currentUser && currentUser.preferredLanguages ? currentUser.preferredLanguages : []);
+
+      // ── Avatar URL edit ────────────────────────────────────────────────────
+      const openAvatarForm = () => {
+        avatarUrlInput.value = (currentUser && currentUser.profilePicture) || '';
+        avatarUrlStatus.textContent = '';
+        avatarUrlStatus.className = 'avatar-url-status';
+        avatarUrlForm.classList.add('open');
+        avatarChangeBtn.style.display = 'none';
+        avatarUrlInput.focus();
+      };
+
+      const closeAvatarForm = () => {
+        avatarUrlForm.classList.remove('open');
+        avatarChangeBtn.style.display = '';
+        avatarUrlStatus.textContent = '';
+      };
+
+      if (avatarChangeBtn) {
+        avatarChangeBtn.addEventListener('click', openAvatarForm);
+      }
+
+      if (avatarUrlCancel) {
+        avatarUrlCancel.addEventListener('click', closeAvatarForm);
+      }
+
+      if (avatarUrlInput) {
+        avatarUrlInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') avatarUrlSave.click();
+          if (e.key === 'Escape') closeAvatarForm();
+        });
+      }
+
+      if (avatarUrlSave) {
+        avatarUrlSave.addEventListener('click', async () => {
+          const url = avatarUrlInput.value.trim();
+
+          if (!url) {
+            avatarUrlStatus.textContent = 'Please enter a URL';
+            avatarUrlStatus.className = 'avatar-url-status error';
+            return;
+          }
+
+          if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            avatarUrlStatus.textContent = 'URL must start with https://';
+            avatarUrlStatus.className = 'avatar-url-status error';
+            return;
+          }
+
+          avatarUrlSave.disabled = true;
+          avatarUrlStatus.textContent = 'Saving…';
+          avatarUrlStatus.className = 'avatar-url-status';
+
+          try {
+            const updated = await api.put(`/users/${currentUser.id}/profile`, { profilePicture: url });
+            if (updated) {
+              currentUser = { ...currentUser, ...updated };
+              if (typeof auth !== 'undefined') auth.setUser(currentUser);
+            }
+            avatarImg.src = url;
+            avatarUrlStatus.textContent = 'Saved!';
+            setTimeout(closeAvatarForm, 900);
+          } catch (err) {
+            const detail = err && err.message ? err.message : 'Unknown error';
+            console.error('[profile] PUT /profile failed:', detail, err);
+            avatarUrlStatus.textContent = `Error: ${detail}`;
+            avatarUrlStatus.className = 'avatar-url-status error';
+          } finally {
+            avatarUrlSave.disabled = false;
+          }
+        });
+      }
+
+      // ── Preferred languages edit ──────────────────────────────────────────
+      let allLanguages = [];
+      try {
+        allLanguages = await api.get('/languages') || [];
+      } catch (_err) {
+        allLanguages = [];
+      }
+
+      const populateLangCheckboxes = () => {
+        langCheckboxList.innerHTML = '';
+        const selectedIds = new Set(
+          (currentUser && currentUser.preferredLanguages || []).map(l => String(l.id))
+        );
+        allLanguages.forEach((lang) => {
+          const label = document.createElement('label');
+          label.className = 'lang-checkbox-item';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = String(lang.id);
+          checkbox.checked = selectedIds.has(String(lang.id));
+          const span = document.createElement('span');
+          span.textContent = lang.name;
+          label.appendChild(checkbox);
+          label.appendChild(span);
+          langCheckboxList.appendChild(label);
+        });
+      };
+
+      if (langEditBtn) {
+        langEditBtn.addEventListener('click', () => {
+          const isOpen = langEditPanel.classList.contains('open');
+          if (isOpen) {
+            langEditPanel.classList.remove('open');
+            langEditBtn.textContent = 'Edit';
+            langSaveStatus.textContent = '';
+          } else {
+            populateLangCheckboxes();
+            langEditPanel.classList.add('open');
+            langEditBtn.textContent = 'Cancel';
+          }
+        });
+      }
+
+      if (langSaveBtn) {
+        langSaveBtn.addEventListener('click', async () => {
+          const checkboxes = langCheckboxList.querySelectorAll('input[type="checkbox"]:checked');
+          const selectedIds = Array.from(checkboxes).map(cb => Number(cb.value));
+
+          langSaveBtn.disabled = true;
+          langSaveStatus.textContent = 'Saving…';
+
+          try {
+            const updated = await api.put(`/users/${currentUser.id}/profile`, { preferredLanguageIds: selectedIds });
+            if (updated) {
+              currentUser = { ...currentUser, ...updated };
+              if (typeof auth !== 'undefined') auth.setUser(currentUser);
+            }
+            renderPreferredLanguages(currentUser.preferredLanguages || []);
+            langSaveStatus.textContent = 'Saved!';
+            setTimeout(() => {
+              langEditPanel.classList.remove('open');
+              langEditBtn.textContent = 'Edit';
+              langSaveStatus.textContent = '';
+            }, 1200);
+          } catch (_err) {
+            langSaveStatus.textContent = 'Error saving';
+          } finally {
+            langSaveBtn.disabled = false;
+          }
+        });
+      }
+
+      // ── Submissions & stats ───────────────────────────────────────────────
+      if (submissionsCountElement) {
         try {
           const submissions = await api.get('/submissions/mine');
           if (Array.isArray(submissions)) {
@@ -912,26 +1305,13 @@
             }).length;
 
             submissionsCountElement.textContent = String(submissions.length);
-            if (inProgressCountElement) {
-              inProgressCountElement.textContent = String(inProgressCount);
-            }
+            if (inProgressCountElement) inProgressCountElement.textContent = String(inProgressCount);
 
             const languageSet = new Set();
             submissions.forEach((submission) => {
-              if (!submission) {
-                return;
-              }
-
-              if (submission.languageName) {
-                languageSet.add(String(submission.languageName));
-                return;
-              }
-
-              if (submission.languageCode) {
-                languageSet.add(String(submission.languageCode));
-                return;
-              }
-
+              if (!submission) return;
+              if (submission.languageName) { languageSet.add(String(submission.languageName)); return; }
+              if (submission.languageCode) { languageSet.add(String(submission.languageCode)); return; }
               if (submission.languageId !== null && submission.languageId !== undefined) {
                 languageSet.add(i18n.t('profile.languageFallback', { id: submission.languageId }));
               }
@@ -968,21 +1348,13 @@
                     });
                   }
 
-                  let easyCount = 0;
-                  let mediumCount = 0;
-                  let hardCount = 0;
-
+                  let easyCount = 0, mediumCount = 0, hardCount = 0;
                   submissions.forEach(submission => {
                     const difficulty = problemDifficultyById.get(String(submission.problemId));
-                    if (difficulty === 'EASY') {
-                      easyCount += 1;
-                    } else if (difficulty === 'MEDIUM') {
-                      mediumCount += 1;
-                    } else if (difficulty === 'HARD') {
-                      hardCount += 1;
-                    }
+                    if (difficulty === 'EASY') easyCount += 1;
+                    else if (difficulty === 'MEDIUM') mediumCount += 1;
+                    else if (difficulty === 'HARD') hardCount += 1;
                   });
-
                   setDifficultyCounts(easyCount, mediumCount, hardCount);
                 }
               } catch (_error) {
@@ -991,9 +1363,7 @@
             }
           } else {
             submissionsCountElement.textContent = ERROR_COUNT;
-            if (inProgressCountElement) {
-              inProgressCountElement.textContent = ERROR_COUNT;
-            }
+            if (inProgressCountElement) inProgressCountElement.textContent = ERROR_COUNT;
             setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
             setUsedLanguages([i18n.t('common.error')]);
             allMineSubmissions = [];
@@ -1001,9 +1371,7 @@
           }
         } catch (_error) {
           submissionsCountElement.textContent = ERROR_COUNT;
-          if (inProgressCountElement) {
-            inProgressCountElement.textContent = ERROR_COUNT;
-          }
+          if (inProgressCountElement) inProgressCountElement.textContent = ERROR_COUNT;
           setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
           setUsedLanguages([i18n.t('common.error')]);
           allMineSubmissions = [];
