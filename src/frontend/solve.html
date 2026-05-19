@@ -92,7 +92,25 @@
           </div>
           <button type="button" class="solve-output-close" id="btn-close-output" title="Close">✕</button>
         </div>
-        <pre class="solve-output-body" id="output-body"></pre>
+        <div class="solve-output-body" id="output-body">
+          <div class="run-output" id="run-output" hidden>
+            <div class="run-output-cmdline">
+              <span class="run-output-prompt">$</span>
+              <span class="run-output-cmd">run sample-tests</span>
+              <span class="run-output-cmd-meta" id="run-meta"></span>
+            </div>
+            <div class="run-output-metrics">
+              <span>time: <span id="run-time">—</span></span>
+              <span>mem: <span id="run-mem">—</span></span>
+              <span>pass: <span id="run-pass">—</span></span>
+            </div>
+            <div class="run-output-cases" id="run-cases">
+              <div class="run-output-empty">awaiting Judge0…</div>
+            </div>
+            <pre class="run-output-error" id="run-error" hidden></pre>
+          </div>
+          <pre class="solve-output-plain" id="output-plain"></pre>
+        </div>
       </div>
 
     </main>
