@@ -46,25 +46,12 @@
     }
   </style>
 </head>
-<body>
-
-  <div class="accent-bar"></div>
-
-  <nav class="navbar">
-    <a href="index.html" class="nav-logo">
-      ⌨ Realcode
-    </a>
-    <ul class="nav-links">
-      <li><a href="problems.html">Problems</a></li>
-      <li><a href="create.html">Create</a></li>
-      <li><a href="login.html" class="active">Sign In</a></li>
-    </ul>
-  </nav>
+<body data-active-nav="login" data-page-title-key="page.title.login">
 
   <main class="page">
     <div class="login-card card anim-fade-up">
 
-      <h1 id="form-title">Sign In</h1>
+      <h1 id="form-title" data-i18n="login.signIn">Sign In</h1>
 
       <p id="error-message"></p>
 
@@ -72,41 +59,43 @@
       <div id="login-panel">
         <form id="login-form">
           <div class="form-group">
-            <label class="form-label">Email</label>
-            <input class="form-input" type="email" id="login-email" placeholder="you@example.com" />
+            <label class="form-label" data-i18n="login.email">Email</label>
+            <input class="form-input" type="email" id="login-email" placeholder="you@example.com" data-i18n-placeholder="login.email" />
           </div>
           <div class="form-group">
-            <label class="form-label">Password</label>
-            <input class="form-input" type="password" id="login-password" placeholder="••••••••" />
+            <label class="form-label" data-i18n="login.password">Password</label>
+            <input class="form-input" type="password" id="login-password" placeholder="••••••••" data-i18n-placeholder="login.password" />
           </div>
-          <button type="submit" class="btn-primary" id="login-btn">Sign In</button>
+          <button type="submit" class="btn-primary" id="login-btn" data-i18n="login.signIn">Sign In</button>
         </form>
-        <p>No account? <a href="#" id="show-register">Register</a></p>
+        <p><span data-i18n="login.noAccount">No account?</span> <a href="#" id="show-register" data-i18n="login.register">Register</a></p>
       </div>
 
       <!-- Register panel (hidden by default) -->
       <div id="register-panel" style="display:none">
         <form id="register-form">
           <div class="form-group">
-            <label class="form-label">Email</label>
-            <input class="form-input" type="email" id="register-email" placeholder="you@example.com" />
+            <label class="form-label" data-i18n="login.email">Email</label>
+            <input class="form-input" type="email" id="register-email" placeholder="you@example.com" data-i18n-placeholder="login.email" />
           </div>
           <div class="form-group">
-            <label class="form-label">Username</label>
-            <input class="form-input" type="text" id="register-username" placeholder="yourhandle" />
+            <label class="form-label" data-i18n="login.username">Username</label>
+            <input class="form-input" type="text" id="register-username" placeholder="yourhandle" data-i18n-placeholder="login.username" />
           </div>
           <div class="form-group">
-            <label class="form-label">Password</label>
-            <input class="form-input" type="password" id="register-password" placeholder="••••••••" />
+            <label class="form-label" data-i18n="login.password">Password</label>
+            <input class="form-input" type="password" id="register-password" placeholder="••••••••" data-i18n-placeholder="login.password" />
           </div>
-          <button type="submit" class="btn-primary" id="register-btn">Create Account</button>
+          <button type="submit" class="btn-primary" id="register-btn" data-i18n="login.createAccount">Create Account</button>
         </form>
-        <p>Already have an account? <a href="#" id="show-login">Sign In</a></p>
+        <p><span data-i18n="login.alreadyHaveAccount">Already have an account?</span> <a href="#" id="show-login" data-i18n="login.signIn">Sign In</a></p>
       </div>
 
     </div>
   </main>
 
+  <script src="js/i18n.js"></script>
+  <script src="js/layout.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
   <script src="js/utils.js"></script>

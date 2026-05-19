@@ -13,6 +13,26 @@ public interface SubmissionRepository extends JpaRepository<Submission, UUID> {
     Optional<Submission> findByIdAndUserId(UUID id, UUID userId);
 
     @Query(value = """
+	    SELECT s.id
+	    FROM submissions s
+	    WHERE s.status = CAST('queued' AS submission_status)
+	    ORDER BY s.submitted_at ASC
+	    LIMIT :limit
+	    """, nativeQuery = true)
+    List<UUID> findQueuedIds(@Param("limit") int limit);
+
+    @Query("""
+	    SELECT DISTINCT s
+	    FROM Submission s
+	    JOIN FETCH s.user
+	    JOIN FETCH s.problem p
+	    JOIN FETCH s.language
+	    LEFT JOIN FETCH p.testCases
+	    WHERE s.id = :submissionId
+	    """)
+    Optional<Submission> findByIdWithExecutionData(@Param("submissionId") UUID submissionId);
+
+    @Query(value = """
 	    SELECT s.*
 	    FROM submissions s
 	    WHERE s.user_id = :userId

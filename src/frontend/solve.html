@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solve — Realcode</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/solve.css" />
+</head>
+<body data-active-nav="problems">
+
+  <!-- Navbar injected by layout.js -->
+
+  <div class="solve-layout">
+
+    <!-- ── LEFT: Problem description ── -->
+    <aside class="solve-panel solve-panel--desc">
+
+      <!-- Tabs -->
+      <div class="solve-tabs">
+        <button class="solve-tab is-active" data-tab="description">Description</button>
+        <button class="solve-tab" data-tab="examples">Examples</button>
+        <button class="solve-tab" data-tab="hints">Hints</button>
+      </div>
+
+      <!-- Description tab -->
+      <div class="solve-tab-content" id="tab-description">
+        <div id="problem-header">
+          <p class="solve-loading">Loading problem…</p>
+        </div>
+        <div id="problem-statement"></div>
+      </div>
+
+      <!-- Examples tab -->
+      <div class="solve-tab-content" id="tab-examples" style="display:none;">
+        <div id="problem-examples">
+          <p class="solve-loading">Loading…</p>
+        </div>
+      </div>
+
+      <!-- Hints tab -->
+      <div class="solve-tab-content" id="tab-hints" style="display:none;">
+        <div id="problem-hints">
+          <p class="solve-hints-empty">No hints available for this problem.</p>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── Draggable divider ── -->
+    <div class="solve-divider" id="solve-divider"></div>
+
+    <!-- ── RIGHT: Code editor ── -->
+    <main class="solve-panel solve-panel--editor">
+
+      <!-- Toolbar -->
+      <div class="solve-editor-toolbar">
+        <select class="solve-lang-select" id="lang-select">
+          <option value="python">Python</option>
+          <option value="java">Java</option>
+          <option value="cpp">C++</option>
+          <option value="javascript">JavaScript</option>
+        </select>
+        <div class="solve-toolbar-actions">
+          <button type="button" class="btn-secondary btn-sm" id="btn-run">▶ Run</button>
+          <button type="button" class="btn-primary btn-sm" id="btn-submit">Submit</button>
+        </div>
+      </div>
+
+      <!-- Code editor -->
+      <div class="solve-editor-wrap">
+        <textarea
+          class="solve-editor"
+          id="code-editor"
+          spellcheck="false"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          placeholder="// Write your solution here…"
+        ></textarea>
+      </div>
+
+      <!-- Output panel (hidden until run/submit) -->
+      <div class="solve-output" id="solve-output" style="display:none;">
+        <div class="solve-output-header">
+          <div style="display:flex; align-items:center; gap:0.75rem;">
+            <span class="solve-output-title">Output</span>
+            <span class="solve-output-status" id="output-status"></span>
+          </div>
+          <button type="button" class="solve-output-close" id="btn-close-output" title="Close">✕</button>
+        </div>
+        <pre class="solve-output-body" id="output-body"></pre>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Core utilities -->
+  <script src="js/i18n.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+
+  <!-- Page script -->
+  <script src="js/solve.js"></script>
+</body>
+</html>

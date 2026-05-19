@@ -1,6 +1,10 @@
 (function () {
   'use strict';
 
+  function getText(key, params) {
+    return typeof i18n !== 'undefined' ? i18n.t(key, params) : key;
+  }
+
   const API_BASE = window.API_BASE || 'http://localhost:10000';
 
   const grid = document.getElementById('problems-grid');
@@ -17,9 +21,9 @@
   }
 
   const DIFFICULTY = {
-    EASY: { card: 'card--green', badge: 'badge--easy', label: 'Easy' },
-    MEDIUM: { card: 'card--orange', badge: 'badge--medium', label: 'Medium' },
-    HARD: { card: 'card--red', badge: 'badge--hard', label: 'Hard' },
+    EASY: { card: 'card--green', badge: 'badge--easy', labelKey: 'problems.difficultyEasy' },
+    MEDIUM: { card: 'card--orange', badge: 'badge--medium', labelKey: 'problems.difficultyMedium' },
+    HARD: { card: 'card--red', badge: 'badge--hard', labelKey: 'problems.difficultyHard' },
   };
 
   const state = {
@@ -47,38 +51,34 @@
   }
 
   function setCount(total) {
-    countEl.textContent = `${total} problems found`;
+    countEl.textContent = getText('problems.count', { count: total });
   }
 
   function formatCreatedAt(isoDate) {
-    if (!isoDate) return 'Unknown date';
+    if (!isoDate) return getText('common.unknownDate');
     const date = new Date(isoDate);
-    if (Number.isNaN(date.getTime())) return 'Unknown date';
-    return `Created ${date.toLocaleDateString()}`;
+    if (Number.isNaN(date.getTime())) return getText('common.unknownDate');
+    const locale = typeof i18n !== 'undefined' ? i18n.getLocale() : 'en';
+    return getText('problems.createdAt', { date: date.toLocaleDateString(locale) });
   }
 
   function formatLanguages(languages) {
     if (!Array.isArray(languages) || languages.length === 0) {
-      return 'Language: Not specified';
+      return getText('problems.languageNotSpecified');
     }
 
     const visible = languages
       .filter((value) => typeof value === 'string' && value.trim().length > 0)
-      .map((value) => value.trim())
-      .map((value) => {
-        if (value === 'Node.js') return 'JavaScript';
-        if (value === 'Python 3') return 'Python';
-        return value;
-      });
+      .map((value) => value.trim());
     if (visible.length === 0) {
-      return 'Language: Not specified';
+      return getText('problems.languageNotSpecified');
     }
 
     if (visible.length === 1) {
-      return `Language: ${visible[0]}`;
+      return getText('problems.languageSingular', { language: visible[0] });
     }
 
-    return `Languages: ${visible.join(', ')}`;
+    return getText('problems.languagePlural', { languages: visible.join(', ') });
   }
 
   function buildParams() {
@@ -147,11 +147,11 @@
   function renderDetail(detailEl, data) {
     const sections = [];
 
-    if (data.statementMd) sections.push(buildDetailSection('Problem Statement', data.statementMd));
-    if (data.inputSpecMd) sections.push(buildDetailSection('Input', data.inputSpecMd));
-    if (data.outputSpecMd) sections.push(buildDetailSection('Output', data.outputSpecMd));
-    if (data.constraintsMd) sections.push(buildDetailSection('Constraints', data.constraintsMd));
-    if (data.hintsMd) sections.push(buildDetailSection('Hints', data.hintsMd));
+    if (data.statementMd) sections.push(buildDetailSection(getText('problems.problemStatement'), data.statementMd));
+    if (data.inputSpecMd) sections.push(buildDetailSection(getText('problems.input'), data.inputSpecMd));
+    if (data.outputSpecMd) sections.push(buildDetailSection(getText('problems.output'), data.outputSpecMd));
+    if (data.constraintsMd) sections.push(buildDetailSection(getText('problems.constraints'), data.constraintsMd));
+    if (data.hintsMd) sections.push(buildDetailSection(getText('problems.hints'), data.hintsMd));
 
     let examplesHtml = '';
     if (Array.isArray(data.examples) && data.examples.length > 0) {
@@ -168,7 +168,7 @@
         </div>`).join('');
       examplesHtml = `
         <div class="problem-detail-section">
-          <span class="problem-detail-section-title">Examples</span>
+          <span class="problem-detail-section-title">${getText('problems.examples')}</span>
           <div class="problem-detail-examples">${items}</div>
         </div>`;
     }
@@ -177,11 +177,12 @@
       ${sections.join('')}
       ${examplesHtml}
       <div class="problem-detail-footer">
-        <button type="button" class="problem-detail-start-btn">Start Coding</button>
+        <button type="button" class="problem-detail-start-btn">${getText('problems.startCoding')}</button>
       </div>`;
 
     detailEl.querySelector('.problem-detail-start-btn').addEventListener('click', (e) => {
       e.stopPropagation();
+      window.location.href = `solve.html?id=${data.id}`;
     });
   }
 
@@ -202,19 +203,19 @@
       return;
     }
 
-    detailEl.innerHTML = '<p class="problem-detail-loading">Loading...</p>';
+    detailEl.innerHTML = `<p class="problem-detail-loading">${getText('problems.loadingDetails')}</p>`;
 
     try {
       const response = await fetch(`${API_BASE}/api/problems/${problem.id}`);
       if (!response.ok) {
-        detailEl.innerHTML = '<p class="problem-detail-error">Could not load problem details.</p>';
+        detailEl.innerHTML = `<p class="problem-detail-error">${getText('problems.couldNotLoadDetails')}</p>`;
         return;
       }
       const data = await response.json();
       detailCache.set(problem.id, data);
       renderDetail(detailEl, data);
     } catch (err) {
-      detailEl.innerHTML = '<p class="problem-detail-error">Could not reach the server.</p>';
+      detailEl.innerHTML = `<p class="problem-detail-error">${getText('problems.couldNotReachServer')}</p>`;
     }
   }
 
@@ -236,7 +237,7 @@
         </div>
         <div class="problem-card-meta-group">
           <span class="problem-card-meta">${formatCreatedAt(problem.createdAt)}</span>
-          <span class="badge ${diff.badge}">${diff.label}</span>
+          <span class="badge ${diff.badge}">${getText(diff.labelKey)}</span>
           <span class="problem-card-toggle">▼</span>
         </div>
       </div>
@@ -252,7 +253,7 @@
     setCount(problems.length);
 
     if (problems.length === 0) {
-      setStatus('No problems match your current search.');
+      setStatus(getText('problems.noMatch'));
       return;
     }
 
@@ -269,7 +270,7 @@
     }
     state.activeController = new AbortController();
 
-    setStatus('Loading problems...');
+    setStatus(getText('problems.loading'));
     grid.innerHTML = '';
     setCount(0);
 
@@ -285,13 +286,13 @@
       }
 
       if (!response.ok) {
-        setStatus('Failed to load problems.', true);
+        setStatus(getText('problems.failedLoad'), true);
         return;
       }
 
       const problems = await response.json();
       if (!Array.isArray(problems)) {
-        setStatus('Problems dataset is invalid.', true);
+        setStatus(getText('problems.invalidDataset'), true);
         return;
       }
       state.loadedProblems = problems;
@@ -300,7 +301,7 @@
       if (err && err.name === 'AbortError') {
         return;
       }
-      setStatus('Could not reach the server.', true);
+      setStatus(getText('problems.couldNotReachServer'), true);
     }
   }
 
@@ -332,5 +333,9 @@
   });
 
   fetchProblems();
+
+  document.addEventListener('realcode:localechange', function () {
+    fetchProblems();
+  });
 
 })();

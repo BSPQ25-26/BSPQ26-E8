@@ -10,7 +10,7 @@ const utils = {
     showLoading(elementId) {
         const element = document.getElementById(elementId);
         if (element) {
-            element.innerHTML = '<p>Loading...</p>';
+            element.innerHTML = `<p>${typeof i18n !== 'undefined' ? i18n.t('common.loading') : 'Loading...'}</p>`;
         }
     },
 
@@ -29,7 +29,8 @@ const utils = {
      */
     formatDate(dateString) {
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
+        const locale = typeof i18n !== 'undefined' ? i18n.getLocale() : 'en';
+        return date.toLocaleDateString(locale, {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
