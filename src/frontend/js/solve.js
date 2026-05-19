@@ -35,7 +35,14 @@
   const btnSubmit     = document.getElementById('btn-submit');
   const outputPanel   = document.getElementById('solve-output');
   const outputStatus  = document.getElementById('output-status');
-  const outputBody    = document.getElementById('output-body');
+  const outputPlain   = document.getElementById('output-plain');
+  const runOutput     = document.getElementById('run-output');
+  const runMeta       = document.getElementById('run-meta');
+  const runTime       = document.getElementById('run-time');
+  const runMem        = document.getElementById('run-mem');
+  const runPass       = document.getElementById('run-pass');
+  const runCases      = document.getElementById('run-cases');
+  const runError      = document.getElementById('run-error');
   const btnClose      = document.getElementById('btn-close-output');
   const divider       = document.getElementById('solve-divider');
   const leftPanel     = document.querySelector('.solve-panel--desc');
@@ -179,8 +186,14 @@
   });
 
   /* ── Output panel helpers ── */
+  function setRunMode(on) {
+    runOutput.hidden = !on;
+    outputPlain.hidden = on;
+  }
+
   function showOutput(text, statusText, statusClass) {
-    outputBody.textContent = text;
+    setRunMode(false);
+    outputPlain.textContent = text;
     outputStatus.textContent = statusText;
     outputStatus.className = `solve-output-status ${statusClass}`;
     outputPanel.style.display = 'flex';
@@ -246,41 +259,51 @@
     return '—';
   }
 
+  function renderRunSkeleton(language) {
+    setRunMode(true);
+    outputStatus.textContent = 'Running';
+    outputStatus.className = 'solve-output-status running';
+    outputPanel.style.display = 'flex';
+    runMeta.textContent = `— ${language} · running…`;
+    runTime.textContent = '—';
+    runMem.textContent  = '—';
+    runPass.textContent = '—';
+    runError.hidden = true;
+    runError.textContent = '';
+    runCases.innerHTML = '<div class="run-output-empty">awaiting Judge0…</div>';
+  }
+
   function renderRunOutput(view, language) {
+    setRunMode(true);
     const meta = STATUS_META[view.status] || { pill: 'internal', label: view.status || 'Unknown' };
     outputStatus.textContent = meta.label;
     outputStatus.className = `solve-output-status ${meta.pill}`;
     outputPanel.style.display = 'flex';
 
     if (view.failed) {
-      outputBody.innerHTML = `
-        <div class="run-output">
-          <div class="run-output-cmdline">
-            <span class="run-output-prompt">$</span>
-            <span class="run-output-cmd">run sample-tests</span>
-          </div>
-          <pre class="run-output-error">${esc(view.errorMessage || 'Execution failed')}</pre>
-        </div>`;
+      runMeta.textContent = `— ${language}`;
+      runTime.textContent = '—';
+      runMem.textContent  = '—';
+      runPass.textContent = '—';
+      runCases.innerHTML = '';
+      runError.textContent = view.errorMessage || 'Execution failed';
+      runError.hidden = false;
       return;
     }
 
-    const cases   = Array.isArray(view.testCases) ? view.testCases : [];
-    const runtime = view.runtimeMs != null ? view.runtimeMs + ' ms' : '—';
-    const memory  = view.memoryMb  != null ? view.memoryMb  + ' MB' : '—';
-    const passed  = view.testcasesPassed;
-    const total   = view.testcasesTotal;
+    runError.hidden = true;
+    runError.textContent = '';
 
-    const head = `
-      <div class="run-output-cmdline">
-        <span class="run-output-prompt">$</span>
-        <span class="run-output-cmd">run sample-tests</span>
-        <span class="run-output-cmd-meta">— ${esc(language)} · ${cases.length} case${cases.length === 1 ? '' : 's'}</span>
-      </div>
-      <div class="run-output-metrics">
-        <span>time: ${runtime}</span>
-        <span>mem: ${memory}</span>
-        <span>pass: ${passed} / ${total}</span>
-      </div>`;
+    const cases = Array.isArray(view.testCases) ? view.testCases : [];
+    runMeta.textContent = `— ${language} · ${cases.length} case${cases.length === 1 ? '' : 's'}`;
+    runTime.textContent = view.runtimeMs != null ? `${view.runtimeMs} ms` : '—';
+    runMem.textContent  = view.memoryMb  != null ? `${view.memoryMb} MB`  : '—';
+    runPass.textContent = `${view.testcasesPassed} / ${view.testcasesTotal}`;
+
+    if (!cases.length) {
+      runCases.innerHTML = '<div class="run-output-empty">No sample test cases.</div>';
+      return;
+    }
 
     const caseBlocks = cases.map((tc, i) => {
       const verdict     = caseVerdict(tc);
@@ -335,11 +358,7 @@
         </details>`;
     }).join('');
 
-    const body = cases.length
-      ? `<div class="run-output-cases">${caseBlocks}</div>`
-      : '<div class="run-output-empty">No sample test cases.</div>';
-
-    outputBody.innerHTML = `<div class="run-output">${head}${body}</div>`;
+    runCases.innerHTML = caseBlocks;
   }
 
   /* ── Run ── */
@@ -348,7 +367,7 @@
     const code = codeEditor.value;
     const language = langSelect.value;
 
-    showOutput('Running…', 'Running', 'running');
+    renderRunSkeleton(language);
     btnRun.disabled = true;
 
     try {

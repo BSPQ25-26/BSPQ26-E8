@@ -348,6 +348,15 @@
   scrollbar-color: var(--border) transparent;
 }
 
+.solve-output-plain {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* ── Run output (terminal-like) ── */
 .run-output {
   white-space: normal;
