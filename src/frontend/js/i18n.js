@@ -129,7 +129,7 @@
       'profile.myProblems': 'My Problems',
       'profile.mySubmissions': 'My Submissions',
       'profile.noProblems': 'No problems created yet.',
-      'profile.noSubmissions': "There's no submissions yet.",
+      'profile.noSubmissions': 'There are no submissions yet.',
       'profile.noSubmissionForView': 'No submission found for this view.',
       'profile.couldNotLoadProblems': 'Could not load your problems.',
       'profile.couldNotReachServer': 'Could not reach the server.',
