@@ -1,4 +1,4 @@
-package com.bspq26e8.backend.auth.security;
+package com.bspq26e8.backend.common;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -31,7 +31,7 @@ public class AccessTokenService {
         this(tokenSecret, Clock.systemUTC());
     }
 
-    AccessTokenService(String tokenSecret, Clock clock) {
+    public AccessTokenService(String tokenSecret, Clock clock) {
         this.tokenSecret = tokenSecret;
         this.clock = clock;
     }

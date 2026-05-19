@@ -1,6 +1,6 @@
 package com.bspq26e8.backend.auth.service;
 
-import com.bspq26e8.backend.auth.security.AccessTokenService;
+import com.bspq26e8.backend.common.AccessTokenService;
 import com.bspq26e8.backend.user.entity.RefreshToken;
 import com.bspq26e8.backend.user.entity.User;
 import com.bspq26e8.backend.user.repository.RefreshTokenRepository;
