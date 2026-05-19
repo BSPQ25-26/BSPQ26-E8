@@ -54,6 +54,8 @@ public class IntegrationTest {
     private TestRestTemplate restTemplate;
 
 
+
+
     @Test
     void fullAuthAndProblemFlow() {
         String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
@@ -153,6 +155,32 @@ public class IntegrationTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
+
+
+    private void createSubmission(String accessToken, String problemId, String languageId) {
+        HttpHeaders authHeaders = new HttpHeaders();
+        authHeaders.setBearerAuth(accessToken);
+
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                url("/api/submissions"),
+                HttpMethod.POST,
+                new HttpEntity<>(Map.of(
+                        "problemId", problemId,
+                        "languageId", languageId,
+                        "sourceCode", "print('Hello, World!')"
+                ), authHeaders), Map.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().get("id")).isNotBlank();
+
+
+
+    }
+
+
 
     private String url(String path) {
         return "http://localhost:" + port + path;
