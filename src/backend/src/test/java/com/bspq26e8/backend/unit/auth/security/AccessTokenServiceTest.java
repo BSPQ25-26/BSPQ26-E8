@@ -8,7 +8,6 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.bspq26e8.backend.auth.security.AccessTokenService;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

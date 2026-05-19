@@ -67,6 +67,7 @@ public class IntegrationTest {
         String accessToken = loginUser(email, password);
         String problemId = createProblem(accessToken, suffix);
         assertProblemListed(problemId);
+        createSubmission(accessToken,problemId,1);
         deleteProblem(accessToken, problemId);
     }
 
@@ -157,7 +158,7 @@ public class IntegrationTest {
     }
 
 
-    private void createSubmission(String accessToken, String problemId, String languageId) {
+    private void createSubmission(String accessToken, String problemId, int languageId) {
         HttpHeaders authHeaders = new HttpHeaders();
         authHeaders.setBearerAuth(accessToken);
 
@@ -174,7 +175,9 @@ public class IntegrationTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().get("id")).isNotBlank();
+        assertThat(response.getBody().get("status")).isEqualTo("QUEUED");
+
+
 
 
 
