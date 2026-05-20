@@ -439,7 +439,7 @@
   }
 
   /* ── Poll for evaluation result ── */
-  async function pollForEvaluation(submissionId, language) {
+  async function pollForEvaluation(submissionId) {
     const maxPolls = 300; // ~5 minutes with 1s intervals
 
     showEvaluatingMessage();
