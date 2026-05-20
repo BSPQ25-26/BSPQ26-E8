@@ -521,7 +521,6 @@
     outputStatus.textContent = 'Accepted';
     outputStatus.className = 'solve-output-status accepted';
     outputPanel.style.display = 'flex';
-    btnSubmit.disabled = false;
   }
 
   /* ── Show wrong answer message ── */
