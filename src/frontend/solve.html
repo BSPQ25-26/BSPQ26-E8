@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/solve.css" />
 </head>
-<body data-active-nav="problems">
+<body data-active-nav="problems" data-page-title-key="page.title.solve">
 
   <!-- Navbar injected by layout.js -->
 
@@ -21,15 +21,15 @@
 
       <!-- Tabs -->
       <div class="solve-tabs">
-        <button class="solve-tab is-active" data-tab="description">Description</button>
-        <button class="solve-tab" data-tab="examples">Examples</button>
-        <button class="solve-tab" data-tab="hints">Hints</button>
+        <button class="solve-tab is-active" data-tab="description" data-i18n="solve.tabDescription">Description</button>
+        <button class="solve-tab" data-tab="examples" data-i18n="solve.tabExamples">Examples</button>
+        <button class="solve-tab" data-tab="hints" data-i18n="solve.tabHints">Hints</button>
       </div>
 
       <!-- Description tab -->
       <div class="solve-tab-content" id="tab-description">
         <div id="problem-header">
-          <p class="solve-loading">Loading problem…</p>
+          <p class="solve-loading" data-i18n="solve.loadingProblem">Loading problem…</p>
         </div>
         <div id="problem-statement"></div>
       </div>
@@ -37,14 +37,14 @@
       <!-- Examples tab -->
       <div class="solve-tab-content" id="tab-examples" style="display:none;">
         <div id="problem-examples">
-          <p class="solve-loading">Loading…</p>
+          <p class="solve-loading" data-i18n="solve.loading">Loading…</p>
         </div>
       </div>
 
       <!-- Hints tab -->
       <div class="solve-tab-content" id="tab-hints" style="display:none;">
         <div id="problem-hints">
-          <p class="solve-hints-empty">No hints available for this problem.</p>
+          <p class="solve-hints-empty" data-i18n="solve.noHints">No hints available for this problem.</p>
         </div>
       </div>
 
@@ -65,8 +65,8 @@
           <option value="javascript">JavaScript</option>
         </select>
         <div class="solve-toolbar-actions">
-          <button type="button" class="btn-secondary btn-sm" id="btn-run">▶ Run</button>
-          <button type="button" class="btn-primary btn-sm" id="btn-submit">Submit</button>
+          <button type="button" class="btn-secondary btn-sm" id="btn-run" data-i18n="solve.runButton">▶ Run</button>
+          <button type="button" class="btn-primary btn-sm" id="btn-submit" data-i18n="solve.submitButton">Submit</button>
         </div>
       </div>
 
@@ -79,6 +79,7 @@
           autocomplete="off"
           autocorrect="off"
           autocapitalize="off"
+          data-i18n-placeholder="solve.editorPlaceholder"
           placeholder="// Write your solution here…"
         ></textarea>
       </div>
@@ -87,10 +88,10 @@
       <div class="solve-output" id="solve-output" style="display:none;">
         <div class="solve-output-header">
           <div style="display:flex; align-items:center; gap:0.75rem;">
-            <span class="solve-output-title">Output</span>
+            <span class="solve-output-title" data-i18n="solve.outputTitle">Output</span>
             <span class="solve-output-status" id="output-status"></span>
           </div>
-          <button type="button" class="solve-output-close" id="btn-close-output" title="Close">✕</button>
+          <button type="button" class="solve-output-close" id="btn-close-output" title="Close" data-i18n-title="solve.closeButton">✕</button>
         </div>
         <div class="solve-output-body" id="output-body">
           <div class="run-output" id="run-output" hidden>
@@ -105,7 +106,7 @@
               <span>pass: <span id="run-pass">—</span></span>
             </div>
             <div class="run-output-cases" id="run-cases">
-              <div class="run-output-empty">awaiting Judge0…</div>
+              <div class="run-output-empty" data-i18n="solve.awaitingJudge">awaiting Judge0…</div>
             </div>
             <pre class="run-output-error" id="run-error" hidden></pre>
           </div>

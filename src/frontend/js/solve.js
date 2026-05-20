@@ -54,6 +54,27 @@
     hints:       tabHints,
   };
 
+  const TAB_LABEL_KEYS = {
+    description: 'solve.tabDescription',
+    examples:    'solve.tabExamples',
+    hints:       'solve.tabHints',
+  };
+
+  function getText(key, params) {
+    return typeof i18n !== 'undefined' ? i18n.t(key, params) : key;
+  }
+
+  function syncStaticTranslations() {
+    if (typeof i18n !== 'undefined') {
+      i18n.applyPage();
+    }
+
+    tabButtons.forEach((btn) => {
+      const key = TAB_LABEL_KEYS[btn.dataset.tab];
+      if (key) btn.textContent = getText(key);
+    });
+  }
+
   tabButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
       tabButtons.forEach((b) => b.classList.remove('is-active'));
@@ -98,28 +119,28 @@
     if (data.statementMd) {
       sections.push(`
         <div class="solve-section">
-          <span class="solve-section-title">Description</span>
+          <span class="solve-section-title">${i18n.t('solve.descriptionTitle')}</span>
           <p class="solve-section-body">${esc(data.statementMd)}</p>
         </div>`);
     }
     if (data.inputSpecMd) {
       sections.push(`
         <div class="solve-section">
-          <span class="solve-section-title">Input</span>
+          <span class="solve-section-title">${i18n.t('solve.inputTitle')}</span>
           <p class="solve-section-body">${esc(data.inputSpecMd)}</p>
         </div>`);
     }
     if (data.outputSpecMd) {
       sections.push(`
         <div class="solve-section">
-          <span class="solve-section-title">Output</span>
+          <span class="solve-section-title">${i18n.t('solve.outputTitle')}</span>
           <p class="solve-section-body">${esc(data.outputSpecMd)}</p>
         </div>`);
     }
     if (data.constraintsMd) {
       sections.push(`
         <div class="solve-section">
-          <span class="solve-section-title">Constraints</span>
+          <span class="solve-section-title">${i18n.t('solve.constraintsTitle')}</span>
           <p class="solve-section-body">${esc(data.constraintsMd)}</p>
         </div>`);
     }
@@ -129,28 +150,28 @@
     if (Array.isArray(data.examples) && data.examples.length > 0) {
       const items = data.examples.map((ex, i) => `
         <div class="solve-example">
-          <div class="solve-example-label">Example ${i + 1}</div>
+          <div class="solve-example-label">${i18n.t('solve.example', { number: i + 1 })}</div>
           <div class="solve-example-row">
             <div class="solve-example-block">
-              <div class="solve-example-block-label">Input</div>
+              <div class="solve-example-block-label">${i18n.t('solve.inputLabel')}</div>
               <pre class="solve-example-code">${esc(ex.inputData)}</pre>
             </div>
             <div class="solve-example-block">
-              <div class="solve-example-block-label">Output</div>
+              <div class="solve-example-block-label">${i18n.t('solve.outputLabel')}</div>
               <pre class="solve-example-code">${esc(ex.expectedOutput)}</pre>
             </div>
           </div>
         </div>`).join('');
       problemEx.innerHTML = `<div class="solve-examples">${items}</div>`;
     } else {
-      problemEx.innerHTML = '<p class="solve-hints-empty">No examples available.</p>';
+      problemEx.innerHTML = `<p class="solve-hints-empty">${i18n.t('solve.noExamples')}</p>`;
     }
 
     /* Hints tab */
     if (data.hintsMd) {
       problemHints.innerHTML = `
         <div class="solve-section">
-          <span class="solve-section-title">Hints</span>
+          <span class="solve-section-title">${i18n.t('solve.hintsTitle')}</span>
           <p class="solve-section-body">${esc(data.hintsMd)}</p>
         </div>`;
     }
@@ -206,17 +227,24 @@
   btnClose.addEventListener('click', hideOutput);
 
   /* ── Run output renderer ── */
-  const STATUS_META = {
-    ACCEPTED:              { pill: 'accepted', label: 'Accepted' },
-    WRONG_ANSWER:          { pill: 'wrong',    label: 'Wrong Answer' },
-    RUNTIME_ERROR:         { pill: 'error',    label: 'Runtime Error' },
-    COMPILE_ERROR:         { pill: 'error',    label: 'Compile Error' },
-    TIME_LIMIT_EXCEEDED:   { pill: 'limit',    label: 'Time Limit Exceeded' },
-    MEMORY_LIMIT_EXCEEDED: { pill: 'limit',    label: 'Memory Limit Exceeded' },
-    INTERNAL_ERROR:        { pill: 'internal', label: 'Internal Error' },
-    QUEUED:                { pill: 'running',  label: 'Queued' },
-    RUNNING:               { pill: 'running',  label: 'Running' },
-  };
+  function getStatusMeta(status) {
+    const statusMap = {
+      ACCEPTED:              { pill: 'accepted', labelKey: 'solve.accepted' },
+      WRONG_ANSWER:          { pill: 'wrong',    labelKey: 'solve.wrongAnswer' },
+      RUNTIME_ERROR:         { pill: 'error',    labelKey: 'solve.runtimeError' },
+      COMPILE_ERROR:         { pill: 'error',    labelKey: 'solve.compileError' },
+      TIME_LIMIT_EXCEEDED:   { pill: 'limit',    labelKey: 'solve.timeLimitExceeded' },
+      MEMORY_LIMIT_EXCEEDED: { pill: 'limit',    labelKey: 'solve.memoryLimitExceeded' },
+      INTERNAL_ERROR:        { pill: 'internal', labelKey: 'solve.internalError' },
+      QUEUED:                { pill: 'running',  labelKey: 'solve.queued' },
+      RUNNING:               { pill: 'running',  labelKey: 'solve.runStatus' },
+    };
+    const meta = statusMap[status];
+    if (!meta) {
+      return { pill: 'internal', label: status || 'Unknown' };
+    }
+    return { pill: meta.pill, label: i18n.t(meta.labelKey) };
+  }
 
   function normalizeOutput(s) {
     return String(s == null ? '' : s)
@@ -261,7 +289,7 @@
 
   function renderRunSkeleton(language) {
     setRunMode(true);
-    outputStatus.textContent = 'Running';
+    outputStatus.textContent = i18n.t('solve.runStatus');
     outputStatus.className = 'solve-output-status running';
     outputPanel.style.display = 'flex';
     runMeta.textContent = `— ${language} · running…`;
@@ -270,12 +298,12 @@
     runPass.textContent = '—';
     runError.hidden = true;
     runError.textContent = '';
-    runCases.innerHTML = '<div class="run-output-empty">awaiting Judge0…</div>';
+    runCases.innerHTML = `<div class="run-output-empty">${i18n.t('solve.awaitingJudge')}</div>`;
   }
 
   function renderRunOutput(view, language) {
     setRunMode(true);
-    const meta = STATUS_META[view.status] || { pill: 'internal', label: view.status || 'Unknown' };
+    const meta = getStatusMeta(view.status);
     outputStatus.textContent = meta.label;
     outputStatus.className = `solve-output-status ${meta.pill}`;
     outputPanel.style.display = 'flex';
@@ -286,7 +314,7 @@
       runMem.textContent  = '—';
       runPass.textContent = '—';
       runCases.innerHTML = '';
-      runError.textContent = view.errorMessage || 'Execution failed';
+      runError.textContent = view.errorMessage || i18n.t('solve.executionFailed');
       runError.hidden = false;
       return;
     }
@@ -295,7 +323,8 @@
     runError.textContent = '';
 
     const cases = Array.isArray(view.testCases) ? view.testCases : [];
-    runMeta.textContent = `— ${language} · ${cases.length} case${cases.length === 1 ? '' : 's'}`;
+    const caseWord = cases.length === 1 ? i18n.t('solve.cases') : i18n.t('solve.cases') + 's';
+    runMeta.textContent = `— ${language} · ${cases.length} ${caseWord}`;
     runTime.textContent = view.runtimeMs != null ? `${view.runtimeMs} ms` : '—';
     runMem.textContent  = view.memoryMb  != null ? `${view.memoryMb} MB`  : '—';
     runPass.textContent = `${view.testcasesPassed} / ${view.testcasesTotal}`;
@@ -307,7 +336,7 @@
 
     const caseBlocks = cases.map((tc, i) => {
       const verdict     = caseVerdict(tc);
-      const verdictMeta = STATUS_META[verdict] || { label: verdict };
+      const verdictMeta = getStatusMeta(verdict);
       const pass        = verdict === 'ACCEPTED';
       const cls         = `run-case run-case--${pass ? 'pass' : 'fail'}`;
       const openAttr    = pass ? '' : 'open';
@@ -392,31 +421,179 @@
 
     showOutput('Submitting…', 'Running', 'running');
     btnSubmit.disabled = true;
+    blockUIWhileEvaluating(true);
 
     try {
       const result = await api.submitSolution(problemId, code, language);
-      const status = String(result.status || '').toUpperCase();
-      const output = result.verdictMessage || result.output || result.message || JSON.stringify(result, null, 2);
+      const submissionId = result.id;
+      const initialStatus = String(result.status || '').toUpperCase();
 
-      if (status === 'ACCEPTED' || result.accepted === true) {
-        showOutput(output, 'Accepted', 'accepted');
-      } else if (status === 'WRONG_ANSWER') {
-        showOutput(output, 'Wrong Answer', 'error');
-      } else if (status === 'QUEUED' || status === 'RUNNING') {
-        showOutput(output, 'Submitted', 'running');
-      } else {
-        showOutput(output, status || 'Submitted', 'running');
-      }
+      showSubmissionCreatedMessage(initialStatus);
+
+      await pollForEvaluation(submissionId, language);
     } catch (err) {
+      blockUIWhileEvaluating(false);
       showOutput(
         err && err.message ? err.message : 'Could not reach the server.',
         'Error',
         'error'
       );
-    } finally {
       btnSubmit.disabled = false;
     }
   });
+
+  /* ── Block UI while evaluating ── */
+  function blockUIWhileEvaluating(block) {
+    if (block) {
+      document.body.style.pointerEvents = 'none';
+      document.body.style.opacity = '0.6';
+    } else {
+      document.body.style.pointerEvents = 'auto';
+      document.body.style.opacity = '1';
+    }
+  }
+
+  /* ── Show submission created message ── */
+  function showSubmissionCreatedMessage(status) {
+    setRunMode(false);
+    outputPlain.innerHTML = `
+      <div style="margin: 0.5rem 0;">
+        Submission created successfully. Status: <strong>${esc(status)}</strong>
+      </div>
+      <div style="margin: 1rem 0;"></div>
+    `;
+    outputStatus.textContent = 'Created';
+    outputStatus.className = 'solve-output-status running';
+    outputPanel.style.display = 'flex';
+  }
+
+  /* ── Poll for evaluation result ── */
+  async function pollForEvaluation(submissionId) {
+    const maxPolls = 300; // ~5 minutes with 1s intervals
+
+    showEvaluatingMessage();
+
+    let pollCount = 0;
+    while (pollCount < maxPolls) {
+      try {
+        const submission = await api.get(`/submissions/${submissionId}`);
+        const status = String(submission.status || '').toUpperCase();
+
+        if (status === 'QUEUED' || status === 'RUNNING') {
+          pollCount++;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          continue;
+        }
+
+        blockUIWhileEvaluating(false);
+
+        if (status === 'ACCEPTED') {
+          showAcceptedMessage();
+        } else if (status === 'WRONG_ANSWER') {
+          showWrongAnswerMessage();
+        } else {
+          showFailedMessage(status, submission.verdictMessage);
+        }
+
+        return;
+      } catch (err) {
+        pollCount++;
+        if (pollCount < maxPolls) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+    }
+
+    blockUIWhileEvaluating(false);
+    showOutput('Evaluation timeout. Please refresh the page to check status.', 'Timeout', 'limit');
+    btnSubmit.disabled = false;
+  }
+
+  /* ── Show evaluating message ── */
+  function showEvaluatingMessage() {
+    setRunMode(false);
+    outputPlain.innerHTML = `
+      <div style="white-space: normal; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem;">
+        <div style="font-size: 1.2rem; text-align: center;">
+          Evaluating solution... This may take a while
+        </div>
+        <div style="font-size: 0.8rem; color: #888; text-align: center;">
+          Please wait...
+        </div>
+      </div>
+    `;
+    outputStatus.textContent = 'Evaluating';
+    outputStatus.className = 'solve-output-status running';
+    outputPanel.style.display = 'flex';
+  }
+
+  /* ── Show accepted message ── */
+  function showAcceptedMessage() {
+    setRunMode(false);
+    codeEditor.readOnly = true;
+    codeEditor.style.opacity = '0.6';
+    codeEditor.style.cursor = 'not-allowed';
+    btnSubmit.disabled = true;
+    outputPlain.innerHTML = `
+      <div style="white-space: normal; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem;">
+        <div style="font-size: 1.1rem; text-align: center;">
+          <strong style="color: #22c55e;">Congratulations! Your solution is correct!</strong>
+        </div>
+        <p style="margin: 0.1rem 0; font-size: 0.8rem;">
+          You successfully solved this problem!
+        </p>
+        <a href="problems.html" style="display: inline-block; padding: 0.4rem 0.8rem; background: #22c55e; color: white; text-decoration: none; border-radius: 3px; font-weight: bold; font-size: 0.78rem;">
+          Back to Problems
+        </a>
+      </div>
+    `;
+    outputStatus.textContent = 'Accepted';
+    outputStatus.className = 'solve-output-status accepted';
+    outputPanel.style.display = 'flex';
+  }
+
+  /* ── Show wrong answer message ── */
+  function showWrongAnswerMessage() {
+    setRunMode(false);
+    codeEditor.readOnly = false;
+    codeEditor.style.opacity = '1';
+    codeEditor.style.cursor = 'text';
+    btnSubmit.disabled = false;
+    outputPlain.innerHTML = `
+      <div style="white-space: normal; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem;">
+        <div style="font-size: 1rem; text-align: center;">
+          <strong style="color: #ef4444;">We are sorry. Your solution is incorrect.</strong>
+        </div>
+        <p style="margin: 0.1rem 0; font-size: 0.8rem; color: #666;">
+          Clicking try again will reset the code. You can still edit it and submit again
+        </p>
+        <button class="btn-primary btn-sm" onclick="location.reload();" style="cursor: pointer; padding: 0.6rem 1.2rem; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; height: auto;">
+          Try Again
+        </button>
+      </div>
+    `;
+    outputStatus.textContent = 'Wrong Answer';
+    outputStatus.className = 'solve-output-status wrong';
+    outputPanel.style.display = 'flex';
+  }
+
+  /* ── Show failed message ── */
+  function showFailedMessage(status, verdictMessage) {
+    setRunMode(false);
+    const statusLabel = status.replace(/_/g, ' ');
+    outputPlain.innerHTML = `
+      <div style="margin: 1rem 0; color: #ef4444;">
+        <strong>${esc(statusLabel)}</strong>
+      </div>
+      <div style="margin: 1rem 0; padding: 1rem; background: #fef2f2; border-radius: 6px;">
+        ${esc(verdictMessage || 'Evaluation failed. Please try again.')}
+      </div>
+    `;
+    outputStatus.textContent = statusLabel;
+    outputStatus.className = 'solve-output-status error';
+    outputPanel.style.display = 'flex';
+    btnSubmit.disabled = false;
+  }
 
   /* ── Draggable divider ── */
   if (divider && leftPanel) {
@@ -465,8 +642,23 @@
   }
 
   /* ── Init ── */
-  document.addEventListener('DOMContentLoaded', () => {
+  function initSolvePage() {
+    syncStaticTranslations();
     loadProblem();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSolvePage, { once: true });
+  } else {
+    initSolvePage();
+  }
+
+  /* ── Re-render when language changes ── */
+  document.addEventListener('realcode:localechange', () => {
+    syncStaticTranslations();
+    if (problemData) {
+      renderProblem(problemData);
+    }
   });
 
 })();
