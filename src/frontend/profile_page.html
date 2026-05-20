@@ -321,6 +321,82 @@
     }
     .section-header::before { content: '//'; color: var(--accent); }
 
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-header-row .section-header {
+      margin-bottom: 0;
+    }
+
+    .submission-view-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    .submission-view-btn {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-mid);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.35rem 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    .submission-view-btn:hover,
+    .submission-view-btn.is-active {
+      color: var(--text);
+      border-color: var(--accent);
+      background: rgba(108, 99, 255, 0.1);
+    }
+
+    .submission-view-btn:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+
+    .submission-problem-filter {
+      min-width: 12rem;
+      max-width: 18rem;
+      padding: 0.35rem 0.55rem;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-mid);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      outline: none;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    .submission-problem-filter:hover,
+    .submission-problem-filter:focus {
+      color: var(--text);
+      border-color: var(--accent);
+      background: rgba(108, 99, 255, 0.1);
+    }
+
+    .submission-problem-filter option {
+      color: var(--text);
+      background: var(--panel);
+    }
+
     /* Table columns */
     .col-title { width: 100%; }
     .col-diff  { white-space: nowrap; }
@@ -351,12 +427,73 @@
       border-color: var(--red);
     }
 
-    .my-problems-empty {
+    .profile-empty {
       font-family: var(--font-mono);
       font-size: 0.82rem;
       color: var(--text-mid);
       text-align: center;
       padding: 1.5rem 0;
+    }
+
+    .submission-status {
+      text-transform: uppercase;
+    }
+
+    .best-submission-tag {
+      margin-left: 0.4rem;
+      color: var(--green);
+      background: rgba(34,197,94,0.12);
+      border-color: rgba(34,197,94,0.3);
+      text-transform: uppercase;
+    }
+
+    .retry-submission-btn {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      background: rgba(108,99,255,0.08);
+      border: 1px solid rgba(108,99,255,0.35);
+      border-radius: 4px;
+      padding: 0.35rem 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    .retry-submission-btn:hover {
+      color: var(--text);
+      border-color: var(--accent);
+      background: rgba(108,99,255,0.16);
+    }
+
+    .submission-status--accepted,
+    .submission-status--completed,
+    .submission-status--passed {
+      color: var(--green);
+      background: rgba(34,197,94,0.12);
+      border-color: rgba(34,197,94,0.3);
+    }
+
+    .submission-status--queued,
+    .submission-status--running {
+      color: var(--orange);
+      background: rgba(245,158,11,0.12);
+      border-color: rgba(245,158,11,0.3);
+    }
+
+    .submission-status--failed,
+    .submission-status--wrong_answer,
+    .submission-status--runtime_error,
+    .submission-status--compile_error,
+    .submission-status--compilation_error,
+    .submission-status--time_limit_exceeded,
+    .submission-status--memory_limit_exceeded,
+    .submission-status--internal_error {
+      color: var(--red);
+      background: rgba(239,68,68,0.12);
+      border-color: rgba(239,68,68,0.3);
     }
 
     /* ── Responsive ── */
@@ -368,6 +505,17 @@
     }
 
     @media (max-width: 480px) {
+      .submission-view-actions {
+        width: 100%;
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .submission-view-btn,
+      .submission-problem-filter {
+        width: 100%;
+      }
+
       .stats-row {
         grid-template-columns: 1fr;
         gap: 0;
@@ -471,24 +619,40 @@
           <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border-radius: 4px; overflow: hidden;">
             <div class="stat-box">
               <div class="stat-number green" id="profile-easy-submissions-count">0</div>
-              <div class="stat-label">Easy</div>
+              <div class="stat-label" data-i18n="problems.difficultyEasy">Easy</div>
             </div>
             <div class="stat-box">
               <div class="stat-number orange" id="profile-medium-submissions-count">0</div>
-              <div class="stat-label">Medium</div>
+              <div class="stat-label" data-i18n="problems.difficultyMedium">Medium</div>
             </div>
             <div class="stat-box">
               <div class="stat-number red" id="profile-hard-submissions-count">0</div>
-              <div class="stat-label">Hard</div>
+              <div class="stat-label" data-i18n="problems.difficultyHard">Hard</div>
             </div>
           </div>
         </div>
 
         <!-- My Problems -->
         <div class="card">
-          <p class="section-header">My Problems</p>
+          <p class="section-header" data-i18n="profile.myProblems">My Problems</p>
           <div id="my-problems-container">
-            <p class="my-problems-empty">Loading...</p>
+            <p class="profile-empty" data-i18n="common.loading">Loading...</p>
+          </div>
+        </div>
+
+        <!-- My Submissions -->
+        <div class="card">
+          <div class="card-header-row">
+            <p class="section-header" data-i18n="profile.mySubmissions">My Submissions</p>
+            <div class="submission-view-actions" aria-label="Submission view options" data-i18n-aria-label="profile.submissionViewOptions">
+              <button type="button" class="submission-view-btn" id="show-latest-submission" data-i18n="profile.latestSubmission">Latest</button>
+              <select class="submission-problem-filter" id="submission-problem-filter" data-i18n-aria-label="profile.filterByProblem" aria-label="Filter by problem">
+                <option value="" data-i18n="profile.allSubmittedProblems">All submissions</option>
+              </select>
+            </div>
+          </div>
+          <div id="my-submissions-container">
+            <p class="profile-empty" data-i18n="common.loading">Loading...</p>
           </div>
         </div>
 
@@ -504,21 +668,138 @@
   <script src="js/utils.js"></script>
 
   <script>
-    /* ── My Problems helpers ── */
+    /* ── Profile list helpers ── */
     const DIFF_BADGE = {
       EASY:   'badge--easy',
       MEDIUM: 'badge--medium',
       HARD:   'badge--hard',
     };
 
+    let lastProblems = [];
+    let lastSubmissions = [];
+    let allMineSubmissions = [];
+    let lastProblemLookup = new Map();
+    let currentSubmissionView = 'all';
+    let selectedSubmissionProblemId = '';
+    let bestSubmissionId = null;
+
+    function getText(key, params) {
+      return typeof i18n !== 'undefined' ? i18n.t(key, params) : key;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     function formatProblemDate(isoDate) {
-      if (!isoDate) return '—';
+      if (!isoDate) return getText('common.unknownDate');
       const d = new Date(isoDate);
-      return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+      return isNaN(d.getTime()) ? getText('common.unknownDate') : d.toLocaleDateString();
+    }
+
+    function getDifficultyLabel(difficulty) {
+      const normalized = String(difficulty || '').toUpperCase();
+      if (normalized === 'EASY') return getText('problems.difficultyEasy');
+      if (normalized === 'MEDIUM') return getText('problems.difficultyMedium');
+      if (normalized === 'HARD') return getText('problems.difficultyHard');
+      return difficulty || getText('common.none');
+    }
+
+    function getStatusLabel(status) {
+      const normalized = String(status || '').toUpperCase();
+      const key = `profile.submissionStatus${normalized
+        .toLowerCase()
+        .split('_')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join('')}`;
+
+      const translated = getText(key);
+      return translated === key ? (status || getText('common.none')) : translated;
+    }
+
+    function getSubmissionBadgeClass(status) {
+      const normalized = String(status || '').toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+      return `submission-status--${normalized}`;
+    }
+
+    function formatSubmissionTests(submission) {
+      if (!submission || submission.testcasesTotal === null || submission.testcasesTotal === undefined) {
+        return getText('common.none');
+      }
+
+      return `${submission.testcasesPassed || 0}/${submission.testcasesTotal}`;
+    }
+
+    function getProblemLabel(problemId) {
+      const problem = lastProblemLookup.get(String(problemId));
+      return problem && problem.title
+        ? problem.title
+        : getText('profile.problemFallback', { id: String(problemId || '').slice(0, 8) });
+    }
+
+    function normalizeApiList(value) {
+      if (Array.isArray(value)) return value;
+      if (value && Array.isArray(value.content)) return value.content;
+      if (value && Array.isArray(value.items)) return value.items;
+      if (value && Array.isArray(value.data)) return value.data;
+      return [];
+    }
+
+    function buildProblemLookup(problems) {
+      const lookup = new Map();
+      normalizeApiList(problems).forEach((problem) => {
+        if (problem && problem.id) {
+          lookup.set(String(problem.id), problem);
+        }
+      });
+      return lookup;
+    }
+
+    function setDisplayedSubmissionCount(count) {
+      const submissionsCountElement = document.getElementById('profile-submissions-count');
+      if (submissionsCountElement) {
+        submissionsCountElement.textContent = String(count);
+      }
+    }
+
+    async function loadProblemLookupForSubmissions(submissions) {
+      let lookup = new Map();
+      try {
+        lookup = buildProblemLookup(await api.get('/problems'));
+      } catch (_error) {
+        lookup = new Map();
+      }
+      const missingProblemIds = [];
+      const seen = new Set();
+
+      normalizeApiList(submissions).forEach((submission) => {
+        if (!submission || !submission.problemId) return;
+        const problemId = String(submission.problemId);
+        if (lookup.has(problemId) || seen.has(problemId)) return;
+        seen.add(problemId);
+        missingProblemIds.push(problemId);
+      });
+
+      const missingProblems = await Promise.all(
+        missingProblemIds.map((problemId) => api.get(`/problems/${encodeURIComponent(problemId)}`).catch(() => null))
+      );
+
+      missingProblems.forEach((problem) => {
+        if (problem && problem.id) {
+          lookup.set(String(problem.id), problem);
+        }
+      });
+
+      return lookup;
     }
 
     async function deleteProblem(id, row) {
-      if (!confirm('Are you sure you want to delete this problem? This action cannot be undone.')) return;
+      if (!confirm(getText('profile.confirmDeleteProblem'))) return;
       try {
         await api.delete(`/problems/${id}`);
         row.remove();
@@ -528,16 +809,17 @@
           if (!isNaN(n)) countEl.textContent = String(Math.max(0, n - 1));
         }
       } catch (_err) {
-        alert('Could not delete the problem. You may not have permission.');
+        alert(getText('profile.deleteProblemFailed'));
       }
     }
 
     function renderMyProblems(problems) {
       const container = document.getElementById('my-problems-container');
       if (!container) return;
+      lastProblems = Array.isArray(problems) ? problems.slice() : [];
 
       if (!problems || problems.length === 0) {
-        container.innerHTML = '<p class="my-problems-empty">No problems created yet.</p>';
+        container.innerHTML = `<p class="profile-empty">${getText('profile.noProblems')}</p>`;
         return;
       }
 
@@ -546,12 +828,12 @@
         const tr = document.createElement('tr');
         const badgeClass = DIFF_BADGE[problem.difficulty] || 'badge--blue';
         tr.innerHTML = `
-          <td class="col-title" style="font-weight:600; color:var(--text);">${problem.title || '—'}</td>
-          <td class="col-diff"><span class="badge ${badgeClass}">${problem.difficulty || '—'}</span></td>
+          <td class="col-title" style="font-weight:600; color:var(--text);">${escapeHtml(problem.title || getText('common.none'))}</td>
+          <td class="col-diff"><span class="badge ${badgeClass}">${getDifficultyLabel(problem.difficulty)}</span></td>
           <td class="col-date">${formatProblemDate(problem.createdAt)}</td>
           <td style="white-space:nowrap; text-align:right;">
-            <button class="btn-secondary btn-sm" data-edit="${problem.id}">Edit</button>
-            <button class="btn-danger" data-delete="${problem.id}" style="margin-left:0.5rem;">Delete</button>
+            <button class="btn-secondary btn-sm" data-edit="${problem.id}">${getText('profile.editProblem')}</button>
+            <button class="btn-danger" data-delete="${problem.id}" style="margin-left:0.5rem;">${getText('profile.deleteProblem')}</button>
           </td>
         `;
         tr.querySelector('[data-edit]').addEventListener('click', () => {
@@ -564,9 +846,9 @@
       const thead = document.createElement('thead');
       thead.innerHTML = `
         <tr>
-          <th class="col-title">Title</th>
-          <th class="col-diff">Difficulty</th>
-          <th class="col-date">Created</th>
+          <th class="col-title">${getText('profile.problemTitle')}</th>
+          <th class="col-diff">${getText('create.difficulty')}</th>
+          <th class="col-date">${getText('profile.created')}</th>
           <th></th>
         </tr>`;
 
@@ -581,6 +863,183 @@
 
       container.innerHTML = '';
       container.appendChild(wrapper);
+    }
+
+    function setSubmissionViewButtons(activeView, isLoading) {
+      const latestButton = document.getElementById('show-latest-submission');
+      const buttons = [latestButton].filter(Boolean);
+
+      buttons.forEach((button) => {
+        button.disabled = Boolean(isLoading);
+        button.classList.toggle('is-active', button.dataset.view === activeView);
+      });
+    }
+
+    function populateSubmissionProblemFilter(submissions) {
+      const select = document.getElementById('submission-problem-filter');
+      if (!select) return;
+
+      const currentValue = selectedSubmissionProblemId || '';
+      const problemIds = [];
+      const seen = new Set();
+
+      (Array.isArray(submissions) ? submissions : []).forEach((submission) => {
+        if (!submission || !submission.problemId) return;
+        const problemId = String(submission.problemId);
+        if (seen.has(problemId)) return;
+        seen.add(problemId);
+        problemIds.push(problemId);
+      });
+
+      select.innerHTML = '';
+      const allOption = document.createElement('option');
+      allOption.value = '';
+      allOption.textContent = getText('profile.allSubmittedProblems');
+      select.appendChild(allOption);
+
+      problemIds.forEach((problemId) => {
+        const option = document.createElement('option');
+        option.value = problemId;
+        option.textContent = getProblemLabel(problemId);
+        select.appendChild(option);
+      });
+
+      select.value = seen.has(currentValue) ? currentValue : '';
+      selectedSubmissionProblemId = select.value;
+    }
+
+    function renderMySubmissions(submissions, problemLookup, options) {
+      const container = document.getElementById('my-submissions-container');
+      if (!container) return;
+      const renderOptions = options || {};
+      lastSubmissions = Array.isArray(submissions) ? submissions.slice() : [];
+      lastProblemLookup = problemLookup instanceof Map ? problemLookup : new Map();
+      currentSubmissionView = renderOptions.view || currentSubmissionView || 'all';
+      bestSubmissionId = renderOptions.bestSubmissionId === undefined
+        ? bestSubmissionId
+        : renderOptions.bestSubmissionId;
+      setSubmissionViewButtons(currentSubmissionView, false);
+      populateSubmissionProblemFilter(allMineSubmissions);
+      setDisplayedSubmissionCount(lastSubmissions.length);
+
+      if (!submissions || submissions.length === 0) {
+        const emptyKey = currentSubmissionView === 'all'
+          ? 'profile.noSubmissions'
+          : 'profile.noSubmissionForView';
+        container.innerHTML = `<p class="profile-empty">${getText(emptyKey)}</p>`;
+        return;
+      }
+
+      const tbody = document.createElement('tbody');
+      submissions.forEach((submission) => {
+        const tr = document.createElement('tr');
+        const problemLabel = getProblemLabel(submission.problemId);
+        const statusClass = getSubmissionBadgeClass(submission.status);
+        const languageLabel = submission.languageName || submission.languageCode || getText('common.none');
+        const isBest = bestSubmissionId && String(submission.id) === String(bestSubmissionId);
+        const bestBadge = isBest
+          ? `<span class="badge best-submission-tag">${getText('profile.bestSubmission')}</span>`
+          : '';
+
+        tr.innerHTML = `
+          <td class="col-title" style="font-weight:600; color:var(--text);">${escapeHtml(problemLabel)}</td>
+          <td class="col-diff"><span class="badge badge--blue">${escapeHtml(languageLabel)}</span></td>
+          <td class="col-diff"><span class="badge submission-status ${statusClass}">${getStatusLabel(submission.status)}</span>${bestBadge}</td>
+          <td class="col-diff">${formatSubmissionTests(submission)}</td>
+          <td class="col-date">${formatProblemDate(submission.submittedAt)}</td>
+          <td style="white-space:nowrap; text-align:right;">
+            <button type="button" class="retry-submission-btn" data-retry-submission="${escapeHtml(submission.id)}">${getText('profile.retrySubmission')}</button>
+          </td>
+        `;
+        tr.querySelector('[data-retry-submission]').addEventListener('click', () => {
+          const targetProblemId = encodeURIComponent(submission.problemId || '');
+          window.location.href = `solve.html?id=${targetProblemId}`;
+        });
+        tbody.appendChild(tr);
+      });
+
+      const thead = document.createElement('thead');
+      thead.innerHTML = `
+        <tr>
+          <th class="col-title">${getText('profile.problemTitle')}</th>
+          <th class="col-diff">${getText('nav.languageLabel')}</th>
+          <th class="col-diff">${getText('profile.submissionStatus')}</th>
+          <th class="col-diff">${getText('profile.submissionTests')}</th>
+          <th class="col-date">${getText('profile.submittedAt')}</th>
+          <th></th>
+        </tr>`;
+
+      const table = document.createElement('table');
+      table.className = 'table';
+      table.appendChild(thead);
+      table.appendChild(tbody);
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'table-wrapper';
+      wrapper.appendChild(table);
+
+      container.innerHTML = '';
+      container.appendChild(wrapper);
+    }
+
+    function showSubmissionsMessage(messageKey) {
+      const container = document.getElementById('my-submissions-container');
+      if (container) {
+        container.innerHTML = `<p class="profile-empty">${getText(messageKey)}</p>`;
+      }
+    }
+
+    async function showLatestSubmission() {
+      if (typeof api === 'undefined') return;
+      if (currentSubmissionView === 'latest') {
+        currentSubmissionView = 'all';
+        selectedSubmissionProblemId = '';
+        bestSubmissionId = null;
+        renderMySubmissions(allMineSubmissions, lastProblemLookup, { view: 'all', bestSubmissionId: null });
+        return;
+      }
+
+      currentSubmissionView = 'latest';
+      selectedSubmissionProblemId = '';
+      bestSubmissionId = null;
+      setSubmissionViewButtons(currentSubmissionView, true);
+
+      try {
+        const submission = await api.get('/submissions/mine/latest');
+        renderMySubmissions(submission ? [submission] : [], lastProblemLookup, { view: 'latest' });
+      } catch (_error) {
+        renderMySubmissions([], lastProblemLookup, { view: 'latest' });
+      }
+    }
+
+    async function showSubmissionsForProblem(problemId) {
+      if (typeof api === 'undefined') return;
+      selectedSubmissionProblemId = problemId || '';
+      currentSubmissionView = selectedSubmissionProblemId ? 'problem' : 'all';
+      bestSubmissionId = null;
+      setSubmissionViewButtons(currentSubmissionView, true);
+
+      if (!selectedSubmissionProblemId) {
+        renderMySubmissions(allMineSubmissions, lastProblemLookup, { view: 'all', bestSubmissionId: null });
+        return;
+      }
+
+      try {
+        const [submissions, bestSubmission] = await Promise.all([
+          api.get(`/submissions/mine?problemId=${encodeURIComponent(selectedSubmissionProblemId)}`),
+          api.get(`/submissions/problem/${encodeURIComponent(selectedSubmissionProblemId)}/best`).catch(() => null),
+        ]);
+        renderMySubmissions(
+          normalizeApiList(submissions),
+          lastProblemLookup,
+          {
+            view: 'problem',
+            bestSubmissionId: bestSubmission && bestSubmission.id ? bestSubmission.id : null,
+          }
+        );
+      } catch (_error) {
+        renderMySubmissions([], lastProblemLookup, { view: 'problem', bestSubmissionId: null });
+      }
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -663,11 +1122,48 @@
         });
       };
 
-      document.addEventListener('realcode:localechange', () => {
-        if (lastLanguageLabels.length > 0) {
-          setUsedLanguages(lastLanguageLabels);
+      const renderPreferredLanguages = (languages) => {
+        if (!preferredLanguagesContainer) {
+          return;
         }
+
+        preferredLanguagesContainer.innerHTML = '';
+        if (!Array.isArray(languages) || languages.length === 0) {
+          const emptyBadge = document.createElement('span');
+          emptyBadge.className = 'badge badge--blue';
+          emptyBadge.textContent = i18n.t('profile.none');
+          preferredLanguagesContainer.appendChild(emptyBadge);
+          return;
+        }
+
+        languages.forEach((lang) => {
+          const badge = document.createElement('span');
+          badge.className = 'badge badge--blue';
+          badge.textContent = lang && (lang.name || lang.code || lang.id)
+            ? String(lang.name || lang.code || lang.id)
+            : i18n.t('profile.none');
+          preferredLanguagesContainer.appendChild(badge);
+        });
+      };
+
+      document.addEventListener('realcode:localechange', () => {
+        setUsedLanguages(lastLanguageLabels);
+        renderPreferredLanguages(currentUser && currentUser.preferredLanguages ? currentUser.preferredLanguages : []);
+        renderMyProblems(lastProblems);
+        renderMySubmissions(lastSubmissions, lastProblemLookup, { view: currentSubmissionView });
       });
+
+      const latestSubmissionButton = document.getElementById('show-latest-submission');
+      const submissionProblemFilter = document.getElementById('submission-problem-filter');
+      if (latestSubmissionButton) {
+        latestSubmissionButton.dataset.view = 'latest';
+        latestSubmissionButton.addEventListener('click', showLatestSubmission);
+      }
+      if (submissionProblemFilter) {
+        submissionProblemFilter.addEventListener('change', () => {
+          showSubmissionsForProblem(submissionProblemFilter.value);
+        });
+      }
 
       if (typeof api === 'undefined') {
         if (submissionsCountElement) {
@@ -679,12 +1175,6 @@
         if (createdCountElement) {
           createdCountElement.textContent = ERROR_COUNT;
         }
-        languages.forEach((lang) => {
-          const badge = document.createElement('span');
-          badge.className = 'badge badge--blue';
-          badge.textContent = lang.name || lang.code || String(lang.id);
-          preferredLanguagesContainer.appendChild(badge);
-        });
       };
 
       if (typeof api === 'undefined') {
@@ -693,6 +1183,7 @@
         if (createdCountElement) createdCountElement.textContent = ERROR_COUNT;
         setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
         setUsedLanguages([i18n.t('common.error')]);
+        renderMySubmissions([], undefined, { view: 'all' });
         return;
       }
 
@@ -812,6 +1303,7 @@
       }
 
       const populateLangCheckboxes = () => {
+        if (!langCheckboxList) return;
         langCheckboxList.innerHTML = '';
         const selectedIds = new Set(
           (currentUser && currentUser.preferredLanguages || []).map(l => String(l.id))
@@ -831,13 +1323,13 @@
         });
       };
 
-      if (langEditBtn) {
+      if (langEditBtn && langEditPanel) {
         langEditBtn.addEventListener('click', () => {
           const isOpen = langEditPanel.classList.contains('open');
           if (isOpen) {
             langEditPanel.classList.remove('open');
             langEditBtn.textContent = 'Edit';
-            langSaveStatus.textContent = '';
+            if (langSaveStatus) langSaveStatus.textContent = '';
           } else {
             populateLangCheckboxes();
             langEditPanel.classList.add('open');
@@ -846,13 +1338,13 @@
         });
       }
 
-      if (langSaveBtn) {
+      if (langSaveBtn && langCheckboxList) {
         langSaveBtn.addEventListener('click', async () => {
           const checkboxes = langCheckboxList.querySelectorAll('input[type="checkbox"]:checked');
           const selectedIds = Array.from(checkboxes).map(cb => Number(cb.value));
 
           langSaveBtn.disabled = true;
-          langSaveStatus.textContent = 'Saving…';
+          if (langSaveStatus) langSaveStatus.textContent = 'Saving…';
 
           try {
             const updated = await api.put(`/users/${currentUser.id}/profile`, { preferredLanguageIds: selectedIds });
@@ -861,14 +1353,14 @@
               if (typeof auth !== 'undefined') auth.setUser(currentUser);
             }
             renderPreferredLanguages(currentUser.preferredLanguages || []);
-            langSaveStatus.textContent = 'Saved!';
+            if (langSaveStatus) langSaveStatus.textContent = 'Saved!';
             setTimeout(() => {
-              langEditPanel.classList.remove('open');
+              if (langEditPanel) langEditPanel.classList.remove('open');
               langEditBtn.textContent = 'Edit';
-              langSaveStatus.textContent = '';
+              if (langSaveStatus) langSaveStatus.textContent = '';
             }, 1200);
           } catch (_err) {
-            langSaveStatus.textContent = 'Error saving';
+            if (langSaveStatus) langSaveStatus.textContent = 'Error saving';
           } finally {
             langSaveBtn.disabled = false;
           }
@@ -878,8 +1370,9 @@
       // ── Submissions & stats ───────────────────────────────────────────────
       if (submissionsCountElement) {
         try {
-          const submissions = await api.get('/submissions/mine');
+          const submissions = normalizeApiList(await api.get('/submissions/mine'));
           if (Array.isArray(submissions)) {
+            allMineSubmissions = submissions.slice();
             const inProgressStatuses = new Set(['QUEUED', 'RUNNING']);
             const inProgressCount = submissions.filter(submission => {
               const status = submission && submission.status ? String(submission.status).toUpperCase() : '';
@@ -902,30 +1395,40 @@
 
             if (submissions.length === 0) {
               setDifficultyCounts(0, 0, 0);
+              renderMySubmissions([], lastProblemLookup, { view: 'all', bestSubmissionId: null });
             } else {
+              let problemLookupById = new Map();
               try {
-                const problems = await api.get('/problems');
-                if (!Array.isArray(problems)) {
-                  setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
-                } else {
-                  const problemDifficultyById = new Map();
-                  problems.forEach(problem => {
-                    if (problem && problem.id && problem.difficulty) {
-                      problemDifficultyById.set(String(problem.id), String(problem.difficulty).toUpperCase());
-                    }
-                  });
-
-                  let easyCount = 0, mediumCount = 0, hardCount = 0;
-                  submissions.forEach(submission => {
-                    const difficulty = problemDifficultyById.get(String(submission.problemId));
-                    if (difficulty === 'EASY') easyCount += 1;
-                    else if (difficulty === 'MEDIUM') mediumCount += 1;
-                    else if (difficulty === 'HARD') hardCount += 1;
-                  });
-                  setDifficultyCounts(easyCount, mediumCount, hardCount);
-                }
+                problemLookupById = await loadProblemLookupForSubmissions(submissions);
               } catch (_error) {
                 setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
+              }
+
+              const problemDifficultyById = new Map();
+              problemLookupById.forEach((problem, problemId) => {
+                if (problem && problem.difficulty) {
+                  problemDifficultyById.set(problemId, String(problem.difficulty).toUpperCase());
+                }
+              });
+
+              if (currentSubmissionView === 'all') {
+                renderMySubmissions(submissions, problemLookupById, { view: 'all', bestSubmissionId: null });
+              } else {
+                renderMySubmissions(lastSubmissions, problemLookupById, {
+                  view: currentSubmissionView,
+                  bestSubmissionId,
+                });
+              }
+
+              if (problemDifficultyById.size > 0) {
+                let easyCount = 0, mediumCount = 0, hardCount = 0;
+                submissions.forEach(submission => {
+                  const difficulty = problemDifficultyById.get(String(submission.problemId));
+                  if (difficulty === 'EASY') easyCount += 1;
+                  else if (difficulty === 'MEDIUM') mediumCount += 1;
+                  else if (difficulty === 'HARD') hardCount += 1;
+                });
+                setDifficultyCounts(easyCount, mediumCount, hardCount);
               }
             }
           } else {
@@ -933,30 +1436,34 @@
             if (inProgressCountElement) inProgressCountElement.textContent = ERROR_COUNT;
             setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
             setUsedLanguages([i18n.t('common.error')]);
+            allMineSubmissions = [];
+            renderMySubmissions([], undefined, { view: 'all' });
           }
         } catch (_error) {
           submissionsCountElement.textContent = ERROR_COUNT;
           if (inProgressCountElement) inProgressCountElement.textContent = ERROR_COUNT;
           setDifficultyCounts(ERROR_COUNT, ERROR_COUNT, ERROR_COUNT);
           setUsedLanguages([i18n.t('common.error')]);
+          allMineSubmissions = [];
+          showSubmissionsMessage('profile.couldNotReachServer');
         }
       }
 
       if (currentUser && currentUser.id && typeof api !== 'undefined') {
         try {
-          const createdProblems = await api.get(`/problems/by-author/${currentUser.id}`);
+          const createdProblems = normalizeApiList(await api.get(`/problems/by-author/${currentUser.id}`));
           if (Array.isArray(createdProblems)) {
             if (createdCountElement) createdCountElement.textContent = String(createdProblems.length);
             renderMyProblems(createdProblems);
           } else {
             if (createdCountElement) createdCountElement.textContent = ERROR_COUNT;
             const container = document.getElementById('my-problems-container');
-            if (container) container.innerHTML = '<p class="my-problems-empty">Could not load your problems.</p>';
+            if (container) container.innerHTML = `<p class="profile-empty">${getText('profile.couldNotLoadProblems')}</p>`;
           }
         } catch (_error) {
           if (createdCountElement) createdCountElement.textContent = ERROR_COUNT;
           const container = document.getElementById('my-problems-container');
-          if (container) container.innerHTML = '<p class="my-problems-empty">Could not reach the server.</p>';
+          if (container) container.innerHTML = `<p class="profile-empty">${getText('profile.couldNotReachServer')}</p>`;
         }
       }
     });

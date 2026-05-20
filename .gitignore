@@ -36,3 +36,7 @@ replay_pid*
 node_modules/
 playwright-report/
 test-results/
+src/backend/bin/main/db/
+src/backend/gradlew
+src/backend/gradlew.bat
+src/backend/gradle/wrapper/gradle-wrapper.properties

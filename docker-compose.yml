@@ -40,7 +40,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       JUDGE0_ENABLED: "true"
-      JUDGE0_BASE_URL: http://judge0-server:2358
+      #JUDGE0_BASE_URL: http://judge0-server:2358
+      JUDGE0_BASE_URL: https://ce.judge0.com # For testing in windows
       CODE_EXECUTION_QUEUE_ENABLED: "true"
     ports:
       - "10000:10000"
