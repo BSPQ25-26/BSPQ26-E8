@@ -40,7 +40,7 @@ public class IntegrationTest {
     @Container
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("app_db_test")
-            .withUsername("test")q
+            .withUsername("test")
             .withPassword("test");
 
     @DynamicPropertySource
