@@ -98,28 +98,28 @@
     if (data.statementMd) {
       sections.push(`
         <div class="solve-section">
-          <span class="solve-section-title">Description</span>
+          <span class="solve-section-title">${i18n.t('solve.descriptionTitle')}</span>
           <p class="solve-section-body">${esc(data.statementMd)}</p>
         </div>`);
     }
     if (data.inputSpecMd) {
       sections.push(`
         <div class="solve-section">
-          <span class="solve-section-title">Input</span>
+          <span class="solve-section-title">${i18n.t('solve.inputTitle')}</span>
           <p class="solve-section-body">${esc(data.inputSpecMd)}</p>
         </div>`);
     }
     if (data.outputSpecMd) {
       sections.push(`
         <div class="solve-section">
-          <span class="solve-section-title">Output</span>
+          <span class="solve-section-title">${i18n.t('solve.outputTitle')}</span>
           <p class="solve-section-body">${esc(data.outputSpecMd)}</p>
         </div>`);
     }
     if (data.constraintsMd) {
       sections.push(`
         <div class="solve-section">
-          <span class="solve-section-title">Constraints</span>
+          <span class="solve-section-title">${i18n.t('solve.constraintsTitle')}</span>
           <p class="solve-section-body">${esc(data.constraintsMd)}</p>
         </div>`);
     }
@@ -129,28 +129,28 @@
     if (Array.isArray(data.examples) && data.examples.length > 0) {
       const items = data.examples.map((ex, i) => `
         <div class="solve-example">
-          <div class="solve-example-label">Example ${i + 1}</div>
+          <div class="solve-example-label">${i18n.t('solve.example', { number: i + 1 })}</div>
           <div class="solve-example-row">
             <div class="solve-example-block">
-              <div class="solve-example-block-label">Input</div>
+              <div class="solve-example-block-label">${i18n.t('solve.inputLabel')}</div>
               <pre class="solve-example-code">${esc(ex.inputData)}</pre>
             </div>
             <div class="solve-example-block">
-              <div class="solve-example-block-label">Output</div>
+              <div class="solve-example-block-label">${i18n.t('solve.outputLabel')}</div>
               <pre class="solve-example-code">${esc(ex.expectedOutput)}</pre>
             </div>
           </div>
         </div>`).join('');
       problemEx.innerHTML = `<div class="solve-examples">${items}</div>`;
     } else {
-      problemEx.innerHTML = '<p class="solve-hints-empty">No examples available.</p>';
+      problemEx.innerHTML = `<p class="solve-hints-empty">${i18n.t('solve.noExamples')}</p>`;
     }
 
     /* Hints tab */
     if (data.hintsMd) {
       problemHints.innerHTML = `
         <div class="solve-section">
-          <span class="solve-section-title">Hints</span>
+          <span class="solve-section-title">${i18n.t('solve.hintsTitle')}</span>
           <p class="solve-section-body">${esc(data.hintsMd)}</p>
         </div>`;
     }
@@ -206,17 +206,24 @@
   btnClose.addEventListener('click', hideOutput);
 
   /* ── Run output renderer ── */
-  const STATUS_META = {
-    ACCEPTED:              { pill: 'accepted', label: 'Accepted' },
-    WRONG_ANSWER:          { pill: 'wrong',    label: 'Wrong Answer' },
-    RUNTIME_ERROR:         { pill: 'error',    label: 'Runtime Error' },
-    COMPILE_ERROR:         { pill: 'error',    label: 'Compile Error' },
-    TIME_LIMIT_EXCEEDED:   { pill: 'limit',    label: 'Time Limit Exceeded' },
-    MEMORY_LIMIT_EXCEEDED: { pill: 'limit',    label: 'Memory Limit Exceeded' },
-    INTERNAL_ERROR:        { pill: 'internal', label: 'Internal Error' },
-    QUEUED:                { pill: 'running',  label: 'Queued' },
-    RUNNING:               { pill: 'running',  label: 'Running' },
-  };
+  function getStatusMeta(status) {
+    const statusMap = {
+      ACCEPTED:              { pill: 'accepted', labelKey: 'solve.accepted' },
+      WRONG_ANSWER:          { pill: 'wrong',    labelKey: 'solve.wrongAnswer' },
+      RUNTIME_ERROR:         { pill: 'error',    labelKey: 'solve.runtimeError' },
+      COMPILE_ERROR:         { pill: 'error',    labelKey: 'solve.compileError' },
+      TIME_LIMIT_EXCEEDED:   { pill: 'limit',    labelKey: 'solve.timeLimitExceeded' },
+      MEMORY_LIMIT_EXCEEDED: { pill: 'limit',    labelKey: 'solve.memoryLimitExceeded' },
+      INTERNAL_ERROR:        { pill: 'internal', labelKey: 'solve.internalError' },
+      QUEUED:                { pill: 'running',  labelKey: 'solve.queued' },
+      RUNNING:               { pill: 'running',  labelKey: 'solve.runStatus' },
+    };
+    const meta = statusMap[status];
+    if (!meta) {
+      return { pill: 'internal', label: status || 'Unknown' };
+    }
+    return { pill: meta.pill, label: i18n.t(meta.labelKey) };
+  }
 
   function normalizeOutput(s) {
     return String(s == null ? '' : s)
@@ -261,7 +268,7 @@
 
   function renderRunSkeleton(language) {
     setRunMode(true);
-    outputStatus.textContent = 'Running';
+    outputStatus.textContent = i18n.t('solve.runStatus');
     outputStatus.className = 'solve-output-status running';
     outputPanel.style.display = 'flex';
     runMeta.textContent = `— ${language} · running…`;
@@ -270,12 +277,12 @@
     runPass.textContent = '—';
     runError.hidden = true;
     runError.textContent = '';
-    runCases.innerHTML = '<div class="run-output-empty">awaiting Judge0…</div>';
+    runCases.innerHTML = `<div class="run-output-empty">${i18n.t('solve.awaitingJudge')}</div>`;
   }
 
   function renderRunOutput(view, language) {
     setRunMode(true);
-    const meta = STATUS_META[view.status] || { pill: 'internal', label: view.status || 'Unknown' };
+    const meta = getStatusMeta(view.status);
     outputStatus.textContent = meta.label;
     outputStatus.className = `solve-output-status ${meta.pill}`;
     outputPanel.style.display = 'flex';
@@ -286,7 +293,7 @@
       runMem.textContent  = '—';
       runPass.textContent = '—';
       runCases.innerHTML = '';
-      runError.textContent = view.errorMessage || 'Execution failed';
+      runError.textContent = view.errorMessage || i18n.t('solve.executionFailed');
       runError.hidden = false;
       return;
     }
@@ -295,7 +302,8 @@
     runError.textContent = '';
 
     const cases = Array.isArray(view.testCases) ? view.testCases : [];
-    runMeta.textContent = `— ${language} · ${cases.length} case${cases.length === 1 ? '' : 's'}`;
+    const caseWord = cases.length === 1 ? i18n.t('solve.cases') : i18n.t('solve.cases') + 's';
+    runMeta.textContent = `— ${language} · ${cases.length} ${caseWord}`;
     runTime.textContent = view.runtimeMs != null ? `${view.runtimeMs} ms` : '—';
     runMem.textContent  = view.memoryMb  != null ? `${view.memoryMb} MB`  : '—';
     runPass.textContent = `${view.testcasesPassed} / ${view.testcasesTotal}`;
@@ -307,7 +315,7 @@
 
     const caseBlocks = cases.map((tc, i) => {
       const verdict     = caseVerdict(tc);
-      const verdictMeta = STATUS_META[verdict] || { label: verdict };
+      const verdictMeta = getStatusMeta(verdict);
       const pass        = verdict === 'ACCEPTED';
       const cls         = `run-case run-case--${pass ? 'pass' : 'fail'}`;
       const openAttr    = pass ? '' : 'open';
@@ -615,6 +623,14 @@
   /* ── Init ── */
   document.addEventListener('DOMContentLoaded', () => {
     loadProblem();
+  });
+
+  /* ── Re-render when language changes ── */
+  document.addEventListener('realcode:localechange', () => {
+    i18n.applyPage();
+    if (problemData) {
+      renderProblem(problemData);
+    }
   });
 
 })();
