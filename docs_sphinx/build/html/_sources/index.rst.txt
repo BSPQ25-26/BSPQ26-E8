@@ -1,21 +1,33 @@
 BSPQ26-E8 Documentation
 =======================
 
-This documentation describes the Sprint 3 status of **BSPQ26-E8**, a code execution
-platform with:
+**BSPQ26-E8** is a code execution platform for competitive programming. Users can:
 
-* A Spring Boot backend
-* A static frontend served by Nginx
-* PostgreSQL persistence
-* Judge0 integration for code execution
+* Register and authenticate
+* Create and manage coding problems
+* Submit source code for evaluation
+* Track submission status and results in real-time
+
+The platform integrates Judge0 for reliable code execution across multiple programming languages.
+
+Technology Stack
+----------------
+
+* **Backend:** Java 21, Spring Boot 3.3.x, Spring Data JPA, PostgreSQL
+* **Frontend:** HTML, CSS, JavaScript, Nginx
+* **Code Execution:** Judge0 with Redis caching
+* **Infrastructure:** Docker, Docker Compose, GitHub Actions
+* **Testing:** JUnit 5, Testcontainers, Playwright, k6 performance testing
 
 Navigation Guide
 ----------------
 
-* Start with :doc:`project_overview` for scope and stack.
-* Continue with :doc:`architecture` and :doc:`api_reference`.
-* Use :doc:`local_setup` for local execution and developer commands.
-* Check :doc:`testing_ci` and :doc:`sprint3_review` for delivery readiness.
+* Start with :doc:`project_overview` for full scope and architecture overview.
+* Explore :doc:`architecture` to understand core modules and request flows.
+* Use :doc:`api_reference` for backend API endpoints.
+* Follow :doc:`local_setup` to get the platform running locally.
+* Check :doc:`testing_ci` for testing commands and CI/CD workflows.
+* Review :doc:`sprint3_review` for GitHub Actions CI/CD setup details.
 
 .. toctree::
    :maxdepth: 2
@@ -23,8 +35,8 @@ Navigation Guide
 
    project_overview
    architecture
-   local_setup
    api_reference
+   local_setup
    testing_ci
    sprint3_review
 

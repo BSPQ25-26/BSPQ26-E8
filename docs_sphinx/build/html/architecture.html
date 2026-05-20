@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Architecture &#8212; BSPQ26-E8 1.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <script src="_static/documentation_options.js?v=f2a433a1"></script>
@@ -14,7 +14,7 @@
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Local Setup" href="local_setup.html" />
+    <link rel="next" title="API Reference (High Level)" href="api_reference.html" />
     <link rel="prev" title="Project Overview" href="project_overview.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -35,65 +35,180 @@
             
   <section id="architecture">
 <h1>Architecture<a class="headerlink" href="#architecture" title="Link to this heading">¶</a></h1>
-<section id="high-level-view">
-<h2>High-Level View<a class="headerlink" href="#high-level-view" title="Link to this heading">¶</a></h2>
-<p>The system follows a layered architecture around a REST API:</p>
-<ul class="simple">
-<li><p><strong>Controllers</strong> expose HTTP endpoints under <code class="docutils literal notranslate"><span class="pre">/api/**</span></code></p></li>
-<li><p><strong>Services</strong> implement business logic</p></li>
-<li><p><strong>Repositories</strong> provide data access via Spring Data JPA</p></li>
-<li><p><strong>Entities</strong> map domain concepts to PostgreSQL tables</p></li>
-</ul>
-</section>
-<section id="request-flow">
-<h2>Request Flow<a class="headerlink" href="#request-flow" title="Link to this heading">¶</a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Client -&gt; Controller -&gt; Service -&gt; Repository -&gt; PostgreSQL
-                       |
-                       +-&gt; CodeExecutionService -&gt; Judge0
+<section id="system-design">
+<h2>System Design<a class="headerlink" href="#system-design" title="Link to this heading">¶</a></h2>
+<p>BSPQ26-E8 follows a <strong>layered, service-oriented architecture</strong>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────────┐
+│          Frontend (Nginx/HTML/JS)           │
+│          (Port 3000)                        │
+└─────────┬───────────────────────────────────┘
+          │
+┌─────────▼───────────────────────────────────┐
+│       Spring Boot REST API                  │
+│       (Port 10000)                          │
+│  ┌─────────────────────────────────────┐   │
+│  │  Controllers (/api/*)               │   │
+│  ├─────────────────────────────────────┤   │
+│  │  Services (Business Logic)          │   │
+│  ├─────────────────────────────────────┤   │
+│  │  Repositories (Spring Data JPA)     │   │
+│  └─────────────────────────────────────┘   │
+└─────────┬───────────────┬───────────────────┘
+          │               │
+┌─────────▼──┐    ┌──────▼──────────────────┐
+│ PostgreSQL │    │   Judge0 Service        │
+│ (Database) │    │   (Code Execution)      │
+└────────────┘    │   - Server (2358)       │
+                  │   - Database            │
+                  │   - Redis Cache         │
+                  │   - Worker Processes    │
+                  └─────────────────────────┘
 </pre></div>
 </div>
 </section>
-<section id="main-backend-modules">
-<h2>Main Backend Modules<a class="headerlink" href="#main-backend-modules" title="Link to this heading">¶</a></h2>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">auth</span></code>: registration, login, token refresh, logout</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">user</span></code>: user profile queries</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">problem</span></code>: CRUD operations for coding problems</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">submission</span></code>: submission lifecycle and result tracking</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">codeexecution</span></code>: Judge0-oriented execution workflow</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">common</span></code>: shared web configuration and health endpoint</p></li>
+<section id="backend-core-modules">
+<h2>Backend Core Modules<a class="headerlink" href="#backend-core-modules" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt><strong>auth</strong> (Authentication &amp; Session Management)</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/auth/register</span></code> - User registration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/auth/login</span></code> - User login with JWT</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/auth/token/refresh</span></code> - Token refresh</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/auth/logout</span></code> - Logout</p></li>
 </ul>
+</dd>
+<dt><strong>user</strong> (User Profiles)</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/api/users/{id}</span></code> - Retrieve user profile</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/api/users</span></code> - List all users</p></li>
+<li><p>User information queries and management</p></li>
+</ul>
+</dd>
+<dt><strong>problem</strong> (Coding Problems)</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/problems</span></code> - Create problem</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/api/problems</span></code> - List all problems</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/api/problems/{id}</span></code> - Get problem details</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/api/problems/{id}</span></code> - Update problem</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/api/problems/{id}</span></code> - Delete problem</p></li>
+</ul>
+</dd>
+<dt><strong>submission</strong> (Code Submissions)</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/submissions</span></code> - Create submission</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/api/submissions</span></code> - List user submissions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/api/submissions/{id}</span></code> - Get submission details</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/api/submissions/{id}/resubmit</span></code> - Resubmit code</p></li>
+<li><p>Async result tracking and polling</p></li>
+</ul>
+</dd>
+<dt><strong>codeexecution</strong> (Judge0 Integration)</dt><dd><ul class="simple">
+<li><p>Submits code to Judge0 for compilation and execution</p></li>
+<li><p>Polls for execution status and results</p></li>
+<li><p>Handles language-specific configurations</p></li>
+<li><p>Manages timeouts and resource limits</p></li>
+</ul>
+</dd>
+<dt><strong>evaluator</strong> (Result Processing)</dt><dd><ul class="simple">
+<li><p>Processes Judge0 responses</p></li>
+<li><p>Determines submission success/failure</p></li>
+<li><p>Stores evaluation results in database</p></li>
+</ul>
+</dd>
+<dt><strong>workspace</strong> (User Workspaces)</dt><dd><ul class="simple">
+<li><p>User-specific problem and submission isolation</p></li>
+<li><p>Workspace management and queries</p></li>
+</ul>
+</dd>
+<dt><strong>common</strong> (Shared Infrastructure)</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">WebConfig</span></code> - CORS configuration for <code class="docutils literal notranslate"><span class="pre">/api/**</span></code> paths</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HealthController</span></code> - <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/api/health</span></code> health check endpoint</p></li>
+<li><p>Exception handling and global error responses</p></li>
+<li><p>Shared utilities and constants</p></li>
+</ul>
+</dd>
+</dl>
 </section>
-<section id="runtime-components">
-<h2>Runtime Components<a class="headerlink" href="#runtime-components" title="Link to this heading">¶</a></h2>
-<p>In <code class="docutils literal notranslate"><span class="pre">docker-compose.yml</span></code> the following services are defined:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">postgres</span></code> for the main application database</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">backend</span></code> (Spring Boot on port 10000)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">frontend</span></code> (Nginx on port 3000)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">performance</span></code> (k6 runner)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">judge0-db</span></code>, <code class="docutils literal notranslate"><span class="pre">judge0-server</span></code>, <code class="docutils literal notranslate"><span class="pre">judge0-redis</span></code>, <code class="docutils literal notranslate"><span class="pre">judge0-worker</span></code></p></li>
-</ul>
-</section>
-<section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h2>
-<p>The backend uses <code class="docutils literal notranslate"><span class="pre">application.yml</span></code> with environment-variable overrides for:</p>
-<ul class="simple">
-<li><p>Database URL, username, password</p></li>
-<li><p>Server port (default <code class="docutils literal notranslate"><span class="pre">10000</span></code>)</p></li>
-<li><p>Access-token secret</p></li>
-</ul>
-<p>Flyway is enabled for schema and seed migrations located in:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>src/backend/src/main/resources/db/migration
+<section id="request-flow-example-code-submission">
+<h2>Request Flow Example: Code Submission<a class="headerlink" href="#request-flow-example-code-submission" title="Link to this heading">¶</a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>1. Client (Frontend)
+   POST /api/submissions with code, problemId, languageId
+   │
+2. Spring Controller (SubmissionController)
+   Validates JWT token, extracts userId
+   │
+3. Service Layer (SubmissionService)
+   ├─ Creates Submission entity in database
+   ├─ Calls CodeExecutionService to queue execution
+   └─ Returns submission ID
+   │
+4. CodeExecutionService
+   Sends code to Judge0 API (external)
+   │
+5. Judge0 (External Service)
+   Compiles and executes code
+   Returns execution status, stdout, stderr, runtime
+   │
+6. PollingController (Frontend)
+   GET /api/submissions/{id}
+   │
+7. EvaluatorService
+   Processes Judge0 results
+   Updates Submission with final status
+   │
+8. Client receives final result
 </pre></div>
 </div>
 </section>
-<section id="design-notes">
-<h2>Design Notes<a class="headerlink" href="#design-notes" title="Link to this heading">¶</a></h2>
+<section id="database-schema">
+<h2>Database Schema<a class="headerlink" href="#database-schema" title="Link to this heading">¶</a></h2>
+<p>Core entities managed by Flyway migrations in <code class="docutils literal notranslate"><span class="pre">src/backend/src/main/resources/db/migration/</span></code>:</p>
 <ul class="simple">
-<li><p>CORS is centralized in <code class="docutils literal notranslate"><span class="pre">common/WebConfig</span></code> for <code class="docutils literal notranslate"><span class="pre">/api/**</span></code> paths.</p></li>
-<li><p>Health checks are exposed through <code class="docutils literal notranslate"><span class="pre">/api/health</span></code>.</p></li>
-<li><p>Authenticated operations use access-token extraction in controllers/services.</p></li>
+<li><p><strong>User</strong> - User accounts, credentials, profiles</p></li>
+<li><p><strong>Problem</strong> - Coding problems with descriptions, test cases, constraints</p></li>
+<li><p><strong>Submission</strong> - Code submissions with language, status, results</p></li>
+<li><p><strong>ExecutionResult</strong> - Judge0 response data, stdout, stderr</p></li>
+<li><p>And supporting entities for workspace, relationships, etc.</p></li>
+</ul>
+</section>
+<section id="external-service-integration">
+<h2>External Service Integration<a class="headerlink" href="#external-service-integration" title="Link to this heading">¶</a></h2>
+<p><strong>Judge0 Services</strong> (docker-compose defines these):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">judge0-db</span></code> (PostgreSQL 16.2) - Judge0 database</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">judge0-server</span></code> (Port 2358) - Judge0 API endpoint</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">judge0-redis</span></code> (Redis 7.2.4) - Result caching</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">judge0-worker</span></code> - Background execution workers</p></li>
+</ul>
+<p>The backend communicates with Judge0 via HTTP REST API at <code class="docutils literal notranslate"><span class="pre">https://ce.judge0.com</span></code> (or local <code class="docutils literal notranslate"><span class="pre">http://judge0-server:2358</span></code> in development).</p>
+</section>
+<section id="deployment-services">
+<h2>Deployment Services<a class="headerlink" href="#deployment-services" title="Link to this heading">¶</a></h2>
+<p>In <code class="docutils literal notranslate"><span class="pre">docker-compose.yml</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">postgres</span></code> - Main application database (PostgreSQL 16-alpine)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">backend</span></code> - Spring Boot application container</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">frontend</span></code> - Nginx serving static assets</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">performance</span></code> - k6 performance test runner</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">judge0-*</span></code> - Judge0 infrastructure services</p></li>
+</ul>
+</section>
+<section id="configuration-environment">
+<h2>Configuration &amp; Environment<a class="headerlink" href="#configuration-environment" title="Link to this heading">¶</a></h2>
+<p>Backend configuration (<code class="docutils literal notranslate"><span class="pre">application.yml</span></code>) is environment-aware:</p>
+<ul class="simple">
+<li><p>Database connection: <code class="docutils literal notranslate"><span class="pre">POSTGRES_DB</span></code>, <code class="docutils literal notranslate"><span class="pre">POSTGRES_USER</span></code>, <code class="docutils literal notranslate"><span class="pre">POSTGRES_PASSWORD</span></code></p></li>
+<li><p>Server port: <code class="docutils literal notranslate"><span class="pre">server.port</span></code> (default 10000)</p></li>
+<li><p>JWT secret: <code class="docutils literal notranslate"><span class="pre">app.security.jwt.secret</span></code></p></li>
+<li><p>Judge0 endpoint: <code class="docutils literal notranslate"><span class="pre">JUDGE0_BASE_URL</span></code> and <code class="docutils literal notranslate"><span class="pre">JUDGE0_ENABLED</span></code></p></li>
+<li><p>Queue settings: <code class="docutils literal notranslate"><span class="pre">CODE_EXECUTION_QUEUE_ENABLED</span></code></p></li>
+</ul>
+<p>All sensitive values are read from <code class="docutils literal notranslate"><span class="pre">.env</span></code> file at runtime.</p>
+</section>
+<section id="security-considerations">
+<h2>Security Considerations<a class="headerlink" href="#security-considerations" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Authentication:</strong> JWT bearer tokens in <code class="docutils literal notranslate"><span class="pre">Authorization:</span> <span class="pre">Bearer</span> <span class="pre">&lt;token&gt;</span></code> headers</p></li>
+<li><p><strong>CORS:</strong> Configured in <code class="docutils literal notranslate"><span class="pre">WebConfig</span></code> for frontend domain</p></li>
+<li><p><strong>Password Hashing:</strong> Spring Security with bcrypt</p></li>
+<li><p><strong>Database:</strong> Credentials injected at runtime, never hardcoded</p></li>
+<li><p><strong>Judge0 Isolation:</strong> Sandboxed execution prevents malicious code impact</p></li>
 </ul>
 </section>
 </section>
@@ -128,18 +243,20 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="project_overview.html">Project Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Architecture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#high-level-view">High-Level View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#request-flow">Request Flow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#main-backend-modules">Main Backend Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#runtime-components">Runtime Components</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#design-notes">Design Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#system-design">System Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#backend-core-modules">Backend Core Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#request-flow-example-code-submission">Request Flow Example: Code Submission</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#database-schema">Database Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#external-service-integration">External Service Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deployment-services">Deployment Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-environment">Configuration &amp; Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#security-considerations">Security Considerations</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="local_setup.html">Local Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference (High Level)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="testing_ci.html">Testing and CI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sprint3_review.html">Sprint 3 Review Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="local_setup.html">Local Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing_ci.html">Testing and CI/CD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sprint3_review.html">GitHub Actions Workflows</a></li>
 </ul>
 
 <div class="relations">
@@ -147,7 +264,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="project_overview.html" title="previous chapter">Project Overview</a></li>
-      <li>Next: <a href="local_setup.html" title="next chapter">Local Setup</a></li>
+      <li>Next: <a href="api_reference.html" title="next chapter">API Reference (High Level)</a></li>
   </ul></li>
 </ul>
 </div>

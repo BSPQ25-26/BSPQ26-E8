@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>BSPQ26-E8 Documentation &#8212; BSPQ26-E8 1.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <script src="_static/documentation_options.js?v=f2a433a1"></script>
@@ -34,50 +34,54 @@
             
   <section id="bspq26-e8-documentation">
 <h1>BSPQ26-E8 Documentation<a class="headerlink" href="#bspq26-e8-documentation" title="Link to this heading">¶</a></h1>
-<p>This documentation describes the Sprint 3 status of <strong>BSPQ26-E8</strong>, a code execution
-platform with:</p>
+<p><strong>BSPQ26-E8</strong> is a code execution platform for competitive programming. Users can:</p>
 <ul class="simple">
-<li><p>A Spring Boot backend</p></li>
-<li><p>A static frontend served by Nginx</p></li>
-<li><p>PostgreSQL persistence</p></li>
-<li><p>Judge0 integration for code execution</p></li>
+<li><p>Register and authenticate</p></li>
+<li><p>Create and manage coding problems</p></li>
+<li><p>Submit source code for evaluation</p></li>
+<li><p>Track submission status and results in real-time</p></li>
 </ul>
+<p>The platform integrates Judge0 for reliable code execution across multiple programming languages.</p>
+<section id="technology-stack">
+<h2>Technology Stack<a class="headerlink" href="#technology-stack" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Backend:</strong> Java 21, Spring Boot 3.3.x, Spring Data JPA, PostgreSQL</p></li>
+<li><p><strong>Frontend:</strong> HTML, CSS, JavaScript, Nginx</p></li>
+<li><p><strong>Code Execution:</strong> Judge0 with Redis caching</p></li>
+<li><p><strong>Infrastructure:</strong> Docker, Docker Compose, GitHub Actions</p></li>
+<li><p><strong>Testing:</strong> JUnit 5, Testcontainers, Playwright, k6 performance testing</p></li>
+</ul>
+</section>
 <section id="navigation-guide">
 <h2>Navigation Guide<a class="headerlink" href="#navigation-guide" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>Start with <a class="reference internal" href="project_overview.html"><span class="doc">Project Overview</span></a> for scope and stack.</p></li>
-<li><p>Continue with <a class="reference internal" href="architecture.html"><span class="doc">Architecture</span></a> and <a class="reference internal" href="api_reference.html"><span class="doc">API Reference (High Level)</span></a>.</p></li>
-<li><p>Use <a class="reference internal" href="local_setup.html"><span class="doc">Local Setup</span></a> for local execution and developer commands.</p></li>
-<li><p>Check <a class="reference internal" href="testing_ci.html"><span class="doc">Testing and CI</span></a> and <a class="reference internal" href="sprint3_review.html"><span class="doc">Sprint 3 Review Guide</span></a> for delivery readiness.</p></li>
+<li><p>Start with <a class="reference internal" href="project_overview.html"><span class="doc">Project Overview</span></a> for full scope and architecture overview.</p></li>
+<li><p>Explore <a class="reference internal" href="architecture.html"><span class="doc">Architecture</span></a> to understand core modules and request flows.</p></li>
+<li><p>Use <a class="reference internal" href="api_reference.html"><span class="doc">API Reference (High Level)</span></a> for backend API endpoints.</p></li>
+<li><p>Follow <a class="reference internal" href="local_setup.html"><span class="doc">Local Setup</span></a> to get the platform running locally.</p></li>
+<li><p>Check <a class="reference internal" href="testing_ci.html"><span class="doc">Testing and CI/CD</span></a> for testing commands and CI/CD workflows.</p></li>
+<li><p>Review <a class="reference internal" href="sprint3_review.html"><span class="doc">GitHub Actions Workflows</span></a> for GitHub Actions CI/CD setup details.</p></li>
 </ul>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="project_overview.html">Project Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="project_overview.html#goal">Goal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="project_overview.html#scope-for-sprint-3">Scope for Sprint 3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_overview.html#purpose">Purpose</a></li>
 <li class="toctree-l2"><a class="reference internal" href="project_overview.html#technology-stack">Technology Stack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="project_overview.html#quality-and-engineering-practices">Quality and Engineering Practices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="project_overview.html#repository-structure">Repository Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_overview.html#core-features">Core Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_overview.html#quality-assurance">Quality Assurance</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="architecture.html#high-level-view">High-Level View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture.html#request-flow">Request Flow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture.html#main-backend-modules">Main Backend Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture.html#runtime-components">Runtime Components</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture.html#configuration">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture.html#design-notes">Design Notes</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="local_setup.html">Local Setup</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="local_setup.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="local_setup.html#option-1-run-full-stack-with-docker-compose">Option 1: Run Full Stack with Docker Compose</a></li>
-<li class="toctree-l2"><a class="reference internal" href="local_setup.html#option-2-run-backend-with-gradle">Option 2: Run Backend with Gradle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="local_setup.html#option-3-run-frontend-with-nginx-container">Option 3: Run Frontend with Nginx Container</a></li>
-<li class="toctree-l2"><a class="reference internal" href="local_setup.html#environment-variables">Environment Variables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="local_setup.html#sphinx-build-commands">Sphinx Build Commands</a></li>
-<li class="toctree-l2"><a class="reference internal" href="local_setup.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#system-design">System Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#backend-core-modules">Backend Core Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#request-flow-example-code-submission">Request Flow Example: Code Submission</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#database-schema">Database Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#external-service-integration">External Service Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#deployment-services">Deployment Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#configuration-environment">Configuration &amp; Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#security-considerations">Security Considerations</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference (High Level)</a><ul>
@@ -91,17 +95,35 @@ platform with:</p>
 <li class="toctree-l2"><a class="reference internal" href="api_reference.html#common-response-patterns">Common Response Patterns</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="testing_ci.html">Testing and CI</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="testing_ci.html#backend-test-commands">Backend Test Commands</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testing_ci.html#frontend-tests">Frontend Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testing_ci.html#ci-workflows-in-repository">CI Workflows in Repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testing_ci.html#jenkins-requirement">Jenkins Requirement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="local_setup.html">Local Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="local_setup.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="local_setup.html#quick-start-full-stack-with-docker-compose">Quick Start: Full Stack with Docker Compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="local_setup.html#option-run-backend-standalone-with-gradle">Option: Run Backend Standalone with Gradle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="local_setup.html#option-run-frontend-standalone-with-nginx">Option: Run Frontend Standalone with Nginx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="local_setup.html#environment-variables">Environment Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="local_setup.html#building-sphinx-documentation">Building Sphinx Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="local_setup.html#common-development-workflows">Common Development Workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="local_setup.html#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="sprint3_review.html">Sprint 3 Review Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sprint3_review.html#mandatory-review-points">Mandatory Review Points</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sprint3_review.html#submission-oriented-checklist">Submission-Oriented Checklist</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sprint3_review.html#documentation-deliverables">Documentation Deliverables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing_ci.html">Testing and CI/CD</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="testing_ci.html#backend-testing">Backend Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_ci.html#frontend-testing">Frontend Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_ci.html#github-actions-ci-workflows">GitHub Actions CI Workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_ci.html#performance-testing">Performance Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_ci.html#test-execution-in-ci">Test Execution in CI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_ci.html#continuous-integration-practices">Continuous Integration Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_ci.html#best-practices-for-testing">Best Practices for Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sprint3_review.html">GitHub Actions Workflows</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sprint3_review.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sprint3_review.html#backend-workflows">Backend Workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sprint3_review.html#documentation-workflow">Documentation Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sprint3_review.html#workflow-execution-flow">Workflow Execution Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sprint3_review.html#key-features">Key Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sprint3_review.html#viewing-workflow-results">Viewing Workflow Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sprint3_review.html#best-practices">Best Practices</a></li>
 </ul>
 </li>
 </ul>
@@ -139,10 +161,10 @@ platform with:</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="project_overview.html">Project Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="local_setup.html">Local Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference (High Level)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="testing_ci.html">Testing and CI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sprint3_review.html">Sprint 3 Review Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="local_setup.html">Local Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing_ci.html">Testing and CI/CD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sprint3_review.html">GitHub Actions Workflows</a></li>
 </ul>
 
 <div class="relations">
