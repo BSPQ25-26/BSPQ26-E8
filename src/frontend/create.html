@@ -48,33 +48,19 @@
         <div class="card">
           <div class="section-header">
             <h3 class="section-title" data-i18n="create.examples">Examples</h3>
-            <button type="button" class="btn-secondary btn-sm">+ Add</button>
           </div>
-          <div class="example-box">
-            <div class="form-group">
-              <input class="form-input" type="text" placeholder="Input (e.g. nums = [2,7,11,15], target = 9)" data-i18n-placeholder="create.inputPlaceholder" />
-            </div>
-            <div class="form-group">
-              <input class="form-input" type="text" placeholder="Output (e.g. [0,1])" data-i18n-placeholder="create.outputPlaceholder" />
-            </div>
-            <div class="form-group">
-              <input class="form-input" type="text" placeholder="Explanation (optional)" data-i18n-placeholder="create.explanationPlaceholder" />
+          <div id="examples-container">
+            <div class="example-box" data-example>
+              <div class="form-group">
+                <textarea class="form-textarea" data-example-input placeholder="Input (e.g. nums = [2,7,11,15], target = 9)" data-i18n-placeholder="create.inputPlaceholder"></textarea>
+              </div>
+              <div class="form-group">
+                <textarea class="form-textarea" data-example-output placeholder="Output (e.g. [0,1])" data-i18n-placeholder="create.outputPlaceholder"></textarea>
+              </div>
+              <div class="form-group">
+                <input class="form-input" type="text" data-example-explanation placeholder="Explanation (optional)" data-i18n-placeholder="create.explanationPlaceholder" />
 
-            </div>
-          </div>
-        </div>
-
-        <div class="card card--blue">
-          <div class="section-header">
-            <h3 class="section-title" data-i18n="create.testCases">Test cases</h3>
-            <button type="button" class="btn-secondary btn-sm">+ Add</button>
-          </div>
-          <div class="grid-row grid-1-1">
-            <div class="form-group">
-              <input class="form-input" type="text" placeholder="Input" data-i18n-placeholder="create.testInputPlaceholder" />
-            </div>
-            <div class="form-group">
-              <input class="form-input" type="text" placeholder="Expected Output" data-i18n-placeholder="create.testOutputPlaceholder" />
+              </div>
             </div>
           </div>
         </div>

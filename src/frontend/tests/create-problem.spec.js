@@ -301,6 +301,8 @@ test.describe('Problem creation flow', () => {
     await page.fill('#statementMd',      'Given an array of integers, return indices of the two numbers that add up to a target.');
     await page.fill('#constraintsMd',    '2 <= nums.length <= 10^4');
     await page.fill('#solutionTemplate', 'def two_sum(nums, target):\n    pass');
+    await page.fill('[data-example-input]', '4\n2 7 11 15\n9');
+    await page.fill('[data-example-output]', '0 1');
     await page.selectOption('#difficulty', 'EASY');
     await page.click('#submit-btn');
 
@@ -312,6 +314,12 @@ test.describe('Problem creation flow', () => {
     expect(capturedBody.constraintsMd).toBe('2 <= nums.length <= 10^4');
     expect(capturedBody.solutionTemplate).toBe('def two_sum(nums, target):\n    pass');
     expect(capturedBody.difficulty).toBe('EASY');
+    expect(capturedBody.examples).toEqual([
+      {
+        inputData: '4\n2 7 11 15\n9',
+        expectedOutput: '0 1',
+      },
+    ]);
 
     // Fields that have no input element in create.html are submitted as null
     expect(capturedBody.slug).toBeNull();
