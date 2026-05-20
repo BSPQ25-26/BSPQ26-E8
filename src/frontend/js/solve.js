@@ -54,6 +54,27 @@
     hints:       tabHints,
   };
 
+  const TAB_LABEL_KEYS = {
+    description: 'solve.tabDescription',
+    examples:    'solve.tabExamples',
+    hints:       'solve.tabHints',
+  };
+
+  function getText(key, params) {
+    return typeof i18n !== 'undefined' ? i18n.t(key, params) : key;
+  }
+
+  function syncStaticTranslations() {
+    if (typeof i18n !== 'undefined') {
+      i18n.applyPage();
+    }
+
+    tabButtons.forEach((btn) => {
+      const key = TAB_LABEL_KEYS[btn.dataset.tab];
+      if (key) btn.textContent = getText(key);
+    });
+  }
+
   tabButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
       tabButtons.forEach((b) => b.classList.remove('is-active'));
@@ -621,13 +642,20 @@
   }
 
   /* ── Init ── */
-  document.addEventListener('DOMContentLoaded', () => {
+  function initSolvePage() {
+    syncStaticTranslations();
     loadProblem();
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSolvePage, { once: true });
+  } else {
+    initSolvePage();
+  }
 
   /* ── Re-render when language changes ── */
   document.addEventListener('realcode:localechange', () => {
-    i18n.applyPage();
+    syncStaticTranslations();
     if (problemData) {
       renderProblem(problemData);
     }
