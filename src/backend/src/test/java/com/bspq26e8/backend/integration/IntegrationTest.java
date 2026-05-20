@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +25,8 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -34,10 +35,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Tag("integration")
 public class IntegrationTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationTest.class);
+
     @Container
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("app_db_test")
-            .withUsername("test")
+            .withUsername("test")q
             .withPassword("test");
 
     @DynamicPropertySource
@@ -63,36 +66,43 @@ public class IntegrationTest {
         String username = "user_" + suffix;
         String password = "password123";
 
+        LOGGER.info("Starting integration flow: user={}, problemSuffix={}", username, suffix);
         registerUser(email, username, password);
         String accessToken = loginUser(email, password);
         String problemId = createProblem(accessToken, suffix);
         assertProblemListed(problemId);
-        createSubmission(accessToken,problemId,1);
+        createSubmission(accessToken, problemId, 1);
         deleteProblem(accessToken, problemId);
+        LOGGER.info("Completed integration flow: user={}, problemId={}", username, problemId);
     }
 
     private void registerUser(String email, String username, String password) {
+        LOGGER.info("Registering user: username={}, email={}", username, email);
         ResponseEntity<Map> response = restTemplate.postForEntity(
                 url("/api/auth/register"),
                 Map.of("email", email, "username", username, "password", password),
                 Map.class
         );
 
+        LOGGER.info("Register response: status={}", response.getStatusCode());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     }
 
     private String loginUser(String email, String password) {
+        LOGGER.info("Logging in user: email={}", email);
         ResponseEntity<Map> response = restTemplate.postForEntity(
                 url("/api/auth/login"),
                 Map.of("email", email, "password", password),
                 Map.class
         );
 
+        LOGGER.info("Login response: status={}", response.getStatusCode());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
 
         String accessToken = (String) response.getBody().get("accessToken");
         assertThat(accessToken).isNotBlank();
+        LOGGER.info("Login token received: {} chars", accessToken.length());
         return accessToken;
     }
 
@@ -113,6 +123,7 @@ public class IntegrationTest {
                 "languageCompilationConfig", "{}"
         );
 
+        LOGGER.info("Creating problem: slug={}", problemRequest.get("slug"));
         ResponseEntity<Map> response = restTemplate.exchange(
                 url("/api/problems"),
                 HttpMethod.POST,
@@ -120,15 +131,18 @@ public class IntegrationTest {
                 Map.class
         );
 
+        LOGGER.info("Create problem response: status={}", response.getStatusCode());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
 
         String problemId = (String) response.getBody().get("id");
         assertThat(problemId).isNotBlank();
+        LOGGER.info("Problem created: id={}", problemId);
         return problemId;
     }
 
     private void assertProblemListed(String problemId) {
+        LOGGER.info("Listing problems to find id={}", problemId);
         ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
                 url("/api/problems"),
                 HttpMethod.GET,
@@ -137,6 +151,7 @@ public class IntegrationTest {
                 }
         );
 
+        LOGGER.info("List problems response: status={}", response.getStatusCode());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody())
@@ -147,6 +162,7 @@ public class IntegrationTest {
         HttpHeaders authHeaders = new HttpHeaders();
         authHeaders.setBearerAuth(accessToken);
 
+        LOGGER.info("Deleting problem: id={}", problemId);
         ResponseEntity<Void> response = restTemplate.exchange(
                 url("/api/problems/" + problemId),
                 HttpMethod.DELETE,
@@ -154,6 +170,7 @@ public class IntegrationTest {
                 Void.class
         );
 
+        LOGGER.info("Delete problem response: status={}", response.getStatusCode());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
@@ -162,7 +179,7 @@ public class IntegrationTest {
         HttpHeaders authHeaders = new HttpHeaders();
         authHeaders.setBearerAuth(accessToken);
 
-
+        LOGGER.info("Creating submission: problemId={}, languageId={}", problemId, languageId);
         ResponseEntity<Map> response = restTemplate.exchange(
                 url("/api/submissions"),
                 HttpMethod.POST,
@@ -173,14 +190,10 @@ public class IntegrationTest {
                 ), authHeaders), Map.class
         );
 
+        LOGGER.info("Create submission response: status={}", response.getStatusCode());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().get("status")).isEqualTo("QUEUED");
-
-
-
-
-
     }
 
 
