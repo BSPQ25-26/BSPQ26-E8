@@ -67,7 +67,6 @@ Base path: ``/api/submissions``
 * ``GET /problem/{problemId}`` - submissions for one problem
 * ``GET /problem/{problemId}/best`` - best user submission for problem
 * ``PUT /{submissionId}`` - update submission
-* ``POST /{submissionId}/resubmit`` - create new submission from previous one
 * ``DELETE /{submissionId}`` - delete submission
 
 Health
