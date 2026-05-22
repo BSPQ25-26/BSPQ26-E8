@@ -66,6 +66,25 @@ async function mockBackend(page, initialProblems = [], userId = 'u-1') {
       return;
     }
 
+    // ── Problem examples (edit.js issues PUT alongside the main update) ────
+    const examplesMatch = pathname.match(/^\/api\/problems\/([^/]+)\/examples$/);
+    if (method === 'PUT' && examplesMatch) {
+      const id  = examplesMatch[1];
+      const idx = state.problems.findIndex((p) => p.id === id);
+      if (idx === -1) {
+        await route.fulfill({ status: 404, contentType: 'application/json', body: '{}' });
+        return;
+      }
+      const body = JSON.parse(request.postData() || '[]');
+      state.problems[idx] = { ...state.problems[idx], examples: body };
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(state.problems[idx].examples),
+      });
+      return;
+    }
+
     // ── Problem detail / update / delete ───────────────────────────────────
     const detailMatch = pathname.match(/^\/api\/problems\/([^/]+)$/);
     if (detailMatch) {
